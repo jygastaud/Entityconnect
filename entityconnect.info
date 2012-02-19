@@ -1,1 +1,4 @@
 name = Entityconnect
+description = Allows for referenced entity to be created and edited from the node reference field
+core = "7.x"
+dependencies[] = entityreference
