@@ -15,20 +15,20 @@ function entityconnect_menu() {
       'page callback' => 'entityconnect_return',
       'page arguments' => array(3),
       'access callback' => TRUE,
-      'file' => 'entityconnect.menu.inc'
+      'file' => 'includes/entityconnect.menu.inc'
     ),
     'admin/entityconnect/edit/%' => array(
       'page callback' => 'entityconnect_edit',
       'page arguments' => array(3),
       'access callback' => TRUE,
-      'file' => 'entityconnect.menu.inc'
+      'file' => 'includes/entityconnect.menu.inc'
     ),
     'admin/entityconnect/add/%' => array(
       'title' => "Choose node type to create and add",
       'page callback' => 'entityconnect_add',
       'page arguments' => array(3),
       'access callback' => TRUE,
-      'file' => 'entityconnect.menu.inc'
+      'file' => 'includes/entityconnect.menu.inc'
     )
   );
 
@@ -53,7 +53,7 @@ function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_s
  * inc file
  */
 function entityconnect_include_form() {
-  module_load_include("inc", "entityconnect", "entityconnect.form");
+  module_load_include("inc", "entityconnect", "includes/entityconnect.form");
 }
 /*
  * implements of hook_form_node_form_alter()
@@ -89,7 +89,7 @@ function entityconnect_form_node_form_alter(&$form, &$form_state, $form_id) {
   // so this will get cuaght in the rebuild
   if (isset($form_state['#entityconnect_child_form'])) {
     $cache = $form_state['#entityconnect_child_form'];
-    module_load_include('inc', 'entityconnect', 'entityconnect.form');
+    module_load_include('inc', 'entityconnect', 'includes/entityconnect.form');
     entityconnect_child_node_form_alter($form, $form_state, $form_id, $cache->cid, $cache);
   }
 }
