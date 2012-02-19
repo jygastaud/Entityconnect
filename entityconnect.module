@@ -32,7 +32,7 @@
     )
   );
 
-} */
+} */ 
 
 /*
  * implements of hook_field_attach_form()
@@ -130,8 +130,8 @@ function entityconnect_form_alter(&$form, $form_state, $form_id) {
 
       if ($field['type'] == 'entityreference') {
         
-        $entity_reference_info = entityreference_get_handler($field);
-        $entity_type = $entity_reference_info->field['settings']['target_type'];
+        $entity_reference_info = entityreference_get_selection_handler($field);
+        $entity_type = $entity_reference_info->getReferencableEntities();
         
         $link = '';
         if ($entity_type == 'node') {
