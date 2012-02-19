@@ -31,7 +31,8 @@ function entityconnect_add($cache_id) {
   $content = array();
   $cache = cache_get($cache_id);
   $field = field_info_field($cache->data['field']);
-  $acceptable_types = $field['settings']['referenceable_types'];
+  //$acceptable_types = $field['settings']['referencable_types'];
+  $acceptable_types = entityreference_get_selection_handler($field, $instance)->getReferencableEntities();
   foreach (system_admin_menu_block(menu_get_item("node/add")) as $key => $item) {
     $type = str_replace("-", '_', str_replace("node/add/", "", $item['path']));
     if (isset($acceptable_types[$type]) && $acceptable_types[$type]) {
