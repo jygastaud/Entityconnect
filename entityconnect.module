@@ -131,7 +131,7 @@ function entityconnect_form_alter(&$form, $form_state, $form_id) {
       if ($field['type'] == 'entityreference') {
         
         $entity_reference_info = entityreference_get_selection_handler($field);
-        $entity_type = $entity_reference_info->getReferencableEntities();
+        $entity_type = $entity_reference_info->field['settings']['target_type'];
         
         $link = '';
         if ($entity_type == 'node') {
