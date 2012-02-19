@@ -31,10 +31,10 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
         '#weight' => -2,
         '#attached' => array(
           'js' => array(
-            drupal_get_path('module', 'entityconnect') . "/entityconnect.js",
+            drupal_get_path('module', 'entityconnect') . "theme/js/entityconnect.js",
           ),
           'css' => array(
-            drupal_get_path('module', 'entityconnect') . "/entityconnect.css",
+            drupal_get_path('module', 'entityconnect') . "theme/css/entityconnect.css",
           ),
         ),
       );
