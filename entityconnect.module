@@ -9,7 +9,7 @@
 /*
  * implements of hook_menu()
  */
-function entityconnect_menu() {
+/* function entityconnect_menu() {
   return array(
     'admin/entityconnect/return/%' => array(
       'page callback' => 'entityconnect_return',
@@ -32,19 +32,19 @@ function entityconnect_menu() {
     )
   );
 
-}
+} */
 
 /*
- * implements of hook_field_attache_form()
+ * implements of hook_field_attach_form()
  */
-function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode) {
+/* function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode) {
   foreach (_entityconnect_get_ref_fields() as $field_name => $field) {
     if (isset($form[$field_name])) {
       entityconnect_include_form();
       _entityconnect_field_attach_form($entity_type, $entity, $form, $form_state, $langcode, $field_name, $field);
     }
   }
-}
+} */
 
 /*
  * entityconnect_include_form() includes the form inc file
@@ -52,9 +52,9 @@ function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_s
  * This can be used in #submit array before the sumbit functions which are located in the
  * inc file
  */
-function entityconnect_include_form() {
+/* function entityconnect_include_form() {
   module_load_include("inc", "entityconnect", "includes/entityconnect.form");
-}
+} */
 /*
  * implements of hook_form_node_form_alter()
  *
@@ -63,7 +63,7 @@ function entityconnect_include_form() {
  * TODO: need to move this at somepoint so it can be with any entity
  *
  */
-function entityconnect_form_node_form_alter(&$form, &$form_state, $form_id) {
+/* function entityconnect_form_node_form_alter(&$form, &$form_state, $form_id) {
   $child = isset($_REQUEST['child']);
 
   // We can get the cid two different ways
@@ -92,12 +92,12 @@ function entityconnect_form_node_form_alter(&$form, &$form_state, $form_id) {
     module_load_include('inc', 'entityconnect', 'includes/entityconnect.form');
     entityconnect_child_node_form_alter($form, $form_state, $form_id, $cache->cid, $cache);
   }
-}
+} */
 
 /*
  * _entityconnect_get_ref_fields is a helper function to retieve all node_reference_fields
  */
-function _entityconnect_get_ref_fields() {
+/* function _entityconnect_get_ref_fields() {
   $ref_fields = array();
   foreach (field_info_fields() as $id => $field) {
     if ($field['type'] == 'node_reference') {
@@ -105,5 +105,56 @@ function _entityconnect_get_ref_fields() {
     }
   }
   return $ref_fields;
+} */
+
+
+/**
+* Implementation of hook_form_alter().
+*/
+function entityconnect_form_alter(&$form, $form_state, $form_id) {
+  
+  /*
+   * Alter the node form to group things more intuitively
+   */
+  
+  
+  if (strpos($form_id, '_node_form') !== FALSE) {
+
+    $fields_names = array();
+    $instances = field_info_instances('node', $form['#node']->type);
+    
+    foreach ($instances as $instance) {
+      
+      $field_name = $instance['field_name'];
+      $field = field_info_field($field_name);
+
+      if ($field['type'] == 'entityreference') {
+        
+        $entity_reference_info = entityreference_get_handler($field);
+        $entity_type = $entity_reference_info->field['settings']['target_type'];
+        
+        $link = '';
+        if ($entity_type == 'node') {
+          /*$bundles = array_values($entity_reference_info->field['settings']['handler_settings']['target_bundles']);
+          $bundle = $bundles[0];*/
+          $link = l(t('Add new element'), 'node/add', array('attributes' => array('target' => '_blank')));
+        }//if()
+        elseif ($entity_type == 'user') {
+          $link = l(t('Add new element'), 'admin/people/create', array('attributes' => array('target' => '_blank')));
+        }//elseif()
+        
+        if ($link) {
+          if ($form[$field['field_name']][$form['#node']->language]['#cardinality'] == 1) {
+            $form[$field['field_name']][$form['#node']->language][0]['target_id']['#title'] .= '<span class="padl">' . $link . '</span>';
+          } else {
+            $form[$field['field_name']][$form['#node']->language]['#title'] .= '<span class="padl" style="float: right">' . $link . '</span>';
+          }
+        }//if()
+      }//if()
+      
+    }//foreach()
+    
+  }//if()
+  
 }
 
