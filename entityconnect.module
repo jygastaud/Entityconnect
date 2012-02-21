@@ -152,18 +152,20 @@ function entityconnect_form_alter(&$form, $form_state, $form_id) {
             if(count($bundles) == 1) {        
               $bundle = $bundles[0];
               //dpm($bundles);
-              $link = l(t('Add new element'), '' .$entity_type .'/add/' . $bundle .'', array('attributes' => array('target' => '_blank')));    
+              
+              $link = l(t('Add new @bundle', array('@bundle' => $bundle)), '' .$entity_type .'/add/' . $bundle .'', array('attributes' => array('target' => '_blank')));    
             } 
             elseif(count($bundles) == 0) {        
-              $link = l(t('Add new element'), '' .$entity_type .'/add', array('attributes' => array('target' => '_blank')));    
+              $link = l(t('Add new @entitytype', array('@entitytype' => $entity_type)), '' .$entity_type .'/add', array('attributes' => array('target' => '_blank')));    
             }
             elseif (count($bundles) > 1) {
-                //DO SOMETHING
+              //update to have a generic list which will be construct with allowed values
+              $link = l(t('Add new @entitytype', array('@entitytype' => $entity_type)), '' .$entity_type .'/add', array('attributes' => array('target' => '_blank')));    
             }
           
         }//if()
         elseif ($entity_type == 'user') {
-          $link = l(t('Add new element'), 'admin/people/create', array('attributes' => array('target' => '_blank')));
+          $link = l(t('Add new @entitytype', array('@entitytype' => $entity_type)), 'admin/people/create', array('attributes' => array('target' => '_blank')));
         }//elseif()
        
         if ($link) {
