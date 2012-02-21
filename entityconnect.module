@@ -130,19 +130,42 @@ function entityconnect_form_alter(&$form, $form_state, $form_id) {
 
       if ($field['type'] == 'entityreference') {
         
+          
         $entity_reference_info = entityreference_get_selection_handler($field);
         $entity_type = $entity_reference_info->field['settings']['target_type'];
-        
+        dpm($entity_reference_info);
         $link = '';
+        
+        /*
+         * Currently work for Node and User.
+         *  
+         * TO DO:
+         * Try to generalize for many entities know as Commerce product
+         * Integrate modules which implement entity creation as Entity Form
+         * 
+         */    
+         
         if ($entity_type == 'node') {
-          /*$bundles = array_values($entity_reference_info->field['settings']['handler_settings']['target_bundles']);
-          $bundle = $bundles[0];*/
-          $link = l(t('Add new element'), 'node/add', array('attributes' => array('target' => '_blank')));
+          
+            $bundles = array_values($entity_reference_info->field['settings']['handler_settings']['target_bundles']);
+
+            if(count($bundles) == 1) {        
+              $bundle = $bundles[0];
+              //dpm($bundles);
+              $link = l(t('Add new element'), '' .$entity_type .'/add/' . $bundle .'', array('attributes' => array('target' => '_blank')));    
+            } 
+            elseif(count($bundles) == 0) {        
+              $link = l(t('Add new element'), '' .$entity_type .'/add', array('attributes' => array('target' => '_blank')));    
+            }
+            elseif (count($bundles) > 1) {
+                //DO SOMETHING
+            }
+          
         }//if()
         elseif ($entity_type == 'user') {
           $link = l(t('Add new element'), 'admin/people/create', array('attributes' => array('target' => '_blank')));
         }//elseif()
-        
+       
         if ($link) {
           if ($form[$field['field_name']][$form['#node']->language]['#cardinality'] == 1) {
             $form[$field['field_name']][$form['#node']->language][0]['target_id']['#title'] .= '<span class="padl">' . $link . '</span>';
