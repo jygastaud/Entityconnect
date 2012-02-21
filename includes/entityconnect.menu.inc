@@ -31,21 +31,36 @@ function entityconnect_add($cache_id) {
   $content = array();
   $cache = cache_get($cache_id);
   $field = field_info_field($cache->data['field']);
-  //$acceptable_types = $field['settings']['referenceable_types'];
-  $acceptable_types = entityreference_get_selection_handler($field, $instance)->getReferencableEntities();
-  foreach (system_admin_menu_block(menu_get_item("node/add")) as $key => $item) {
-    $type = str_replace("-", '_', str_replace("node/add/", "", $item['path']));
-    if (isset($acceptable_types[$type]) && $acceptable_types[$type]) {
-      $item['href'] = $item['href'] . "/$cache_id";
-      $content[$key] = $item;
+  
+  $entity_reference_info = entityreference_get_selection_handler($field);
+  $entity_type = $entity_reference_info->field['settings']['target_type'];
+
+  // We get bundles referenced
+  $acceptable_types = $entity_reference_info->field['settings']['handler_settings']['target_bundles'];
+
+  if ($entity_type == 'node') {
+  
+    foreach (system_admin_menu_block(menu_get_item("node/add")) as $key => $item) {
+      $type = str_replace("-", '_', str_replace("node/add/", "", $item['path']));
+      if (isset($acceptable_types[$type]) && $acceptable_types[$type]) {
+        $item['href'] = $item['href'] . "/$cache_id";
+        $content[$key] = $item;
+      }
     }
-  }
-  if (sizeof($content) == 1) {
-    $item = array_pop($content);
-    drupal_goto($item['href']);
-  }
-  $output = theme('node_add_list', array('content' => $content));
-  $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
+    if (sizeof($content) == 1) {
+      $item = array_pop($content);
+      drupal_goto($item['href']);
+    }
+    
+    $output = theme('node_add_list', array('content' => $content));
+    $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
+  } 
+  /* elseif ($entity_type == 'user') {
+      $item['href'] = 'admin/people/create/' . $cache_id .'';
+      //dpm($item);
+      drupal_goto($item['href']);
+  }*/
+  
   return $output;
 }
 
@@ -56,7 +71,7 @@ function entityconnect_add($cache_id) {
  */
 function entityconnect_edit($cache_id) {
   $cache = cache_get($cache_id);
-  drupal_goto("node/" . $cache->data['nid'] . "/edit", array('query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
+  drupal_goto("node/" . $cache->data['target_id'] . "/edit", array('query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
   return $cache_id;
 }
 

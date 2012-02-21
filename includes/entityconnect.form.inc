@@ -31,10 +31,10 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
         '#weight' => -2,
         '#attached' => array(
           'js' => array(
-            drupal_get_path('module', 'entityconnect') . "theme/js/entityconnect.js",
+            drupal_get_path('module', 'entityconnect') . "/theme/js/entityconnect.js",
           ),
           'css' => array(
-            drupal_get_path('module', 'entityconnect') . "theme/css/entityconnect.css",
+            drupal_get_path('module', 'entityconnect') . "/theme/css/entityconnect.css",
           ),
         ),
       );
@@ -51,10 +51,10 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
         '#language' => 'und',
         '#submit' => array('entityconnect_include_form', 'entityconnect_add_edit_button_submit'),
         '#weight' => -2,
-      );
+      ); 
     }
   }
-}
+} 
 
 /*
  * entityconnect_add_edit_button_submit() is called when a new node is to be added
@@ -77,16 +77,17 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
     'field'      => $field,
     'key'        => $key,
     'add_child'  => $form_state['clicked_button']['#add_child'],
-    'nid'        => $form_state['values'][$field][$language][$key]['nid'],
+    'target_id'  => $form_state['values'][$field][$language][$key]['target_id'],
   );
+  
   entityconnect_cache_set($cache_id, $data);
 
   unset($_GET['destination']);
   if ($data['add_child']) {
-    $form_state['redirect']  =  "admin/entityconnect/add/$cache_id";
+    $form_state['redirect']  =  "admin/entityconnect/add/$cache_id"; 
   }
   else {
-    if ($data['nid']) {
+    if ($data['target_id']) {
       $form_state['redirect']  =  "admin/entityconnect/edit/$cache_id";
     }
   }
@@ -99,6 +100,7 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
  * and we add a new submit nodeconect_child_form_submit
  */
 function entityconnect_child_node_form_alter(&$form, &$form_state, $form_id, $cache_id, $cache) {
+//function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_id, $cache) {
   $form['parent_build_cache_id'] = array(
     '#type' => 'value',
     '#value' => $cache_id,
@@ -125,7 +127,13 @@ function entityconnect_child_form_submit(&$form, &$form_state) {
   $cache_id =  $form_state['values']['parent_build_cache_id'];
   if ($cache_id && ($cache = cache_get($cache_id))) {
     $data = $cache->data;
-    $data['nid'] = $form_state['values']['nid'];
+    $entity_type = $form['#entity_type'];
+    if ($entity_type == 'node') {
+      $data['target_id'] = $form_state['values']['nid'];
+    } 
+    /* elseif ($entity_type == 'user') {
+      $data['target_id'] = $form_state['values']['uid'];
+    } */
     entityconnect_cache_set($cache_id, $data);
     $form_state['redirect']  = "admin/entityconnect/return/$cache_id";
   }
@@ -150,6 +158,7 @@ function entityconnect_child_form_cancel(&$form, &$form_state) {
  * if the cache as an nid we set that in the input 
  */
 function entityconnect_return_node_form_alter(&$form, &$form_state, $form_id, $cache_id, $cache) {
+//function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_id, $cache) {
   if (!isset($form_state['#entityconnect_processed'])) {
     $form_state = $cache->data['form_state'];
     $form = $cache->data['form'];
@@ -161,11 +170,14 @@ function entityconnect_return_node_form_alter(&$form, &$form_state, $form_id, $c
     $data = $cache->data;
     $language = $form[$data['field']]['#language'];
     //if ($data['add_child']  && isset($data['nid']) && $form_state['rebuild']=== TRUE && ($node = node_load($data['nid'])) ) {
-    if (isset($data['nid']) && $form_state['rebuild']=== TRUE && ($node = node_load($data['nid'])) ) {
-      $element['#default_value'] = $node->nid;
-      //use the autocompleate value so we are sure we validate
-      $value =  node_reference_autocomplete_value($element, FALSE, $form_state);
-      $form_state['input'][$data['field']][$language][$data['key']]['nid'] = $value;
+    if (isset($data['target_id']) && $form_state['rebuild']=== TRUE && ($node = node_load($data['target_id'])) ) {
+      $element['#default_value'] = $node->title;
+      $element['#default_value'] .= ' (' . $node->nid .')';
+      
+      //use the autocomplete value so we are sure we validate
+      //$value =  _entityreference_autocomplete_validate($element, &$form_state, $form);
+        
+      $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
     }
       
     $form_state['#entityconnect_processed'] = TRUE;
@@ -181,5 +193,3 @@ function entityconnect_return_node_form_alter(&$form, &$form_state, $form_id, $c
 function entityconnect_cache_set($cid, $data) {
   return cache_set($cid, $data, 'cache', CACHE_PERMANENT);
 }
-
-
