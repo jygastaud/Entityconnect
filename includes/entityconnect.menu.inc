@@ -13,7 +13,6 @@ function entityconnect_return($cache_id) {
   $css_id = "edit-" . str_replace('_', '-', $cache->data['field']);
   drupal_goto($cache->data['dest'], array('query' => array("build_cache_id" => $cache_id, "return" => TRUE), 'fragment' => $css_id));
 
-
   return $cache_id;
 }
 
@@ -40,16 +39,26 @@ function entityconnect_add($cache_id) {
 
   if ($entity_type == 'node') {
   
-    foreach (system_admin_menu_block(menu_get_item("node/add")) as $key => $item) {
-      $type = str_replace("-", '_', str_replace("node/add/", "", $item['path']));
-      if (isset($acceptable_types[$type]) && $acceptable_types[$type]) {
+    if (count($acceptable_types)>0) {    
+      foreach (system_admin_menu_block(menu_get_item("node/add")) as $key => $item) {
+        $type = str_replace("-", '_', str_replace("node/add/", "", $item['path']));
+        if (isset($acceptable_types[$type]) && $acceptable_types[$type]) {
+          $item['href'] = $item['href'] . "/$cache_id";
+          $content[$key] = $item;
+        }//if()
+      }//foreach()
+
+      // if we have only one content-type defined, go directly to the node form. 
+      if (sizeof($content) == 1) {
+        $item = array_pop($content);
+        drupal_goto($item['href']);
+      }//if()
+    } 
+    else {
+      foreach (system_admin_menu_block(menu_get_item("node/add")) as $key => $item) {
+        $type = str_replace("-", '_', str_replace("node/add/", "", $item['path']));
         $item['href'] = $item['href'] . "/$cache_id";
         $content[$key] = $item;
-      }
-    }
-    if (sizeof($content) == 1) {
-      $item = array_pop($content);
-      drupal_goto($item['href']);
     }
     
     $output = theme('node_add_list', array('content' => $content));
