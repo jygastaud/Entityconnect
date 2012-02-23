@@ -65,11 +65,11 @@ function entityconnect_add($cache_id) {
     $output = theme('node_add_list', array('content' => $content));
     $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
   } 
-  /* elseif ($entity_type == 'user') {
+  elseif ($entity_type == 'user') {
       $item['href'] = 'admin/people/create/' . $cache_id .'';
       //dpm($item);
       drupal_goto($item['href']);
-  }*/
+  }
   
   return $output;
 }
