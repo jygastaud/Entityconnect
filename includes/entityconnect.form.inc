@@ -130,10 +130,8 @@ function entityconnect_child_form_submit(&$form, &$form_state) {
     $entity_type = $form['#entity_type'];
     if ($entity_type == 'node') {
       $data['target_id'] = $form_state['values']['nid'];
-    } 
-    /* elseif ($entity_type == 'user') {
-      $data['target_id'] = $form_state['values']['uid'];
-    } */
+    }//if()
+    
     entityconnect_cache_set($cache_id, $data);
     $form_state['redirect']  = "admin/entityconnect/return/$cache_id";
   }//if()
