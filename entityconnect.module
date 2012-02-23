@@ -108,8 +108,7 @@ function _entityconnect_get_ref_fields() {
 
       // Currently limited to node
       if ($entity_type == 'node') {
-        $ref_fields[$id] = $field;
-        //dpm($id);   
+        $ref_fields[$id] = $field;  
       }//if()
     }//if()
   }//foreach()
