@@ -97,7 +97,6 @@ function entityconnect_form_node_form_alter(&$form, &$form_state, $form_id) {
 }
 
 function entityconnect_form_user_register_form_alter(&$form, &$form_state, $form_id) {
-//function entityconnect_form_form_alter(&$form, &$form_state, $form_id) {
   $child = isset($_REQUEST['child']);
 
   // We can get the cid two different ways
@@ -106,7 +105,7 @@ function entityconnect_form_user_register_form_alter(&$form, &$form_state, $form
   // we are a child page.
   if (
        (isset($_REQUEST['build_cache_id']) && ($cid = $_REQUEST['build_cache_id']) ) ||
-       ((arg(1) == 'add') && ($cid = arg(3)) && $child = TRUE)
+       ((arg(1) == 'create') && ($cid = arg(3)) && $child = TRUE)
       ) {
     $cache = cache_get($cid);
     entityconnect_include_form();
@@ -115,7 +114,7 @@ function entityconnect_form_user_register_form_alter(&$form, &$form_state, $form
     }//if()
     if (isset($_REQUEST['return'])) {
       unset($_REQUEST['build_cache_id']);
-      entityconnect_return_node_form_alter($form, $form_state, $form_id, $cid, $cache);
+      entityconnect_child_user_register_form_alter($form, $form_state, $form_id, $cache->cid, $cache);
     } //if()
   }//if()
   
