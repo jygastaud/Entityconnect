@@ -98,14 +98,18 @@ function entityconnect_form_node_form_alter(&$form, &$form_state, $form_id) {
 
 function entityconnect_form_user_register_form_alter(&$form, &$form_state, $form_id) {
   $child = isset($_REQUEST['child']);
-
+  dpm(arg(0));
+  dpm(arg(1));
+  dpm(arg(2));
+  dpm(arg(3));
+  dpm($child);
   // We can get the cid two different ways
   // first we try the $_REQUEST param.  if we do not getting it from there we try
   // the arg(3) if we are on a add form.  Also if we are on an add form we know that
   // we are a child page.
   if (
        (isset($_REQUEST['build_cache_id']) && ($cid = $_REQUEST['build_cache_id']) ) ||
-       ((arg(1) == 'create') && ($cid = arg(3)) && $child = TRUE)
+       ((arg(1) == 'people') && (arg(2) == 'create')  && ($cid = arg(3)) && $child = TRUE)
       ) {
     $cache = cache_get($cid);
     entityconnect_include_form();
