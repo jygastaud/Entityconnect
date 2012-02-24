@@ -38,12 +38,14 @@ function entityconnect_menu() {
  * implements of hook_field_attach_form()
  */
 function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode) {
-  foreach (_entityconnect_get_ref_fields() as $field_name => $field) {
-    if (isset($form[$field_name])) {
-      entityconnect_include_form();
-      _entityconnect_field_attach_form($entity_type, $entity, $form, $form_state, $langcode, $field_name, $field);
-    } //if()
-  } //foreach()
+  if($entity_type == 'node') {
+    foreach (_entityconnect_get_ref_fields() as $field_name => $field) {
+      if (isset($form[$field_name])) {
+        entityconnect_include_form();
+        _entityconnect_field_attach_form($entity_type, $entity, $form, $form_state, $langcode, $field_name, $field);
+      } //if()
+    } //foreach()
+  }//if()
 } 
 
 /*
@@ -65,7 +67,7 @@ function entityconnect_include_form() {
  */
 function entityconnect_form_node_form_alter(&$form, &$form_state, $form_id) {
   $child = isset($_REQUEST['child']);
-
+  
   // We can get the cid two different ways
   // first we try the $_REQUEST param.  if we do not getting it from there we try
   // the arg(3) if we are on a add form.  Also if we are on an add form we know that
@@ -95,6 +97,48 @@ function entityconnect_form_node_form_alter(&$form, &$form_state, $form_id) {
   }//if()
 }
 
+
+/*
+ * implements of hook_form_user_register_form_alter()
+ *
+ * if we are adding a new node we pass of to entityconnect_add_node_form_allter
+ * if we are returning to the parent node we hand off to nodequeue_return_node_form_alter
+ * TODO: need to move this at somepoint so it can be with any entity
+ *
+ */
+function entityconnect_form_user_register_form_alter(&$form, &$form_state, $form_id) {
+  $child = isset($_REQUEST['child']);
+
+  // We can get the cid two different ways
+  // first we try the $_REQUEST param.  if we do not getting it from there we try
+  // the arg(3) if we are on a add form.  Also if we are on an add form we know that
+  // we are a child page.
+  if (
+       (isset($_REQUEST['build_cache_id']) && ($cid = $_REQUEST['build_cache_id']) ) ||
+       ((arg(1) == 'people') && (arg(2) == 'create') && ($cid = arg(3)) && $child = TRUE)
+      ) {
+
+    $cache = cache_get($cid);
+    if ($child) {
+      $form_state['#entityconnect_child_form'] = $cache;
+    }//if()
+
+    if (isset($_REQUEST['return'])) {
+      unset($_REQUEST['build_cache_id']);
+      entityconnect_return_node_form_alter($form, $form_state, $form_id, $cid, $cache);
+    } //if()
+  }//if()
+  
+  // If this for is a child form lets add alter for that purpose
+  // Note that we are doing this here becuase when we retrun to a form it gets rebuild
+  // so this will get cuaght in the rebuild
+  if (isset($form_state['#entityconnect_child_form'])) {
+    $cache = $form_state['#entityconnect_child_form'];
+    module_load_include('inc', 'entityconnect', 'includes/entityconnect.form');
+    entityconnect_child_user_registrer_form_alter($form, $form_state, $form_id, $cache->cid, $cache);
+  }//if()
+}
+
 /*
  * _entityconnect_get_ref_fields is a helper function to retieve all entityreference_fields
  */
@@ -106,9 +150,9 @@ function _entityconnect_get_ref_fields() {
       $entity_reference_info = entityreference_get_selection_handler($field);
       $entity_type = $entity_reference_info->field['settings']['target_type'];
 
-      // Currently limited to node
-      if ($entity_type == 'node') {
-        $ref_fields[$id] = $field;  
+      // Currently limited to node && user
+      if ($entity_type == 'node' || $entity_type == 'user' ) {
+        $ref_fields[$id] = $field;
       }//if()
     }//if()
   }//foreach()
