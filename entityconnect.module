@@ -108,10 +108,10 @@ function _entityconnect_get_ref_fields() {
       $entity_type = $entity_reference_info->field['settings']['target_type'];
 
       // Currently limited to node
-      if ($entity_type == 'node') {
+      //if ($entity_type == 'node') {
         $ref_fields[$id] = $field;
         //dpm($id);   
-      }//if()
+      //}//if()
     }//if()
   }//foreach()
   return $ref_fields;
