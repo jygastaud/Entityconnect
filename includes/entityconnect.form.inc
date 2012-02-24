@@ -94,30 +94,6 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
 }
 
 /*
- * entityconnect_child_node_form_alter() alters are child create form
- * we add a value field to hold the parent build_cache_id
- * and then we add a cancel button that run entityconnect_child_form_cancel
- * and we add a new submit nodeconect_child_form_submit
- */
-function entityconnect_child_node_form_alter(&$form, &$form_state, $form_id, $cache_id, $cache) {
-//function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_id, $cache) {
-  $form['parent_build_cache_id'] = array(
-    '#type' => 'value',
-    '#value' => $cache_id,
-  );
-  $form['actions']['cancel'] = array(
-    '#type' => 'submit',
-    '#value' => t('Cancel'),
-    '#submit' => array('entityconnect_include_form', 'entityconnect_child_form_cancel'),
-    '#parent_build_cache_id' => $cache_id,
-    '#limit_validation_errors' => array(),
-    '#weight' => 20,
-  );
-  $form['actions']['submit']['#submit'][] = 'entityconnect_include_form';
-  $form['actions']['submit']['#submit'][] = 'entityconnect_child_form_submit';
-}
-
-/*
  * entityconnect_child_form_submit() is for submiting of are child create form
  * on submiting of a child form we set 
  * set the nid in the cache entry
@@ -129,10 +105,10 @@ function entityconnect_child_form_submit(&$form, &$form_state) {
     $data = $cache->data;
     $entity_type = $form['#entity_type'];
     if ($entity_type == 'node') {
-      $data['target_id'] = $form_state['values']['nid'];
+      $data['target_id'] = $form_state['values']['name'];
     } 
     elseif ($entity_type == 'user') {
-      $data['target_id'] = $form_state['values']['uid'];
+      $data['target_id'] = $form_state['values']['name'];
     }
     entityconnect_cache_set($cache_id, $data);
     $form_state['redirect']  = "admin/entityconnect/return/$cache_id";
@@ -158,6 +134,7 @@ function entityconnect_child_form_cancel(&$form, &$form_state) {
  * if the cache as an nid we set that in the input 
  */
 function entityconnect_return_node_form_alter(&$form, &$form_state, $form_id, $cache_id, $cache) {
+
   if (!isset($form_state['#entityconnect_processed'])) {
     $form_state = $cache->data['form_state'];
     $form = $cache->data['form'];
@@ -170,27 +147,31 @@ function entityconnect_return_node_form_alter(&$form, &$form_state, $form_id, $c
     $language = $form[$data['field']]['#language'];
     //if ($data['add_child']  && isset($data['nid']) && $form_state['rebuild']=== TRUE && ($node = node_load($data['nid'])) ) {
     //if (isset($data['target_id']) && $form_state['rebuild']=== TRUE && ($node = node_load($data['target_id'])) ) {
+    
     if (isset($data['target_id']) && $form_state['rebuild']=== TRUE) {      
-      $entity_type = $form['#entity_type'];
-      
-      if ($entity_type == 'node' && ($node = node_load($data['target_id']))) {
+  
+      //$entity_type = $form['#entity_type'];
+      //if ($entity_type == 'node' && ($node = node_load($data['target_id']))) {
+      if ($node = node_load($data['target_id'])) {
         $element['#default_value'] = $node->title;
         $element['#default_value'] .= ' (' . $node->nid .')';
       
-      //use the autocomplete value so we are sure we validate
-      //$value =  _entityreference_autocomplete_validate($element, &$form_state, $form);
+        //use the autocomplete value so we are sure we validate
+        //$value =  _entityreference_autocomplete_validate($element, &$form_state, $form);
         
-      $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
+        $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
     
       }
-      elseif ($entity_type == 'user' && ($user = user_load($data['target_id']))) {
+      //elseif ($entity_type == 'user' && ($user = user_load_by_name($data['target_id']))) {
+      elseif ($user = user_load_by_name($data['target_id'])){
+        
         $element['#default_value'] = $user->name;
         $element['#default_value'] .= ' (' . $user->uid .')';
       
-      //use the autocomplete value so we are sure we validate
-      //$value =  _entityreference_autocomplete_validate($element, &$form_state, $form);
+        //use the autocomplete value so we are sure we validate
+        //$value =  _entityreference_autocomplete_validate($element, &$form_state, $form);
         
-      $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
+        $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
     
       }//if()
     }//if()
@@ -208,17 +189,15 @@ function entityconnect_cache_set($cid, $data) {
   return cache_set($cid, $data, 'cache', CACHE_PERMANENT);
 }
 
-
-
-/********************* USER SUPPORT *************************/
+/********************* NODE SUPPORT *************************/
 
 /*
- * entityconnect_child_user_register_form_alter() alters are child create form
+ * entityconnect_child_node_form_alter() alters are child create form
  * we add a value field to hold the parent build_cache_id
  * and then we add a cancel button that run entityconnect_child_form_cancel
  * and we add a new submit nodeconect_child_form_submit
  */
-function entityconnect_child_user_registrer_form_alter(&$form, &$form_state, $form_id, $cache_id, $cache) {
+function entityconnect_child_node_form_alter(&$form, &$form_state, $form_id, $cache_id, $cache) {
   $form['parent_build_cache_id'] = array(
     '#type' => 'value',
     '#value' => $cache_id,
@@ -233,5 +212,32 @@ function entityconnect_child_user_registrer_form_alter(&$form, &$form_state, $fo
   );
   $form['actions']['submit']['#submit'][] = 'entityconnect_include_form';
   $form['actions']['submit']['#submit'][] = 'entityconnect_child_form_submit';
+}
+
+
+/********************* USER SUPPORT *************************/
+
+/*
+ * entityconnect_child_user_register_form_alter() alters are child create form
+ * we add a value field to hold the parent build_cache_id
+ * and then we add a cancel button that run entityconnect_child_form_cancel
+ * and we add a new submit nodeconect_child_form_submit
+ */
+function entityconnect_child_user_registrer_form_alter(&$form, &$form_state, $form_id, $cache_id, $cache) {
+  $form['parent_build_cache_id'] = array(
+    '#type' => 'value',
+    '#value' => $cache_id,
+  );  
+  $form['actions']['cancel'] = array(
+    '#type' => 'submit',
+    '#value' => t('Cancel'),
+    '#submit' => array('entityconnect_include_form', 'entityconnect_child_form_cancel'),
+    '#parent_build_cache_id' => $cache_id,
+    '#limit_validation_errors' => array(),
+    '#weight' => 20,
+  );
+  $form['actions']['submit']['#submit'][] = 'entityconnect_include_form';
+  $form['actions']['submit']['#submit'][] = 'entityconnect_child_form_submit';
+  $form['actions']['submit']['#submit'][] = 'user_register_submit';
 }
 
