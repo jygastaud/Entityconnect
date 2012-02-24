@@ -92,7 +92,15 @@ function entityconnect_form_node_form_alter(&$form, &$form_state, $form_id) {
   if (isset($form_state['#entityconnect_child_form'])) {
     $cache = $form_state['#entityconnect_child_form'];
     module_load_include('inc', 'entityconnect', 'includes/entityconnect.form');
-    entityconnect_child_node_form_alter($form, $form_state, $form_id, $cache->cid, $cache);
+    
+    $entity_reference_info = entityreference_get_selection_handler($field);
+    $entity_type = $entity_reference_info->field['settings']['target_type'];
+     
+    if ($entity_type == 'node') {
+      entityconnect_child_node_form_alter($form, $form_state, $form_id, $cache->cid, $cache);
+    }elseif ($entity_type == 'user') {
+      entityconnect_child_user_register_form_alter($form, $form_state, $form_id, $cache->cid, $cache);
+    }
   }//if()
 }
 
