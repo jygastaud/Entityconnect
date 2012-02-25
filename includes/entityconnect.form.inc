@@ -4,7 +4,7 @@
  * handles all form alters and submit functions for entityconnect
  */
 
-/*
+/**
  * Implements of hook_field_attach_form()
  *
  * here we attach a submit button for each node ref field
@@ -56,7 +56,7 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
   }//foreach()
 } 
 
-/*
+/**
  * entityconnect_add_edit_button_submit() is called when a new node is to be added
  *
  * we cache the current state and form
@@ -93,7 +93,7 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
   }//else()
 }
 
-/*
+/**
  * entityconnect_child_form_submit() is for submiting of are child create form
  * on submiting of a child form we set 
  * set the nid in the cache entry
@@ -115,7 +115,7 @@ function entityconnect_child_form_submit(&$form, &$form_state) {
   }//if()
 }
 
-/*
+/**
  * entityconnect_child_form_cancel() simple 
  * sets the redirect to a admin/entityconnect/redirect page
  */
@@ -127,7 +127,8 @@ function entityconnect_child_form_cancel(&$form, &$form_state) {
   
 }
 
-/* this is for when we return to the parent page
+/**
+ * this is for when we return to the parent page
  * we find the cached form and form_state clean up the form_state a bit
  * and mark it to be rebuilt
  *
@@ -176,15 +177,13 @@ function entityconnect_return_node_form_alter(&$form, &$form_state, $form_id, $c
   }//if()
 }
 
-/*
+/**
  * entityconnect_cache_set wraps cache set so we can 
  * set the expire easily
  */
 function entityconnect_cache_set($cid, $data) {
   return cache_set($cid, $data, 'cache', CACHE_PERMANENT);
 }
-
-/********************* NODE SUPPORT *************************/
 
 /*
  * entityconnect_child_node_form_alter() alters are child create form
@@ -208,9 +207,6 @@ function entityconnect_child_node_form_alter(&$form, &$form_state, $form_id, $ca
   $form['actions']['submit']['#submit'][] = 'entityconnect_include_form';
   $form['actions']['submit']['#submit'][] = 'entityconnect_child_form_submit';
 }
-
-
-/********************* USER SUPPORT *************************/
 
 /*
  * entityconnect_child_user_register_form_alter() alters are child create form

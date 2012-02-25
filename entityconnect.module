@@ -6,7 +6,7 @@
  * One will find most of the meat in the form and menu includes
  */
 
-/*
+/**
  * implements of hook_menu()
  */
 function entityconnect_menu() {
@@ -34,7 +34,7 @@ function entityconnect_menu() {
 
 } 
 
-/*
+/**
  * implements of hook_field_attach_form()
  */
 function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode) {
@@ -48,7 +48,7 @@ function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_s
   }//if()
 } 
 
-/*
+/**
  * entityconnect_include_form() includes the form inc file
  *
  * This can be used in #submit array before the sumbit functions which are located in the
@@ -57,7 +57,8 @@ function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_s
 function entityconnect_include_form() {
   module_load_include("inc", "entityconnect", "includes/entityconnect.form");
 }  
-/*
+
+/**
  * implements of hook_form_node_form_alter()
  *
  * if we are adding a new node we pass of to entityconnect_add_node_form_allter
@@ -98,7 +99,7 @@ function entityconnect_form_node_form_alter(&$form, &$form_state, $form_id) {
 }
 
 
-/*
+/**
  * implements of hook_form_user_register_form_alter()
  *
  * if we are adding a new node we pass of to entityconnect_add_node_form_allter
@@ -139,7 +140,7 @@ function entityconnect_form_user_register_form_alter(&$form, &$form_state, $form
   }//if()
 }
 
-/*
+/**
  * _entityconnect_get_ref_fields is a helper function to retieve all entityreference_fields
  */
 function _entityconnect_get_ref_fields() {
