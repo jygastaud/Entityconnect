@@ -77,6 +77,8 @@ function entityconnect_add($cache_id) {
  * entityconnect_edit is a hook_menu callback
  *
  * we use this to redirect to a edit form but pass the build_cache_id
+ * 
+ * To Do: Fix it for user_support
  */
 function entityconnect_edit($cache_id) {
   $cache = cache_get($cache_id);
