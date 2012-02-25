@@ -1,6 +1,6 @@
 <?php
 /**
- * @file 
+ * @file
  * handles all form alters and submit functions for entityconnect
  */
 
