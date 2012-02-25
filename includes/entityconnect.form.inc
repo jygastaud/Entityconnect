@@ -1,6 +1,6 @@
 <?php
 /**
- * @file
+ * @file 
  * handles all form alters and submit functions for entityconnect
  */
 
@@ -105,17 +105,11 @@ function entityconnect_child_form_submit(&$form, &$form_state) {
     $data = $cache->data;
     $entity_type = $form['#entity_type'];
     if ($entity_type == 'node') {
-<<<<<<< HEAD
-      $data['target_id'] = $form_state['values']['nid'];
-    }//if()
-    
-=======
       $data['target_id'] = $form_state['values']['name'];
     } 
     elseif ($entity_type == 'user') {
       $data['target_id'] = $form_state['values']['name'];
     }
->>>>>>> user_support
     entityconnect_cache_set($cache_id, $data);
     $form_state['redirect']  = "admin/entityconnect/return/$cache_id";
   }//if()
@@ -140,10 +134,6 @@ function entityconnect_child_form_cancel(&$form, &$form_state) {
  * if the cache as an nid we set that in the input 
  */
 function entityconnect_return_node_form_alter(&$form, &$form_state, $form_id, $cache_id, $cache) {
-<<<<<<< HEAD
-=======
-
->>>>>>> user_support
   if (!isset($form_state['#entityconnect_processed'])) {
     $form_state = $cache->data['form_state'];
     $form = $cache->data['form'];
@@ -158,9 +148,6 @@ function entityconnect_return_node_form_alter(&$form, &$form_state, $form_id, $c
     //if (isset($data['target_id']) && $form_state['rebuild']=== TRUE && ($node = node_load($data['target_id'])) ) {
     
     if (isset($data['target_id']) && $form_state['rebuild']=== TRUE) {      
-  
-      //$entity_type = $form['#entity_type'];
-      //if ($entity_type == 'node' && ($node = node_load($data['target_id']))) {
       if ($node = node_load($data['target_id'])) {
         $element['#default_value'] = $node->title;
         $element['#default_value'] .= ' (' . $node->nid .')';
@@ -171,7 +158,6 @@ function entityconnect_return_node_form_alter(&$form, &$form_state, $form_id, $c
         $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
     
       }
-      //elseif ($entity_type == 'user' && ($user = user_load_by_name($data['target_id']))) {
       elseif ($user = user_load_by_name($data['target_id'])){
         
         $element['#default_value'] = $user->name;
