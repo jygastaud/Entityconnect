@@ -66,7 +66,7 @@ function entityconnect_add($cache_id) {
     $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
   } 
   elseif ($entity_type == 'user') {
-      $item['href'] = 'admin/people/create/' . $cache_id .'';
+      $item['href'] = 'admin/people/create/' . $cache_id . '';
       drupal_goto($item['href']);
   }
   

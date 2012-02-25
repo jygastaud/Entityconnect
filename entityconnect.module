@@ -31,14 +31,13 @@ function entityconnect_menu() {
       'file' => 'includes/entityconnect.menu.inc'
     )
   );
-
 } 
 
 /**
  * implements of hook_field_attach_form()
  */
 function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode) {
-  if($entity_type == 'node') {
+  if ($entity_type == 'node') {
     foreach (_entityconnect_get_ref_fields() as $field_name => $field) {
       if (isset($form[$field_name])) {
         entityconnect_include_form();
@@ -46,7 +45,7 @@ function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_s
       } //if()
     } //foreach()
   }//if()
-} 
+}
 
 /**
  * entityconnect_include_form() includes the form inc file
@@ -56,7 +55,7 @@ function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_s
  */
 function entityconnect_include_form() {
   module_load_include("inc", "entityconnect", "includes/entityconnect.form");
-}  
+}
 
 /**
  * implements of hook_form_node_form_alter()
@@ -74,9 +73,10 @@ function entityconnect_form_node_form_alter(&$form, &$form_state, $form_id) {
   // the arg(3) if we are on a add form.  Also if we are on an add form we know that
   // we are a child page.
   if (
-       (isset($_REQUEST['build_cache_id']) && ($cid = $_REQUEST['build_cache_id']) ) ||
-       ((arg(1) == 'add') && ($cid = arg(3)) && $child = TRUE)
-      ) {
+    (isset($_REQUEST['build_cache_id']) && ($cid = $_REQUEST['build_cache_id']) ) || 
+    ((arg(1) == 'add') && ($cid = arg(3)) && $child = TRUE)
+  ) {
+    
     $cache = cache_get($cid);
     entityconnect_include_form();
     if ($child) {
@@ -115,9 +115,9 @@ function entityconnect_form_user_register_form_alter(&$form, &$form_state, $form
   // the arg(3) if we are on a add form.  Also if we are on an add form we know that
   // we are a child page.
   if (
-       (isset($_REQUEST['build_cache_id']) && ($cid = $_REQUEST['build_cache_id']) ) ||
-       ((arg(1) == 'people') && (arg(2) == 'create') && ($cid = arg(3)) && $child = TRUE)
-      ) {
+    (isset($_REQUEST['build_cache_id']) && ($cid = $_REQUEST['build_cache_id']) ) ||
+    ((arg(1) == 'people') && (arg(2) == 'create') && ($cid = arg(3)) && $child = TRUE)
+  ) {
 
     $cache = cache_get($cid);
     if ($child) {

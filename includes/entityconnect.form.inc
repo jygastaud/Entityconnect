@@ -19,7 +19,7 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
       $form[$field_name][$language][$key]["add_entityconnect__{$field_name}_$key"] = array(
         '#type' => 'submit',
         '#limit_validation_errors' => array(array($field_name)),
-        '#value' => "New Content",
+        '#value' => t('New Content'),
         '#name' => "add_entityconnect__{$field_name}_$key",
         '#prefix' => "<div class = 'entityconnect-add $extra'>",
         '#suffix' => '</div>',
@@ -41,7 +41,7 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
       $form[$field_name][$language][$key]["edit_entityconnect__{$field_name}_$key"] = array(
         '#type' => 'submit',
         '#limit_validation_errors' => array(array($field_name)),
-        '#value' => "Edit Content",
+        '#value' => t('Edit Content'),
         '#name' => "edit_entityconnect__{$field_name}_$key",
         '#prefix' => "<div class = 'entityconnect-edit $extra'>",
         '#suffix' => '</div>',
@@ -151,7 +151,7 @@ function entityconnect_return_node_form_alter(&$form, &$form_state, $form_id, $c
     if (isset($data['target_id']) && $form_state['rebuild']=== TRUE) {      
       if ($node = node_load($data['target_id'])) {
         $element['#default_value'] = $node->title;
-        $element['#default_value'] .= ' (' . $node->nid .')';
+        $element['#default_value'] .= ' (' . $node->nid . ')';
       
         //use the autocomplete value so we are sure we validate
         //$value =  _entityreference_autocomplete_validate($element, &$form_state, $form);
@@ -159,10 +159,10 @@ function entityconnect_return_node_form_alter(&$form, &$form_state, $form_id, $c
         $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
     
       }
-      elseif ($user = user_load_by_name($data['target_id'])){
+      elseif ($user = user_load_by_name($data['target_id'])) {
         
         $element['#default_value'] = $user->name;
-        $element['#default_value'] .= ' (' . $user->uid .')';
+        $element['#default_value'] .= ' (' . $user->uid . ')';
       
         //use the autocomplete value so we are sure we validate
         //$value =  _entityreference_autocomplete_validate($element, &$form_state, $form);
