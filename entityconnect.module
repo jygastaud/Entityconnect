@@ -42,9 +42,9 @@ function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_s
       if (isset($form[$field_name])) {
         entityconnect_include_form();
         _entityconnect_field_attach_form($entity_type, $entity, $form, $form_state, $langcode, $field_name, $field);
-      } //if()
-    } //foreach()
-  }//if()
+      } // if()
+    } // foreach()
+  }// if()
 }
 
 /**
@@ -81,12 +81,12 @@ function entityconnect_form_node_form_alter(&$form, &$form_state, $form_id) {
     entityconnect_include_form();
     if ($child) {
       $form_state['#entityconnect_child_form'] = $cache;
-    }//if()
+    }// if()
     if (isset($_REQUEST['return'])) {
       unset($_REQUEST['build_cache_id']);
       entityconnect_return_node_form_alter($form, $form_state, $form_id, $cid, $cache);
-    } //if()
-  }//if()
+    } // if()
+  }// if()
   
   // If this for is a child form lets add alter for that purpose
   // Note that we are doing this here becuase when we retrun to a form it gets rebuild
@@ -95,7 +95,7 @@ function entityconnect_form_node_form_alter(&$form, &$form_state, $form_id) {
     $cache = $form_state['#entityconnect_child_form'];
     module_load_include('inc', 'entityconnect', 'includes/entityconnect.form');
     entityconnect_child_node_form_alter($form, $form_state, $form_id, $cache->cid, $cache);
-  }//if()
+  }// if()
 }
 
 
@@ -127,8 +127,8 @@ function entityconnect_form_user_register_form_alter(&$form, &$form_state, $form
     if (isset($_REQUEST['return'])) {
       unset($_REQUEST['build_cache_id']);
       entityconnect_return_node_form_alter($form, $form_state, $form_id, $cid, $cache);
-    } //if()
-  }//if()
+    } // if()
+  }// if()
   
   // If this for is a child form lets add alter for that purpose
   // Note that we are doing this here becuase when we retrun to a form it gets rebuild
@@ -137,7 +137,7 @@ function entityconnect_form_user_register_form_alter(&$form, &$form_state, $form
     $cache = $form_state['#entityconnect_child_form'];
     module_load_include('inc', 'entityconnect', 'includes/entityconnect.form');
     entityconnect_child_user_registrer_form_alter($form, $form_state, $form_id, $cache->cid, $cache);
-  }//if()
+  }// if()
 }
 
 /**
@@ -154,8 +154,8 @@ function _entityconnect_get_ref_fields() {
       // Currently limited to node && user
       if ($entity_type == 'node' || $entity_type == 'user' ) {
         $ref_fields[$id] = $field;
-      }//if()
-    }//if()
-  }//foreach()
+      }// if()
+    }// if()
+  }// foreach()
   return $ref_fields;
 } 

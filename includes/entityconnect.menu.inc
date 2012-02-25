@@ -45,14 +45,14 @@ function entityconnect_add($cache_id) {
         if (isset($acceptable_types[$type]) && $acceptable_types[$type]) {
           $item['href'] = $item['href'] . "/$cache_id";
           $content[$key] = $item;
-        }//if()
-      }//foreach()
+        }// if()
+      }// foreach()
 
       // if we have only one content-type defined, go directly to the node form. 
       if (sizeof($content) == 1) {
         $item = array_pop($content);
         drupal_goto($item['href']);
-      }//if()
+      }// if()
     } 
     else {
       foreach (system_admin_menu_block(menu_get_item("node/add")) as $key => $item) {

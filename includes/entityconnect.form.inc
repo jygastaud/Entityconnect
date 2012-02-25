@@ -52,8 +52,8 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
         '#submit' => array('entityconnect_include_form', 'entityconnect_add_edit_button_submit'),
         '#weight' => -2,
       ); 
-    }//if()
-  }//foreach()
+    }// if()
+  }// foreach()
 } 
 
 /**
@@ -89,8 +89,8 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
   else {
     if ($data['target_id']) {
       $form_state['redirect']  =  "admin/entityconnect/edit/$cache_id";
-    }//if()
-  }//else()
+    }// if()
+  }// else()
 }
 
 /**
@@ -123,8 +123,7 @@ function entityconnect_child_form_cancel(&$form, &$form_state) {
   $cache_id = $form_state['clicked_button']['#parent_build_cache_id'];
   if ($cache_id && ($cache = cache_get($cache_id))) {
     $form_state['redirect']  = "admin/entityconnect/return/$cache_id";
-  }//if()
-  
+  }// if()
 }
 
 /**
@@ -169,12 +168,12 @@ function entityconnect_return_node_form_alter(&$form, &$form_state, $form_id, $c
         
         $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
     
-      }//if()
-    }//if()
+      }// if()
+    }// if()
       
     $form_state['#entityconnect_processed'] = TRUE;
     $form = drupal_rebuild_form($form_id, $form_state, $form);
-  }//if()
+  }// if()
 }
 
 /**
