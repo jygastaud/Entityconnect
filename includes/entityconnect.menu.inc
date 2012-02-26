@@ -17,9 +17,10 @@ function entityconnect_return($cache_id) {
 }
 
 /**
- * entityconnect_add is hook_menu callback 
+ * entityconnect_add is hook_menu callback
  *
- * This page will load the cached form info, and display links to each of the referenceable types
+ * This page will load the cached form info, and display links to each of the
+ * referenceable types.
  * If there is only one it will redirect to that page
  *
  * This is mostly a copy and hack up of the node add page
@@ -30,7 +31,7 @@ function entityconnect_add($cache_id) {
   $content = array();
   $cache = cache_get($cache_id);
   $field = field_info_field($cache->data['field']);
-  
+
   $entity_reference_info = entityreference_get_selection_handler($field);
   $entity_type = $entity_reference_info->field['settings']['target_type'];
 
@@ -38,7 +39,6 @@ function entityconnect_add($cache_id) {
   $acceptable_types = $entity_reference_info->field['settings']['handler_settings']['target_bundles'];
 
   if ($entity_type == 'node') {
-  
     if (count($acceptable_types)>0) {    
       foreach (system_admin_menu_block(menu_get_item("node/add")) as $key => $item) {
         $type = str_replace("-", '_', str_replace("node/add/", "", $item['path']));
@@ -48,28 +48,28 @@ function entityconnect_add($cache_id) {
         }// if()
       }// foreach()
 
-      // if we have only one content-type defined, go directly to the node form. 
+      // If we have only one content-type defined, go directly to the node form. 
       if (sizeof($content) == 1) {
         $item = array_pop($content);
         drupal_goto($item['href']);
       }// if()
-    } 
+    }
     else {
       foreach (system_admin_menu_block(menu_get_item("node/add")) as $key => $item) {
         $type = str_replace("-", '_', str_replace("node/add/", "", $item['path']));
         $item['href'] = $item['href'] . "/$cache_id";
         $content[$key] = $item;
       }
-    } 
-    
+    }
+
     $output = theme('node_add_list', array('content' => $content));
     $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
-  } 
+  }
   elseif ($entity_type == 'user') {
       $item['href'] = 'admin/people/create/' . $cache_id . '';
       drupal_goto($item['href']);
   }
-  
+
   return $output;
 }
 

@@ -11,7 +11,7 @@
       $(".entityconnect-edit", context).each( function() {
         edit = $(this).find('input');
         text = $(this).siblings("[type='text']");
-        if(text.length == 0 ) {
+        if(text.length == 0) {
           text = $(this).siblings().find("[type='text']");
         }
         text
@@ -24,8 +24,7 @@
             }
           })
           .trigger('change');
-      }); 
-      
+      });
     },
   };
 })(jQuery);

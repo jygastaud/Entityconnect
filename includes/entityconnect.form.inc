@@ -13,7 +13,7 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
   $language = $form[$field_name]['#language'];
   foreach ($form[$field_name][$language] as $key => $field) {
     if (is_numeric($key)) {
-      // We have to add some extra js for single value fields so we add a class 
+      // We have to add some extra js for single value fields so we add a class
       // to let the js know.
       $extra = $form[$field_name][$language]['#cardinality'] == 1 ? 'single-value' : '';
       $form[$field_name][$language][$key]["add_entityconnect__{$field_name}_$key"] = array(
@@ -57,7 +57,7 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
 }
 
 /**
- * entityconnect_add_edit_button_submit() is called when a new node is to be 
+ * entityconnect_add_edit_button_submit() is called when a new node is to be
  * added.
  *
  * We cache the current state and form
@@ -80,7 +80,7 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
     'add_child'  => $form_state['clicked_button']['#add_child'],
     'target_id'  => $form_state['values'][$field][$language][$key]['target_id'],
   );
-  
+
   entityconnect_cache_set($cache_id, $data);
 
   unset($_GET['destination']);
@@ -105,7 +105,7 @@ function entityconnect_child_form_submit(&$form, &$form_state) {
   if ($cache_id && ($cache = cache_get($cache_id))) {
     $data = $cache->data;
     $entity_type = $form['#entity_type'];
- 
+
     if ($entity_type == 'node') {
       $data['target_id'] = $form_state['values']['nid'];
     }
@@ -114,7 +114,7 @@ function entityconnect_child_form_submit(&$form, &$form_state) {
     }
     entityconnect_cache_set($cache_id, $data);
     $form_state['redirect'] = "admin/entityconnect/return/$cache_id";
-  }//if()
+  }// if()
 }
 
 /**
@@ -133,7 +133,7 @@ function entityconnect_child_form_cancel(&$form, &$form_state) {
  * we find the cached form and form_state clean up the form_state a bit
  * and mark it to be rebuilt
  *
- * if the cache as an nid we set that in the input 
+ * if the cache as an nid we set that in the input
  */
 function entityconnect_return_node_form_alter(&$form, &$form_state, $form_id, $cache_id, $cache) {
   if (!isset($form_state['#entityconnect_processed'])) {
@@ -146,33 +146,35 @@ function entityconnect_return_node_form_alter(&$form, &$form_state, $form_id, $c
 
     $data = $cache->data;
     $language = $form[$data['field']]['#language'];
-    
-    if (isset($data['target_id']) && $form_state['rebuild']=== TRUE) {      
+
+    if (isset($data['target_id']) && $form_state['rebuild']=== TRUE) {
       if ($node = node_load($data['target_id'])) {
         $element['#default_value'] = $node->title;
         $element['#default_value'] .= ' (' . $node->nid . ')';
-      
-        // use the autocomplete value so we are sure we validate
-        // $value =
-        // _entityreference_autocomplete_validate($element, &$form_state, $form);
-        
+
+        /* use the autocomplete value so we are sure we validate.
+         * $value = _entityreference_autocomplete_validate($element,
+         *    &$form_state, $form);
+         */
+
         $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
-    
+
       }
       elseif ($user = user_load_by_name($data['target_id'])) {
-        
+
         $element['#default_value'] = $user->name;
         $element['#default_value'] .= ' (' . $user->uid . ')';
-      
-        // use the autocomplete value so we are sure we validate
-        // $value =
-        // _entityreference_autocomplete_validate($element, &$form_state, $form);
-        
+
+        /* use the autocomplete value so we are sure we validate
+         * $value = _entityreference_autocomplete_validate($element, 
+         *    &$form_state, $form);
+         */
+
         $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
-    
+
       }// if()
     }// if()
-      
+
     $form_state['#entityconnect_processed'] = TRUE;
     $form = drupal_rebuild_form($form_id, $form_state, $form);
   }// if()
@@ -186,7 +188,7 @@ function entityconnect_cache_set($cid, $data) {
   return cache_set($cid, $data, 'cache', CACHE_PERMANENT);
 }
 
-/*
+/**
  * entityconnect_child_node_form_alter() alters are child create form
  * we add a value field to hold the parent build_cache_id
  * and then we add a cancel button that run entityconnect_child_form_cancel
@@ -209,7 +211,7 @@ function entityconnect_child_node_form_alter(&$form, &$form_state, $form_id, $ca
   $form['actions']['submit']['#submit'][] = 'entityconnect_child_form_submit';
 }
 
-/*
+/**
  * entityconnect_child_user_register_form_alter() alters are child create form
  * we add a value field to hold the parent build_cache_id
  * and then we add a cancel button that run entityconnect_child_form_cancel
@@ -232,4 +234,3 @@ function entityconnect_child_user_registrer_form_alter(&$form, &$form_state, $fo
   $form['actions']['submit']['#submit'][] = 'entityconnect_child_form_submit';
   $form['actions']['submit']['#submit'][] = 'user_register_submit';
 }
-
