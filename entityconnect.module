@@ -37,7 +37,7 @@ function entityconnect_menu() {
  * Implements of hook_field_attach_form().
  */
 function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode) {
-  if ($entity_type == 'node') {
+  // if ($entity_type == 'node') {
     foreach (_entityconnect_get_ref_fields() as $field_name => $field) {
       if (isset($form[$field_name])) {
         entityconnect_include_form();
@@ -45,7 +45,7 @@ function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_s
                 $form_state, $field_name, $field, $langcode);
       } // if()
     } // foreach()
-  }// if()
+  // }// if()
 }
 
 /**
@@ -83,8 +83,7 @@ function entityconnect_form_node_form_alter(&$form, &$form_state, $form_id) {
     }// if()
     if (isset($_REQUEST['return'])) {
       unset($_REQUEST['build_cache_id']);
-      entityconnect_return_node_form_alter($form, $form_state, $form_id,
-              $cid, $cache);
+      entityconnect_return_form_alter($form, $form_state, $form_id, $cid, $cache);
     }// if()
   }// if()
   // If this for is a child form lets add alter for that purpose
@@ -93,8 +92,7 @@ function entityconnect_form_node_form_alter(&$form, &$form_state, $form_id) {
   if (isset($form_state['#entityconnect_child_form'])) {
     $cache = $form_state['#entityconnect_child_form'];
     module_load_include('inc', 'entityconnect', 'includes/entityconnect.form');
-    entityconnect_child_node_form_alter($form, $form_state, $form_id,
-            $cache->cid, $cache);
+    entityconnect_child_node_form_alter($form, $form_state, $form_id, $cache->cid, $cache);
   }// if()
 }
 
@@ -108,6 +106,7 @@ function entityconnect_form_node_form_alter(&$form, &$form_state, $form_id) {
  * TODO: need to move this at somepoint so it can be with any entity
  */
 function entityconnect_form_user_register_form_alter(&$form, &$form_state, $form_id) {
+  dpm('entityconnect_form_user_register_form_alter');
   $child = isset($_REQUEST['child']);
   // We can get the cid two different ways
   // first we try the $_REQUEST param.  if we do not getting it from there we
@@ -124,8 +123,7 @@ function entityconnect_form_user_register_form_alter(&$form, &$form_state, $form
     }// if()
     if (isset($_REQUEST['return'])) {
       unset($_REQUEST['build_cache_id']);
-      entityconnect_return_node_form_alter($form, $form_state, $form_id,
-              $cid, $cache);
+      entityconnect_return_form_alter($form, $form_state, $form_id, $cid, $cache);
     }// if()
   }// if()
   // If this for is a child form lets add alter for that purpose
