@@ -42,7 +42,7 @@ function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_s
       if (isset($form[$field_name])) {
         entityconnect_include_form();
         _entityconnect_field_attach_form($entity_type, $entity, $form,
-                $form_state, $langcode, $field_name, $field);
+                $form_state, $field_name, $field, $langcode);
       } // if()
     } // foreach()
   }// if()

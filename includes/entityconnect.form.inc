@@ -9,7 +9,7 @@
  *
  * here we attach a submit button for each node ref field
  */
-function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode = LANGUAGE_NONE, $field_name, $field) {
+function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_state, $field_name, $field, $langcode = LANGUAGE_NONE) {
   $language = $form[$field_name]['#language'];
   foreach ($form[$field_name][$language] as $key => $field) {
     if (is_numeric($key)) {
@@ -101,7 +101,7 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
  * the rediect to our redirect page.
  */
 function entityconnect_child_form_submit(&$form, &$form_state) {
-  $cache_id =  $form_state['values']['parent_build_cache_id'];
+  $cache_id = $form_state['values']['parent_build_cache_id'];
   if ($cache_id && ($cache = cache_get($cache_id))) {
     $data = $cache->data;
     $entity_type = $form['#entity_type'];
@@ -147,7 +147,7 @@ function entityconnect_return_node_form_alter(&$form, &$form_state, $form_id, $c
     $data = $cache->data;
     $language = $form[$data['field']]['#language'];
 
-    if (isset($data['target_id']) && $form_state['rebuild']=== TRUE) {
+    if (isset($data['target_id']) && $form_state['rebuild'] === TRUE) {
       if ($node = node_load($data['target_id'])) {
         $element['#default_value'] = $node->title;
         $element['#default_value'] .= ' (' . $node->nid . ')';
@@ -166,7 +166,7 @@ function entityconnect_return_node_form_alter(&$form, &$form_state, $form_id, $c
         $element['#default_value'] .= ' (' . $user->uid . ')';
 
         /* use the autocomplete value so we are sure we validate
-         * $value = _entityreference_autocomplete_validate($element, 
+         * $value = _entityreference_autocomplete_validate($element,
          *    &$form_state, $form);
          */
 
@@ -174,14 +174,13 @@ function entityconnect_return_node_form_alter(&$form, &$form_state, $form_id, $c
 
       }// if()
     }// if()
-
     $form_state['#entityconnect_processed'] = TRUE;
     $form = drupal_rebuild_form($form_id, $form_state, $form);
   }// if()
 }
 
 /**
- * entityconnect_cache_set wraps cache set so we can 
+ * entityconnect_cache_set wraps cache set so we can
  * set the expire easily
  */
 function entityconnect_cache_set($cid, $data) {
@@ -221,7 +220,7 @@ function entityconnect_child_user_registrer_form_alter(&$form, &$form_state, $fo
   $form['parent_build_cache_id'] = array(
     '#type' => 'value',
     '#value' => $cache_id,
-  );  
+  );
   $form['actions']['cancel'] = array(
     '#type' => 'submit',
     '#value' => t('Cancel'),
