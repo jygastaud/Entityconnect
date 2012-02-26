@@ -44,7 +44,7 @@ function entityconnect_add($cache_id) {
         $type = str_replace("-", '_', str_replace("node/add/", "", $item['path']));
         if (isset($acceptable_types[$type]) && $acceptable_types[$type]) {
           $item['href'] = $item['href'] . "/$cache_id";
-          $content[$key] = $item;
+           $content[$key] = $item;
         }// if()
       }// foreach()
 

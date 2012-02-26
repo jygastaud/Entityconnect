@@ -15,21 +15,21 @@ function entityconnect_menu() {
       'page callback' => 'entityconnect_return',
       'page arguments' => array(3),
       'access callback' => TRUE,
-      'file' => 'includes/entityconnect.menu.inc'
+      'file' => 'includes/entityconnect.menu.inc',
     ),
     'admin/entityconnect/edit/%' => array(
       'page callback' => 'entityconnect_edit',
       'page arguments' => array(3),
       'access callback' => TRUE,
-      'file' => 'includes/entityconnect.menu.inc'
+      'file' => 'includes/entityconnect.menu.inc',
     ),
     'admin/entityconnect/add/%' => array(
       'title' => "Choose node type to create and add",
       'page callback' => 'entityconnect_add',
       'page arguments' => array(3),
       'access callback' => TRUE,
-      'file' => 'includes/entityconnect.menu.inc'
-    )
+      'file' => 'includes/entityconnect.menu.inc',
+    ),
   );
 }
 
@@ -50,8 +50,8 @@ function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_s
 /**
  * entityconnect_include_form() includes the form inc file
  *
- * This can be used in #submit array before the sumbit functions which are located in the
- * inc file
+ * This can be used in #submit array before the sumbit functions which are
+ * located in the inc file
  */
 function entityconnect_include_form() {
   module_load_include("inc", "entityconnect", "includes/entityconnect.form");
@@ -60,18 +60,21 @@ function entityconnect_include_form() {
 /**
  * Implements of hook_form_node_form_alter().
  *
- * if we are adding a new node we pass of to entityconnect_add_node_form_allter
- * if we are returning to the parent node we hand off to nodequeue_return_node_form_alter
+ * if we are adding a new node we pass of to entityconnect_add_node_form_alter
+ * if we are returning to the parent node we hand off to
+ * nodequeue_return_node_form_alter
+ * 
  * TODO: need to move this at somepoint so it can be with any entity
- *
  */
 function entityconnect_form_node_form_alter(&$form, &$form_state, $form_id) {
   $child = isset($_REQUEST['child']);
   // We can get the cid two different ways
-  // first we try the $_REQUEST param.  if we do not getting it from there we try
-  // the arg(3) if we are on a add form.  Also if we are on an add form we know that
-  // we are a child page.
-  if ((isset($_REQUEST['build_cache_id']) && ($cid = $_REQUEST['build_cache_id']) ) || ((arg(1) == 'add') && ($cid = arg(3)) && $child = TRUE)) {
+  // first we try the $_REQUEST param.  if we do not getting it from there we
+  // try the arg(3) if we are on a add form.  Also if we are on an add form we
+  // know that we are a child page.
+  if ((isset($_REQUEST['build_cache_id'])
+          && ($cid = $_REQUEST['build_cache_id'])) 
+          || ((arg(1) == 'add') && ($cid = arg(3)) && $child = TRUE)) {
     $cache = cache_get($cid);
     entityconnect_include_form();
     if ($child) {
@@ -79,34 +82,41 @@ function entityconnect_form_node_form_alter(&$form, &$form_state, $form_id) {
     }// if()
     if (isset($_REQUEST['return'])) {
       unset($_REQUEST['build_cache_id']);
-      entityconnect_return_node_form_alter($form, $form_state, $form_id, $cid, $cache);
-    } // if()
+      entityconnect_return_node_form_alter($form, $form_state, $form_id, 
+              $cid, $cache);
+    }// if()
   }// if()
   // If this for is a child form lets add alter for that purpose
-  // Note that we are doing this here becuase when we retrun to a form it gets rebuild
-  // so this will get cuaght in the rebuild.
+  // Note that we are doing this here becuase when we retrun to a form it gets
+  // rebuild so this will get cuaght in the rebuild.
   if (isset($form_state['#entityconnect_child_form'])) {
     $cache = $form_state['#entityconnect_child_form'];
     module_load_include('inc', 'entityconnect', 'includes/entityconnect.form');
-    entityconnect_child_node_form_alter($form, $form_state, $form_id, $cache->cid, $cache);
+    entityconnect_child_node_form_alter($form, $form_state, $form_id, 
+            $cache->cid, $cache);
   }// if()
 }
 
 /**
  * Implements of hook_form_user_register_form_alter().
  *
- * if we are adding a new node we pass of to entityconnect_add_node_form_allter
- * if we are returning to the parent node we hand off to nodequeue_return_node_form_alter
+ * if we are adding a new node we pass of to entityconnect_add_node_form_alter
+ * if we are returning to the parent node we hand off to
+ * nodequeue_return_node_form_alter
+ * 
  * TODO: need to move this at somepoint so it can be with any entity
- *
  */
-function entityconnect_form_user_register_form_alter(&$form, &$form_state, $form_id) {
+function entityconnect_form_user_register_form_alter(&$form, &$form_state, 
+        $form_id) {
   $child = isset($_REQUEST['child']);
   // We can get the cid two different ways
-  // first we try the $_REQUEST param.  if we do not getting it from there we try
-  // the arg(3) if we are on a add form.  Also if we are on an add form we know that
-  // we are a child page.
-  if ((isset($_REQUEST['build_cache_id']) && ($cid = $_REQUEST['build_cache_id']) ) || ((arg(1) == 'people') && (arg(2) == 'create') && ($cid = arg(3)) && $child = TRUE)) {
+  // first we try the $_REQUEST param.  if we do not getting it from there we
+  // try the arg(3) if we are on a add form.  Also if we are on an add form we
+  // know that we are a child page.
+  if ((isset($_REQUEST['build_cache_id'])
+          && ($cid = $_REQUEST['build_cache_id']))
+          || ((arg(1) == 'people') && (arg(2) == 'create')
+                  && ($cid = arg(3)) && $child = TRUE)) {
 
     $cache = cache_get($cid);
     if ($child) {
@@ -114,21 +124,24 @@ function entityconnect_form_user_register_form_alter(&$form, &$form_state, $form
     }// if()
     if (isset($_REQUEST['return'])) {
       unset($_REQUEST['build_cache_id']);
-      entityconnect_return_node_form_alter($form, $form_state, $form_id, $cid, $cache);
+      entityconnect_return_node_form_alter($form, $form_state, $form_id, 
+              $cid, $cache);
     }// if()
   }// if()
   // If this for is a child form lets add alter for that purpose
-  // Note that we are doing this here becuase when we retrun to a form it gets rebuild
-  // so this will get caught in the rebuild.
+  // Note that we are doing this here becuase when we retrun to a form it gets
+  // rebuild so this will get caught in the rebuild.
   if (isset($form_state['#entityconnect_child_form'])) {
     $cache = $form_state['#entityconnect_child_form'];
     module_load_include('inc', 'entityconnect', 'includes/entityconnect.form');
-    entityconnect_child_user_registrer_form_alter($form, $form_state, $form_id, $cache->cid, $cache);
+    entityconnect_child_user_registrer_form_alter($form, $form_state, $form_id, 
+            $cache->cid, $cache);
   }// if()
 }
 
 /**
- * _entityconnect_get_ref_fields is a helper function to retieve all entityreference_fields
+ * _entityconnect_get_ref_fields is a helper function to retieve all
+ * entityreference_fields
  */
 function _entityconnect_get_ref_fields() {
   $ref_fields = array();
