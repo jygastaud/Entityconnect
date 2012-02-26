@@ -35,11 +35,11 @@ function entityconnect_add($cache_id) {
   $entity_reference_info = entityreference_get_selection_handler($field);
   $entity_type = $entity_reference_info->field['settings']['target_type'];
 
-  // We get bundles referenced
+  // We get bundles referenced.
   $acceptable_types = $entity_reference_info->field['settings']['handler_settings']['target_bundles'];
 
   if ($entity_type == 'node') {
-    if (count($acceptable_types)>0) {    
+    if (count($acceptable_types) > 0) {
       foreach (system_admin_menu_block(menu_get_item("node/add")) as $key => $item) {
         $type = str_replace("-", '_', str_replace("node/add/", "", $item['path']));
         if (isset($acceptable_types[$type]) && $acceptable_types[$type]) {
@@ -47,8 +47,8 @@ function entityconnect_add($cache_id) {
            $content[$key] = $item;
         }// if()
       }// foreach()
-
-      // If we have only one content-type defined, go directly to the node form. 
+      // If we have only one content-type defined,
+      // go directly to the node form.
       if (sizeof($content) == 1) {
         $item = array_pop($content);
         drupal_goto($item['href']);
@@ -77,7 +77,7 @@ function entityconnect_add($cache_id) {
  * entityconnect_edit is a hook_menu callback
  *
  * we use this to redirect to a edit form but pass the build_cache_id
- * 
+ *
  * To Do: Fix it for user_support
  */
 function entityconnect_edit($cache_id) {
