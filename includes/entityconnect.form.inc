@@ -145,17 +145,16 @@ function entityconnect_return_node_form_alter(&$form, &$form_state, $form_id, $c
     unset($form_state['submit_handlers']);
 
     $data = $cache->data;
-    dpm($data);
     $language = $form[$data['field']]['#language'];
-    // if ($data['add_child']  && isset($data['nid']) && $form_state['rebuild']=== TRUE && ($node = node_load($data['nid'])) ) {
-    //if (isset($data['target_id']) && $form_state['rebuild']=== TRUE && ($node = node_load($data['target_id'])) ) {
+    
     if (isset($data['target_id']) && $form_state['rebuild']=== TRUE) {      
       if ($node = node_load($data['target_id'])) {
         $element['#default_value'] = $node->title;
         $element['#default_value'] .= ' (' . $node->nid . ')';
       
-        //use the autocomplete value so we are sure we validate
-        //$value =  _entityreference_autocomplete_validate($element, &$form_state, $form);
+        // use the autocomplete value so we are sure we validate
+        // $value =
+        // _entityreference_autocomplete_validate($element, &$form_state, $form);
         
         $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
     
@@ -165,8 +164,9 @@ function entityconnect_return_node_form_alter(&$form, &$form_state, $form_id, $c
         $element['#default_value'] = $user->name;
         $element['#default_value'] .= ' (' . $user->uid . ')';
       
-        //use the autocomplete value so we are sure we validate
-        //$value =  _entityreference_autocomplete_validate($element, &$form_state, $form);
+        // use the autocomplete value so we are sure we validate
+        // $value =
+        // _entityreference_autocomplete_validate($element, &$form_state, $form);
         
         $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
     
