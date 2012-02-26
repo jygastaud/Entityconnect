@@ -7,7 +7,7 @@
  */
 
 /**
- * implements of hook_menu()
+ * Implements of hook_menu().
  */
 function entityconnect_menu() {
   return array(
@@ -34,7 +34,7 @@ function entityconnect_menu() {
 }
 
 /**
- * implements of hook_field_attach_form()
+ * Implements of hook_field_attach_form().
  */
 function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode) {
   if ($entity_type == 'node') {
@@ -58,7 +58,7 @@ function entityconnect_include_form() {
 }
 
 /**
- * implements of hook_form_node_form_alter()
+ * Implements of hook_form_node_form_alter().
  *
  * if we are adding a new node we pass of to entityconnect_add_node_form_allter
  * if we are returning to the parent node we hand off to nodequeue_return_node_form_alter
@@ -67,7 +67,6 @@ function entityconnect_include_form() {
  */
 function entityconnect_form_node_form_alter(&$form, &$form_state, $form_id) {
   $child = isset($_REQUEST['child']);
-  
   // We can get the cid two different ways
   // first we try the $_REQUEST param.  if we do not getting it from there we try
   // the arg(3) if we are on a add form.  Also if we are on an add form we know that
@@ -94,7 +93,7 @@ function entityconnect_form_node_form_alter(&$form, &$form_state, $form_id) {
 }
 
 /**
- * implements of hook_form_user_register_form_alter()
+ * Implements of hook_form_user_register_form_alter().
  *
  * if we are adding a new node we pass of to entityconnect_add_node_form_allter
  * if we are returning to the parent node we hand off to nodequeue_return_node_form_alter
@@ -103,7 +102,6 @@ function entityconnect_form_node_form_alter(&$form, &$form_state, $form_id) {
  */
 function entityconnect_form_user_register_form_alter(&$form, &$form_state, $form_id) {
   $child = isset($_REQUEST['child']);
-
   // We can get the cid two different ways
   // first we try the $_REQUEST param.  if we do not getting it from there we try
   // the arg(3) if we are on a add form.  Also if we are on an add form we know that
@@ -114,7 +112,6 @@ function entityconnect_form_user_register_form_alter(&$form, &$form_state, $form
     if ($child) {
       $form_state['#entityconnect_child_form'] = $cache;
     }// if()
-
     if (isset($_REQUEST['return'])) {
       unset($_REQUEST['build_cache_id']);
       entityconnect_return_node_form_alter($form, $form_state, $form_id, $cid, $cache);
@@ -135,7 +132,6 @@ function entityconnect_form_user_register_form_alter(&$form, &$form_state, $form
  */
 function _entityconnect_get_ref_fields() {
   $ref_fields = array();
-  
   foreach (field_info_fields() as $id => $field) {
     if ($field['type'] == 'entityreference') {
       $entity_reference_info = entityreference_get_selection_handler($field);
