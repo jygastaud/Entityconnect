@@ -5,16 +5,16 @@
  */
 
 /**
- * Implements of hook_field_attach_form()
+ * Implements of hook_field_attach_form().
  *
  * here we attach a submit button for each node ref field
  */
-function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode=LANGUAGE_NONE, $field_name, $field) {
+function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode = LANGUAGE_NONE, $field_name, $field) {
   $language = $form[$field_name]['#language'];
   foreach ($form[$field_name][$language] as $key => $field) {
     if (is_numeric($key)) {
-      // we have to add some extra js for single value fields so we add a class to let the
-      // js know
+      // We have to add some extra js for single value fields so we add a class 
+      // to let the js know.
       $extra = $form[$field_name][$language]['#cardinality'] == 1 ? 'single-value' : '';
       $form[$field_name][$language][$key]["add_entityconnect__{$field_name}_$key"] = array(
         '#type' => 'submit',
@@ -51,19 +51,20 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
         '#language' => 'und',
         '#submit' => array('entityconnect_include_form', 'entityconnect_add_edit_button_submit'),
         '#weight' => -2,
-      ); 
+      );
     }// if()
   }// foreach()
-} 
+}
 
 /**
- * entityconnect_add_edit_button_submit() is called when a new node is to be added
+ * entityconnect_add_edit_button_submit() is called when a new node is to be 
+ * added.
  *
- * we cache the current state and form
+ * We cache the current state and form
  * and redirect to the entityconnect_add page with an append build_cached_id
  *
  * TODO: we should capture the current destination so that we can add that back
- * when we return
+ * when we return.
  */
 function entityconnect_add_edit_button_submit(&$form, &$form_state) {
   $cache_id = "entityconnect-" . $form['#build_id'];
@@ -71,7 +72,7 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
   $key   = $form_state['clicked_button']['#key'];
   $language = $form[$field]['#language'];
   $data = array(
-    'form'       => $form, 
+    'form'       => $form,
     'form_state' => $form_state,
     'dest'       => $_GET['q'],
     'field'      => $field,
@@ -84,20 +85,20 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
 
   unset($_GET['destination']);
   if ($data['add_child']) {
-    $form_state['redirect']  =  "admin/entityconnect/add/$cache_id"; 
+    $form_state['redirect'] = "admin/entityconnect/add/$cache_id";
   }
   else {
     if ($data['target_id']) {
-      $form_state['redirect']  =  "admin/entityconnect/edit/$cache_id";
+      $form_state['redirect'] = "admin/entityconnect/edit/$cache_id";
     }// if()
   }// else()
 }
 
 /**
  * entityconnect_child_form_submit() is for submiting of are child create form
- * on submiting of a child form we set 
+ * on submiting of a child form we set
  * set the nid in the cache entry
- * the rediect to our redirect page
+ * the rediect to our redirect page.
  */
 function entityconnect_child_form_submit(&$form, &$form_state) {
   $cache_id =  $form_state['values']['parent_build_cache_id'];
@@ -106,23 +107,23 @@ function entityconnect_child_form_submit(&$form, &$form_state) {
     $entity_type = $form['#entity_type'];
     if ($entity_type == 'node') {
       $data['target_id'] = $form_state['values']['name'];
-    } 
+    }
     elseif ($entity_type == 'user') {
       $data['target_id'] = $form_state['values']['name'];
     }
     entityconnect_cache_set($cache_id, $data);
-    $form_state['redirect']  = "admin/entityconnect/return/$cache_id";
+    $form_state['redirect'] = "admin/entityconnect/return/$cache_id";
   }//if()
 }
 
 /**
- * entityconnect_child_form_cancel() simple 
+ * entityconnect_child_form_cancel() simple
  * sets the redirect to a admin/entityconnect/redirect page
  */
 function entityconnect_child_form_cancel(&$form, &$form_state) {
   $cache_id = $form_state['clicked_button']['#parent_build_cache_id'];
   if ($cache_id && ($cache = cache_get($cache_id))) {
-    $form_state['redirect']  = "admin/entityconnect/return/$cache_id";
+    $form_state['redirect'] = "admin/entityconnect/return/$cache_id";
   }// if()
 }
 
@@ -144,16 +145,11 @@ function entityconnect_return_node_form_alter(&$form, &$form_state, $form_id, $c
 
     $data = $cache->data;
     $language = $form[$data['field']]['#language'];
-    //if ($data['add_child']  && isset($data['nid']) && $form_state['rebuild']=== TRUE && ($node = node_load($data['nid'])) ) {
-    //if (isset($data['target_id']) && $form_state['rebuild']=== TRUE && ($node = node_load($data['target_id'])) ) {
     
     if (isset($data['target_id']) && $form_state['rebuild']=== TRUE) {      
       if ($node = node_load($data['target_id'])) {
         $element['#default_value'] = $node->title;
         $element['#default_value'] .= ' (' . $node->nid . ')';
-      
-        //use the autocomplete value so we are sure we validate
-        //$value =  _entityreference_autocomplete_validate($element, &$form_state, $form);
         
         $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
     
