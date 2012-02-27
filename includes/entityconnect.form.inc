@@ -106,15 +106,22 @@ function entityconnect_child_form_submit(&$form, &$form_state) {
     $data = $cache->data;
     $entity_type = $form['#entity_type'];
 
-    if ($entity_type == 'node') {
-      $data['target_id'] = $form_state['values']['nid'];
+    switch ($entity_type) {
+      case 'node':
+        $data['target_id'] = $form_state['values']['nid'];
+        break;
+
+      case 'user':
+        $data['target_id'] = $form_state['values']['name'];
+        break;
+
+      default:
+        break;
     }
-    elseif ($entity_type == 'user') {
-      $data['target_id'] = $form_state['values']['name'];
-    }
+
     entityconnect_cache_set($cache_id, $data);
     $form_state['redirect'] = "admin/entityconnect/return/$cache_id";
-  }// if()
+  }// switch()
 }
 
 /**
@@ -193,7 +200,7 @@ function entityconnect_cache_set($cid, $data) {
  * and then we add a cancel button that run entityconnect_child_form_cancel
  * and we add a new submit nodeconect_child_form_submit
  */
-function entityconnect_child_node_form_alter(&$form, &$form_state, $form_id, $cache_id, $cache) {
+function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_id, $cache) {
   $form['parent_build_cache_id'] = array(
     '#type' => 'value',
     '#value' => $cache_id,
@@ -206,30 +213,26 @@ function entityconnect_child_node_form_alter(&$form, &$form_state, $form_id, $ca
     '#limit_validation_errors' => array(),
     '#weight' => 20,
   );
-  $form['actions']['submit']['#submit'][] = 'entityconnect_include_form';
-  $form['actions']['submit']['#submit'][] = 'entityconnect_child_form_submit';
-}
 
-/**
- * entityconnect_child_user_register_form_alter() alters are child create form
- * we add a value field to hold the parent build_cache_id
- * and then we add a cancel button that run entityconnect_child_form_cancel
- * and we add a new submit nodeconect_child_form_submit
- */
-function entityconnect_child_user_registrer_form_alter(&$form, &$form_state, $form_id, $cache_id, $cache) {
-  $form['parent_build_cache_id'] = array(
-    '#type' => 'value',
-    '#value' => $cache_id,
-  );
-  $form['actions']['cancel'] = array(
-    '#type' => 'submit',
-    '#value' => t('Cancel'),
-    '#submit' => array('entityconnect_include_form', 'entityconnect_child_form_cancel'),
-    '#parent_build_cache_id' => $cache_id,
-    '#limit_validation_errors' => array(),
-    '#weight' => 20,
-  );
-  $form['actions']['submit']['#submit'][] = 'entityconnect_include_form';
-  $form['actions']['submit']['#submit'][] = 'entityconnect_child_form_submit';
-  $form['actions']['submit']['#submit'][] = 'user_register_submit';
+  $cache = cache_get($cache_id);
+  $field = field_info_field($cache->data['field']);
+
+  $entity_reference_info = entityreference_get_selection_handler($field);
+  $entity_type = $entity_reference_info->field['settings']['target_type'];
+
+  switch ($entity_type) {
+    case 'node':
+      $form['actions']['submit']['#submit'][] = 'entityconnect_include_form';
+      $form['actions']['submit']['#submit'][] = 'entityconnect_child_form_submit';
+      break;
+
+    case 'user':
+      $form['actions']['submit']['#submit'][] = 'entityconnect_include_form';
+      $form['actions']['submit']['#submit'][] = 'entityconnect_child_form_submit';
+      $form['actions']['submit']['#submit'][] = 'user_register_submit';
+      break;
+
+    default:
+      break;
+  }
 }
