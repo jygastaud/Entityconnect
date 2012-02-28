@@ -35,41 +35,70 @@ function entityconnect_add($cache_id) {
   $entity_reference_info = entityreference_get_selection_handler($field);
   $entity_type = $entity_reference_info->field['settings']['target_type'];
 
-  // We get bundles referenced.
-  $acceptable_types = $entity_reference_info->field['settings']['handler_settings']['target_bundles'];
+  //dpm($entity_type);
+  switch ($entity_type) {
+    case 'node':
+      // We get bundles referenced.
+      $acceptable_types = $entity_reference_info->field['settings']['handler_settings']['target_bundles'];
 
-  if ($entity_type == 'node') {
-    if (count($acceptable_types) > 0) {
-      foreach (system_admin_menu_block(menu_get_item("node/add")) as $key => $item) {
-        $type = str_replace("-", '_', str_replace("node/add/", "", $item['path']));
-        if (isset($acceptable_types[$type]) && $acceptable_types[$type]) {
-          $item['href'] = $item['href'] . "/$cache_id";
-           $content[$key] = $item;
+      if (count($acceptable_types) > 0) {
+        foreach (system_admin_menu_block(menu_get_item("node/add")) as $key => $item) {
+          $type = str_replace("-", '_', str_replace("node/add/", "", $item['path']));
+          if (isset($acceptable_types[$type]) && $acceptable_types[$type]) {
+            $item['href'] = $item['href'] . "/$cache_id";
+            $content[$key] = $item;
+          }// if()
+        }// foreach()
+        // If we have only one content-type defined,
+        // go directly to the node form.
+        if (sizeof($content) == 1) {
+          $item = array_pop($content);
+          drupal_goto($item['href']);
         }// if()
-      }// foreach()
-      // If we have only one content-type defined,
-      // go directly to the node form.
-      if (sizeof($content) == 1) {
-        $item = array_pop($content);
-        drupal_goto($item['href']);
-      }// if()
-    }
-    else {
-      foreach (system_admin_menu_block(menu_get_item("node/add")) as $key => $item) {
-        $type = str_replace("-", '_', str_replace("node/add/", "", $item['path']));
-        $item['href'] = $item['href'] . "/$cache_id";
-        $content[$key] = $item;
       }
-    }
+      else {
+        foreach (system_admin_menu_block(menu_get_item("node/add")) as $key => $item) {
+          $type = str_replace("-", '_', str_replace("node/add/", "", $item['path']));
+          $item['href'] = $item['href'] . "/$cache_id";
+          $content[$key] = $item;
+        }
+      }
 
-    $output = theme('node_add_list', array('content' => $content));
-    $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
-  }
-  elseif ($entity_type == 'user') {
+      $output = theme('node_add_list', array('content' => $content));
+      $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
+      break;
+
+    case 'user':
       $item['href'] = 'admin/people/create/' . $cache_id . '';
       drupal_goto($item['href']);
-  }
+      break;
 
+    case 'taxonomy_term':
+      // We get bundles referenced.
+      $acceptable_types = $entity_reference_info->field['settings']['handler_settings']['target_bundles'];
+//        $acceptable_types = $entity_reference_info;
+
+      dpr($acceptable_types);
+      //dpr(system_admin_menu_block(menu_get_item('admin/structure/taxonomy')));
+      if (count($acceptable_types) > 0) {
+
+        if (sizeof($acceptable_types) == 1) {
+          $item['href'] = 'admin/structure/taxonomy/' . $acceptable_types . '' . $cache_id . '';
+          drupal_goto($item['href']);
+        }// if()
+      }
+      else {
+        /* foreach (system_admin_menu_block(menu_get_item("node/add")) as $key => $item) {
+          $type = str_replace("-", '_', str_replace("node/add/", "", $item['path']));
+          $item['href'] = $item['href'] . "/$cache_id";
+          $content[$key] = $item;
+        }
+*/      }
+      break;
+
+    default:
+      break;
+  }
   return $output;
 }
 

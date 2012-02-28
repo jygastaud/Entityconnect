@@ -154,9 +154,9 @@ function _entityconnect_get_ref_fields() {
       $entity_type = $entity_reference_info->field['settings']['target_type'];
 
       // Currently limited to node && user.
-      if ($entity_type == 'node' || $entity_type == 'user') {
+ //     if ($entity_type == 'node' || $entity_type == 'user') {
         $ref_fields[$id] = $field;
-      }// if()
+//      }// if()
     }// if()
   }// foreach()
   return $ref_fields;
