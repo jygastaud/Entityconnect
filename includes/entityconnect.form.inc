@@ -114,7 +114,19 @@ function entityconnect_child_form_submit(&$form, &$form_state) {
       case 'user':
         $data['target_id'] = $form_state['values']['name'];
         break;
-
+      
+      case 'comment':
+        // TO DO.
+        break;
+    
+      case 'file':
+        // TO DO.
+        break;
+    
+      case 'taxonomy_term':
+        // TO DO.
+        break;
+      
       default:
         break;
     }
@@ -231,7 +243,12 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
       $form['actions']['submit']['#submit'][] = 'entityconnect_child_form_submit';
       $form['actions']['submit']['#submit'][] = 'user_register_submit';
       break;
-
+    
+    /* case 'taxonomy_term':
+      $form['actions']['submit']['#submit'][] = 'entityconnect_include_form';
+      $form['actions']['submit']['#submit'][] = 'entityconnect_child_form_submit';
+      break; */
+    
     default:
       break;
   }
