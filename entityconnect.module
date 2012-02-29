@@ -67,8 +67,8 @@ function entityconnect_include_form() {
  *
  * TODO: need to move this at somepoint so it can be with any entity
  */
-function entityconnect_form_node_form_alter(&$form, &$form_state, $form_id) {
-//function entityconnect_form_alter(&$form, &$form_state, $form_id) {
+//function entityconnect_form_node_form_alter(&$form, &$form_state, $form_id) {
+function entityconnect_form_alter(&$form, &$form_state, $form_id) {
   $child = isset($_REQUEST['child']);
 
   // We can get the cid two different ways

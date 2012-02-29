@@ -104,8 +104,11 @@ function entityconnect_child_form_submit(&$form, &$form_state) {
   $cache_id = $form_state['values']['parent_build_cache_id'];
   if ($cache_id && ($cache = cache_get($cache_id))) {
     $data = $cache->data;
-    $entity_type = $form['#entity_type'];
-
+    $field = field_info_field($cache->data['field']);
+    
+    $entity_reference_info = entityreference_get_selection_handler($field);
+    $entity_type = $entity_reference_info->field['settings']['target_type'];
+  
     switch ($entity_type) {
       case 'node':
         $data['target_id'] = $form_state['values']['nid'];
@@ -133,6 +136,7 @@ function entityconnect_child_form_submit(&$form, &$form_state) {
 
     entityconnect_cache_set($cache_id, $data);
     $form_state['redirect'] = "admin/entityconnect/return/$cache_id";
+
   }// switch()
 }
 
@@ -156,6 +160,12 @@ function entityconnect_child_form_cancel(&$form, &$form_state) {
  */
 function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_id, $cache) {
   if (!isset($form_state['#entityconnect_processed'])) {
+    dpm($form);
+    dpm($form_state);
+    dpm($form_id);
+    dpm($cache_id);
+    dpm($cache);
+                 
     $form_state = $cache->data['form_state'];
     $form = $cache->data['form'];
     $form_state['submitted'] = FALSE;
@@ -207,7 +217,7 @@ function entityconnect_cache_set($cid, $data) {
 }
 
 /**
- * entityconnect_child_node_form_alter() alters are child create form
+ * entityconnect_child_form_alter() alters are child create form
  * we add a value field to hold the parent build_cache_id
  * and then we add a cancel button that run entityconnect_child_form_cancel
  * and we add a new submit nodeconect_child_form_submit
@@ -227,11 +237,12 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
   );
 
   $cache = cache_get($cache_id);
+  dpm($cache);
   $field = field_info_field($cache->data['field']);
-
+  
   $entity_reference_info = entityreference_get_selection_handler($field);
   $entity_type = $entity_reference_info->field['settings']['target_type'];
-
+  
   switch ($entity_type) {
     case 'node':
       $form['actions']['submit']['#submit'][] = 'entityconnect_include_form';
