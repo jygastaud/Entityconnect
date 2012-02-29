@@ -136,7 +136,7 @@ function entityconnect_child_form_cancel(&$form, &$form_state) {
  * if the cache as an nid we set that in the input
  */
 function entityconnect_return_node_form_alter(&$form, &$form_state, $form_id, $cache_id, $cache) {
-  if (!isset($form_state['#entityconnect_processed'])) {
+  if (!isset($form_state['#entityconnect_processed'])) {    
     $form_state = $cache->data['form_state'];
     $form = $cache->data['form'];
     $form_state['submitted'] = FALSE;
