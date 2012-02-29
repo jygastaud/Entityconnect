@@ -160,12 +160,6 @@ function entityconnect_child_form_cancel(&$form, &$form_state) {
  */
 function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_id, $cache) {
   if (!isset($form_state['#entityconnect_processed'])) {
-    dpm($form);
-    dpm($form_state);
-    dpm($form_id);
-    dpm($cache_id);
-    dpm($cache);
-                 
     $form_state = $cache->data['form_state'];
     $form = $cache->data['form'];
     $form_state['submitted'] = FALSE;
@@ -235,15 +229,25 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
     '#limit_validation_errors' => array(),
     '#weight' => 20,
   );
-
-  $cache = cache_get($cache_id);
-  dpm($cache);
-  $field = field_info_field($cache->data['field']);
+  $form['actions']['submit']['#submit'][] = 'entityconnect_include_form';
+  $form['actions']['submit']['#submit'][] = 'entityconnect_child_form_submit';
   
+  //dpm($form_id);
+  if ($form_id == 'user_register_form') {
+    $form['actions']['submit']['#submit'][] = 'user_register_submit';
+  }
+  
+  /*
+  //$cache = cache_get($cache_id);
+  //dpm($cache);
+  $field = field_info_field($cache->data['field']);
+  dpm('field');
+  dpm($field);
   $entity_reference_info = entityreference_get_selection_handler($field);
   $entity_type = $entity_reference_info->field['settings']['target_type'];
+  dpm($entity_type);
   
-  switch ($entity_type) {
+   switch ($entity_type) {
     case 'node':
       $form['actions']['submit']['#submit'][] = 'entityconnect_include_form';
       $form['actions']['submit']['#submit'][] = 'entityconnect_child_form_submit';
@@ -254,13 +258,13 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
       $form['actions']['submit']['#submit'][] = 'entityconnect_child_form_submit';
       $form['actions']['submit']['#submit'][] = 'user_register_submit';
       break;
-    
+    */
     /* case 'taxonomy_term':
       $form['actions']['submit']['#submit'][] = 'entityconnect_include_form';
       $form['actions']['submit']['#submit'][] = 'entityconnect_child_form_submit';
       break; */
-    
+    /*
     default:
       break;
-  }
+  } */
 }

@@ -87,6 +87,12 @@ function entityconnect_form_alter(&$form, &$form_state, $form_id) {
     }// if()
     if (isset($_REQUEST['return'])) {
       unset($_REQUEST['build_cache_id']);
+      dpm($form);
+      dpm($form_state);
+      dpm($form_id);
+      dpm($cid);
+      dpm($cache);
+      
       entityconnect_return_form_alter($form, $form_state, $form_id, $cid, $cache);
     }// if()
   }// if()
@@ -96,6 +102,12 @@ function entityconnect_form_alter(&$form, &$form_state, $form_id) {
   if (isset($form_state['#entityconnect_child_form'])) {
     $cache = $form_state['#entityconnect_child_form'];
     module_load_include('inc', 'entityconnect', 'includes/entityconnect.form');
+          dpm($form);
+      dpm($form_state);
+      dpm($form_id);
+      dpm($cid);
+      dpm($cache);
+      
     entityconnect_child_form_alter($form, $form_state, $form_id, $cache->cid, $cache);
   }// if()
 }
