@@ -237,10 +237,10 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
       $form['actions']['submit']['#submit'][] = 'user_register_submit';
       break;
 
-    /* case 'user_profile_form':
+    case 'user_profile_form':
       $form['actions']['submit']['#submit'][] = 'user_profile_form_submit';
       break;
-*/
+
     default:
       break;
   }
