@@ -95,8 +95,7 @@ function entityconnect_edit($cache_id) {
     
     case 'user':
       drupal_goto("user/" . $cache->data['target_id'] . "/edit", array('query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
+      return $cache_id;
       break;
   }
-
-  return $cache_id;
 }
