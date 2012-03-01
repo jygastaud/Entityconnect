@@ -233,3 +233,27 @@ function entityconnect_child_user_registrer_form_alter(&$form, &$form_state, $fo
   $form['actions']['submit']['#submit'][] = 'entityconnect_child_form_submit';
   $form['actions']['submit']['#submit'][] = 'user_register_submit';
 }
+
+/**
+ * entityconnect_child_user_register_form_alter() alters are child create form
+ * we add a value field to hold the parent build_cache_id
+ * and then we add a cancel button that run entityconnect_child_form_cancel
+ * and we add a new submit nodeconect_child_form_submit
+ */
+function entityconnect_child_user_profile_form_alter(&$form, &$form_state, $form_id, $cache_id, $cache) {
+  $form['parent_build_cache_id'] = array(
+    '#type' => 'value',
+    '#value' => $cache_id,
+  );
+  $form['actions']['cancel'] = array(
+    '#type' => 'submit',
+    '#value' => t('Cancel'),
+    '#submit' => array('entityconnect_include_form', 'entityconnect_child_form_cancel'),
+    '#parent_build_cache_id' => $cache_id,
+    '#limit_validation_errors' => array(),
+    '#weight' => 20,
+  );
+  $form['actions']['submit']['#submit'][] = 'entityconnect_include_form';
+  $form['actions']['submit']['#submit'][] = 'entityconnect_child_form_submit';
+  $form['actions']['submit']['#submit'][] = 'user_profile_form_submit';
+}

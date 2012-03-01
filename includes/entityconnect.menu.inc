@@ -76,12 +76,27 @@ function entityconnect_add($cache_id) {
 /**
  * entityconnect_edit is a hook_menu callback
  *
- * we use this to redirect to a edit form but pass the build_cache_id
+ * We use this to redirect to a edit form but pass the build_cache_id
  *
- * To Do: Fix it for user_support
  */
 function entityconnect_edit($cache_id) {
   $cache = cache_get($cache_id);
-  drupal_goto("node/" . $cache->data['target_id'] . "/edit", array('query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
+  
+  $field = field_info_field($cache->data['field']);
+
+  $entity_reference_info = entityreference_get_selection_handler($field);
+  $entity_type = $entity_reference_info->field['settings']['target_type'];
+
+  switch ($entity_type) {
+    case 'node':
+      drupal_goto("node/" . $cache->data['target_id'] . "/edit", array('query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
+      return $cache_id;
+      break;
+    
+    case 'user':
+      drupal_goto("user/" . $cache->data['target_id'] . "/edit", array('query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
+      break;
+  }
+
   return $cache_id;
 }
