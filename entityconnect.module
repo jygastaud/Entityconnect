@@ -41,8 +41,7 @@ function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_s
     foreach (_entityconnect_get_ref_fields() as $field_name => $field) {
       if (isset($form[$field_name])) {
         entityconnect_include_form();
-        _entityconnect_field_attach_form($entity_type, $entity, $form,
-                $form_state, $field_name, $field, $langcode);
+        _entityconnect_field_attach_form($entity_type, $entity, $form, $form_state, $field_name, $field, $langcode);
       } // if()
     } // foreach()
   }// if()
@@ -73,9 +72,7 @@ function entityconnect_form_node_form_alter(&$form, &$form_state, $form_id) {
   // first we try the $_REQUEST param.  if we do not getting it from there we
   // try the arg(3) if we are on a add form.  Also if we are on an add form we
   // know that we are a child page.
-  if ((isset($_REQUEST['build_cache_id'])
-          && ($cid = $_REQUEST['build_cache_id']))
-          || ((arg(1) == 'add') && ($cid = arg(3)) && $child = TRUE)) {
+  if ((isset($_REQUEST['build_cache_id']) && ($cid = $_REQUEST['build_cache_id'])) || ((arg(1) == 'add') && ($cid = arg(3)) && $child = TRUE)) {
     $cache = cache_get($cid);
     entityconnect_include_form();
     if ($child) {
@@ -83,8 +80,7 @@ function entityconnect_form_node_form_alter(&$form, &$form_state, $form_id) {
     }// if()
     if (isset($_REQUEST['return'])) {
       unset($_REQUEST['build_cache_id']);
-      entityconnect_return_node_form_alter($form, $form_state, $form_id,
-              $cid, $cache);
+      entityconnect_return_node_form_alter($form, $form_state, $form_id, $cid, $cache);
     }// if()
   }// if()
   // If this for is a child form lets add alter for that purpose
@@ -93,8 +89,7 @@ function entityconnect_form_node_form_alter(&$form, &$form_state, $form_id) {
   if (isset($form_state['#entityconnect_child_form'])) {
     $cache = $form_state['#entityconnect_child_form'];
     module_load_include('inc', 'entityconnect', 'includes/entityconnect.form');
-    entityconnect_child_node_form_alter($form, $form_state, $form_id,
-            $cache->cid, $cache);
+    entityconnect_child_node_form_alter($form, $form_state, $form_id, $cache->cid, $cache);
   }// if()
 }
 
@@ -113,10 +108,7 @@ function entityconnect_form_user_register_form_alter(&$form, &$form_state, $form
   // first we try the $_REQUEST param.  if we do not getting it from there we
   // try the arg(3) if we are on a add form.  Also if we are on an add form we
   // know that we are a child page.
-  if ((isset($_REQUEST['build_cache_id'])
-          && ($cid = $_REQUEST['build_cache_id']))
-          || ((arg(1) == 'people') && (arg(2) == 'create')
-                  && ($cid = arg(3)) && $child = TRUE)) {
+  if ((isset($_REQUEST['build_cache_id']) && ($cid = $_REQUEST['build_cache_id'])) || ((arg(1) == 'people') && (arg(2) == 'create') && ($cid = arg(3)) && $child = TRUE)) {
 
     $cache = cache_get($cid);
     if ($child) {
@@ -124,8 +116,7 @@ function entityconnect_form_user_register_form_alter(&$form, &$form_state, $form
     }// if()
     if (isset($_REQUEST['return'])) {
       unset($_REQUEST['build_cache_id']);
-      entityconnect_return_node_form_alter($form, $form_state, $form_id,
-              $cid, $cache);
+      entityconnect_return_node_form_alter($form, $form_state, $form_id, $cid, $cache);
     }// if()
   }// if()
   // If this for is a child form lets add alter for that purpose
@@ -134,8 +125,7 @@ function entityconnect_form_user_register_form_alter(&$form, &$form_state, $form
   if (isset($form_state['#entityconnect_child_form'])) {
     $cache = $form_state['#entityconnect_child_form'];
     module_load_include('inc', 'entityconnect', 'includes/entityconnect.form');
-    entityconnect_child_user_registrer_form_alter($form, $form_state, $form_id,
-            $cache->cid, $cache);
+    entityconnect_child_user_registrer_form_alter($form, $form_state, $form_id, $cache->cid, $cache);
   }// if()
 }
 
