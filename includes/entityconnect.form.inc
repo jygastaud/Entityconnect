@@ -231,13 +231,21 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
   );
   $form['actions']['submit']['#submit'][] = 'entityconnect_include_form';
   $form['actions']['submit']['#submit'][] = 'entityconnect_child_form_submit';
-  
-  //dpm($form_id);
-  if ($form_id == 'user_register_form') {
-    $form['actions']['submit']['#submit'][] = 'user_register_submit';
+
+  switch ($form_id) {
+    case 'user_register_form':
+      $form['actions']['submit']['#submit'][] = 'user_register_submit';
+      break;
+
+    case 'user_profile_form':
+      $form['actions']['submit']['#submit'][] = 'user_profile_form_submit';
+      break;
+
+    default:
+      break;
   }
   
-  /*
+ /* 
   //$cache = cache_get($cache_id);
   //dpm($cache);
   $field = field_info_field($cache->data['field']);
@@ -247,24 +255,20 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
   $entity_type = $entity_reference_info->field['settings']['target_type'];
   dpm($entity_type);
   
-   switch ($entity_type) {
-    case 'node':
-      $form['actions']['submit']['#submit'][] = 'entityconnect_include_form';
-      $form['actions']['submit']['#submit'][] = 'entityconnect_child_form_submit';
-      break;
-
-    case 'user':
-      $form['actions']['submit']['#submit'][] = 'entityconnect_include_form';
-      $form['actions']['submit']['#submit'][] = 'entityconnect_child_form_submit';
-      $form['actions']['submit']['#submit'][] = 'user_register_submit';
-      break;
-    */
+   switch ($entity_type) { 
+      case 'user':
+        $form['actions']['submit']['#submit'][] = 'user_register_submit';
+        break;
+    
+      case '':
+        user_profile_form;
+        break;
     /* case 'taxonomy_term':
       $form['actions']['submit']['#submit'][] = 'entityconnect_include_form';
       $form['actions']['submit']['#submit'][] = 'entityconnect_child_form_submit';
       break; */
     /*
     default:
-      break;
-  } */
+      break; */
+  // } 
 }
