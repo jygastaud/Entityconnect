@@ -81,8 +81,8 @@ function entityconnect_add($cache_id) {
       // TO DO.
       break;
     
-    /* case 'taxonomy_term':
-      // We get bundles referenced.
+     case 'taxonomy_term':
+    /*  // We get bundles referenced.
       $acceptable_types = $entity_reference_info->field['settings']['handler_settings']['target_bundles'];
 
       if (count($acceptable_types) > 0) {
@@ -113,8 +113,8 @@ function entityconnect_add($cache_id) {
       }// else()
 
       $output = theme('taxonomy_overview_vocabularies', array('taxonomy' => $content));
-      $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
-      break; */
+      $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id"); */
+      break; 
 
     default:
       break;
