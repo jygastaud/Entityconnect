@@ -235,7 +235,7 @@ function entityconnect_child_user_registrer_form_alter(&$form, &$form_state, $fo
 }
 
 /**
- * entityconnect_child_user_register_form_alter() alters are child create form
+ * entityconnect_child_user_profile_form_alter() alters are child create form
  * we add a value field to hold the parent build_cache_id
  * and then we add a cancel button that run entityconnect_child_form_cancel
  * and we add a new submit nodeconect_child_form_submit
