@@ -9,8 +9,8 @@ and return them when they are done editing.
 
 Original concept and piece of code based on NodeConnect.
 
-List of working entities on node form:
-  - Node / Content type
+List of working entities on form:
+  - Node
   - User
 
 Release 7.x-2.x goals are:
@@ -19,4 +19,3 @@ Release 7.x-2.x goals are:
 - Add compatibility with Entites UI like
   1. ECK (Entity Construction Kit)(http://drupal.org/project/eck),
   2. Model Entities (http://drupal.org/project/model)
-
