@@ -22,7 +22,7 @@ function entityconnect_return($cache_id) {
  * entityconnect_add is hook_menu callback
  *
  * This page will load the cached form info, and display links to each of the
- * referenceable types.
+ * entityreference types.
  * If there is only one it will redirect to that page.
  *
  * This is mostly a copy and hack up of the node add page.

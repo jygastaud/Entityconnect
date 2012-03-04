@@ -14,14 +14,12 @@ function entityconnect_menu() {
     'admin/entityconnect/return/%' => array(
       'page callback' => 'entityconnect_return',
       'page arguments' => array(3),
-      'access arguments' => array('access content'),
       'access callback' => TRUE,
       'file' => 'includes/entityconnect.menu.inc',
     ),
     'admin/entityconnect/edit/%' => array(
       'page callback' => 'entityconnect_edit',
       'page arguments' => array(3),
-      'access arguments' => array('access content'),
       'access callback' => TRUE,
       'file' => 'includes/entityconnect.menu.inc',
     ),
@@ -29,7 +27,6 @@ function entityconnect_menu() {
       'title' => "Choose type to create and add",
       'page callback' => 'entityconnect_add',
       'page arguments' => array(3),
-      'access arguments' => array('access content'),
       'access callback' => TRUE,
       'file' => 'includes/entityconnect.menu.inc',
     ),
@@ -108,11 +105,29 @@ function _entityconnect_get_ref_fields() {
     if ($field['type'] == 'entityreference') {
       $entity_reference_info = entityreference_get_selection_handler($field);
       $entity_type = $entity_reference_info->field['settings']['target_type'];
+      $target_bundle = $entity_reference_info->field['settings']['handler_settings']['target_bundles'];
 
-      // Currently limited to node && user.
-      if ($entity_type == 'node' || $entity_type == 'user') {
-        $ref_fields[$id] = $field;
-      }// if()
+      switch ($entity_type) {
+        case 'user':
+          if (user_access('administer users')) {
+            $ref_fields[$id] = $field;
+          }
+          break;
+
+        case 'node':
+          if (isset($target_bundle) && count($target_bundle) == 1) {
+            if (user_access('create ' . array_pop($target_bundle) . ' content')) {
+              $ref_fields[$id] = $field;
+            }
+          }
+          else {
+            $ref_fields[$id] = $field;
+          }
+          break;
+
+        default:
+          break;
+      }
     }// if()
   }// foreach()
   return $ref_fields;
