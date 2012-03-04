@@ -62,9 +62,8 @@ function entityconnect_add($cache_id) {
           $type = str_replace("-", '_', str_replace("node/add/", "", $item['path']));
           $item['href'] = $item['href'] . "/$cache_id";
           $content[$key] = $item;
-        }
-      }
-
+        }// foreach()
+      }// else()
       $output = theme('node_add_list', array('content' => $content));
       $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
       break;
