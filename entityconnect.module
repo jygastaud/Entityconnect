@@ -14,19 +14,22 @@ function entityconnect_menu() {
     'admin/entityconnect/return/%' => array(
       'page callback' => 'entityconnect_return',
       'page arguments' => array(3),
+      'access arguments' => array('access content'),
       'access callback' => TRUE,
       'file' => 'includes/entityconnect.menu.inc',
     ),
     'admin/entityconnect/edit/%' => array(
       'page callback' => 'entityconnect_edit',
       'page arguments' => array(3),
+      'access arguments' => array('access content'),
       'access callback' => TRUE,
       'file' => 'includes/entityconnect.menu.inc',
     ),
     'admin/entityconnect/add/%' => array(
-      'title' => "Choose node type to create and add",
+      'title' => "Choose type to create and add",
       'page callback' => 'entityconnect_add',
       'page arguments' => array(3),
+      'access arguments' => array('access content'),
       'access callback' => TRUE,
       'file' => 'includes/entityconnect.menu.inc',
     ),

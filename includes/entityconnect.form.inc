@@ -62,7 +62,6 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
  *
  * We cache the current state and form
  * and redirect to the entityconnect_add page with an append build_cached_id.
- *
  */
 function entityconnect_add_edit_button_submit(&$form, &$form_state) {
   $cache_id = "entityconnect-" . $form['#build_id'];
@@ -155,7 +154,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
     $data = $cache->data;
     $language = $form[$data['field']]['#language'];
 
-    if (isset($data['target_id']) && $form_state['rebuild'] === TRUE) {
+    if (isset($data['target_id']) && $data['target_id'] != 0 && $form_state['rebuild'] === TRUE) {
       if ($node = node_load($data['target_id'])) {
 
         $element['#default_value'] = $node->title;
