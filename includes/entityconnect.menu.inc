@@ -11,10 +11,9 @@
 function entityconnect_return($cache_id) {
   $cache = cache_get($cache_id);
   $css_id = "edit-" . str_replace('_', '-', $cache->data['field']);
-  drupal_goto($cache->data['dest'], array('query' => array(
-            "build_cache_id" => $cache_id,
-            "return" => TRUE), 'fragment' => $css_id));
-  //return $cache_id;
+  drupal_goto($cache->data['dest'], array('query' =>
+      array("build_cache_id" => $cache_id, "return" => TRUE),
+      'fragment' => $css_id));
 }
 
 /**
