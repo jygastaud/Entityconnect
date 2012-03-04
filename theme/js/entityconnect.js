@@ -2,13 +2,13 @@
   Drupal.behaviors.entityconnect = {
     'attach': function(context) {
       ref_field_buttons = {};
-      $(".entityconnect-add.single-value", context).each( function() {
+      $(".entityconnect-add.single-value", context).each(function() {
         $(this).insertAfter($(this).next().find("label"));
       });
-      $(".entityconnect-edit.single-value", context).each( function() {
+      $(".entityconnect-edit.single-value", context).each(function() {
         $(this).insertAfter($(this).next().find("label"));
       });
-      $(".entityconnect-edit", context).each( function() {
+      $(".entityconnect-edit", context).each(function() {
         edit = $(this).find('input');
         text = $(this).siblings("[type='text']");
         if(text.length == 0) {
