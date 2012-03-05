@@ -36,7 +36,7 @@ function entityconnect_menu() {
     'page callback' => 'entityconnect_return',
     'page arguments' => array(3),
     'access callback' => TRUE,
-    'access argument' => user_access('entityconnect add button'),
+    'access argument' => 'entityconnect_check_access',
     'file' => 'includes/entityconnect.menu.inc',
   );
 
@@ -57,6 +57,18 @@ function entityconnect_menu() {
     'file' => 'includes/entityconnect.menu.inc',
   );
   return $items;
+}
+
+/**
+ * entityconnect_check_access() is the access function called by return menu.
+ */
+function entityconnect_check_access() {
+  if (user_access('entityconnect add button') || user_access('entityconnect edit button')) {
+    return TRUE;
+  } 
+  else {
+    return FALSE;
+  }
 }
 
 /**
