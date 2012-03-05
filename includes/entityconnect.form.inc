@@ -67,6 +67,14 @@ function _entityconnect_edit_field_attach_form($entity_type, $entity, &$form, &$
         '#language' => 'und',
         '#submit' => array('entityconnect_include_form', 'entityconnect_add_edit_button_submit'),
         '#weight' => -2,
+        '#attached' => array(
+          'js' => array(
+            drupal_get_path('module', 'entityconnect') . "/theme/js/entityconnect.js",
+          ),
+          'css' => array(
+            drupal_get_path('module', 'entityconnect') . "/theme/css/entityconnect.css",
+          ),
+        ),                
       );
     }// if()
   }// foreach()
