@@ -135,14 +135,14 @@ function _entityconnect_get_ref_fields() {
 
       switch ($entity_type) {
         case 'user':
-          if (user_access('administer users')) {
+          if (user_access('administer users') && user_access('entityconnect add button')) {
             $ref_fields[$id] = $field;
           }
           break;
 
         case 'node':
           if (isset($target_bundle) && count($target_bundle) == 1) {
-            if (user_access('create ' . array_pop($target_bundle) . ' content')) {
+            if (user_access('create ' . array_pop($target_bundle) . ' content') && user_access('entityconnect add button')) {
               $ref_fields[$id] = $field;
             }
           }
