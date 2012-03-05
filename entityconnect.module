@@ -6,31 +6,57 @@
  * One will find most of the meat in the form and menu includes.
  */
 
+
+/**
+ * Implementation of hook permission
+ * 
+ * @return Assoc
+ *   permission items
+ * 
+ */
+function entityconnect_permission() {
+  return array(
+    'entityconnect add button' => array(
+      'title' => t('Allow user to see add button'),
+      'description' => t('Display the add button for user'),
+    ),
+    'entityconnect edit button' => array(
+      'title' => t('Allow user to see edit button'),
+      'description' => t('Display the edit button for user'),
+    ),
+  );
+}
+
 /**
  * Implements of hook_menu().
  */
 function entityconnect_menu() {
-  return array(
-    'admin/entityconnect/return/%' => array(
-      'page callback' => 'entityconnect_return',
-      'page arguments' => array(3),
-      'access callback' => TRUE,
-      'file' => 'includes/entityconnect.menu.inc',
-    ),
-    'admin/entityconnect/edit/%' => array(
-      'page callback' => 'entityconnect_edit',
-      'page arguments' => array(3),
-      'access callback' => TRUE,
-      'file' => 'includes/entityconnect.menu.inc',
-    ),
-    'admin/entityconnect/add/%' => array(
-      'title' => "Choose type to create and add",
-      'page callback' => 'entityconnect_add',
-      'page arguments' => array(3),
-      'access callback' => TRUE,
-      'file' => 'includes/entityconnect.menu.inc',
-    ),
+  $items = array();
+  $items['admin/entityconnect/return/%'] = array(
+    'page callback' => 'entityconnect_return',
+    'page arguments' => array(3),
+    'access callback' => TRUE,
+    'access argument' => user_access('entityconnect add button'),
+    'file' => 'includes/entityconnect.menu.inc'
   );
+
+  $items['admin/entityconnect/edit/%'] = array(
+    'page callback' => 'entityconnect_edit',
+    'page arguments' => array(3),
+    'access callback' => TRUE,
+    'access argument' => user_access('entityconnect edit button'),
+    'file' => 'includes/entityconnect.menu.inc',
+  );
+
+  $items['admin/entityconnect/add/%'] = array(
+    'title' => "Choose type to create and add",
+    'page callback' => 'entityconnect_add',
+    'page arguments' => array(3),
+    'access callback' => TRUE,
+    'access argument' => user_access('entityconnect add button'),
+    'file' => 'includes/entityconnect.menu.inc',
+  );
+  return $items;
 }
 
 /**
