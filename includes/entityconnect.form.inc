@@ -74,7 +74,7 @@ function _entityconnect_edit_field_attach_form($entity_type, $entity, &$form, &$
           'css' => array(
             drupal_get_path('module', 'entityconnect') . "/theme/css/entityconnect.css",
           ),
-        ),                
+        ),               
       );
     }// if()
   }// foreach()

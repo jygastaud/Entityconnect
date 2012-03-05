@@ -65,7 +65,7 @@ function entityconnect_menu() {
 function entityconnect_check_access() {
   if (user_access('entityconnect add button') || user_access('entityconnect edit button')) {
     return TRUE;
-  } 
+  }
   else {
     return FALSE;
   }
