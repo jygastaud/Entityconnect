@@ -9,10 +9,10 @@
 
 /**
  * Implementation of hook permission
- * 
+ *
  * @return Assoc
  *   permission items
- * 
+ *
  */
 function entityconnect_permission() {
   return array(
@@ -37,7 +37,7 @@ function entityconnect_menu() {
     'page arguments' => array(3),
     'access callback' => TRUE,
     'access argument' => user_access('entityconnect add button'),
-    'file' => 'includes/entityconnect.menu.inc'
+    'file' => 'includes/entityconnect.menu.inc',
   );
 
   $items['admin/entityconnect/edit/%'] = array(
