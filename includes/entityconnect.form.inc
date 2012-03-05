@@ -9,7 +9,7 @@
  *
  * Here we attach a submit button for each node ref field.
  */
-function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_state, $field_name, $field, $langcode = LANGUAGE_NONE) {
+function _entityconnect_add_field_attach_form($entity_type, $entity, &$form, &$form_state, $field_name, $field, $langcode = LANGUAGE_NONE) {
   $language = $form[$field_name]['#language'];
   foreach ($form[$field_name][$language] as $key => $field) {
     if (is_numeric($key)) {
@@ -38,6 +38,22 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
           ),
         ),
       );
+    }// if()
+  }// foreach()
+}
+
+/**
+ * Implements of hook_field_attach_form().
+ *
+ * Here we attach a submit button for each node ref field.
+ */
+function _entityconnect_edit_field_attach_form($entity_type, $entity, &$form, &$form_state, $field_name, $field, $langcode = LANGUAGE_NONE) {
+  $language = $form[$field_name]['#language'];
+  foreach ($form[$field_name][$language] as $key => $field) {
+    if (is_numeric($key)) {
+      // We have to add some extra js for single value fields so we add a class
+      // to let the js know.
+      $extra = $form[$field_name][$language]['#cardinality'] == 1 ? 'single-value' : '';
       $form[$field_name][$language][$key]["edit_entityconnect__{$field_name}_$key"] = array(
         '#type' => 'submit',
         '#limit_validation_errors' => array(array($field_name)),
