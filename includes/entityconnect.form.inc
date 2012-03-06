@@ -244,4 +244,3 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
       break;
   }// switch()
 }
-
