@@ -138,7 +138,6 @@ function entityconnect_child_form_submit(&$form, &$form_state) {
 
       case 'user':
         $data['target_id'] = $form_state['values']['name'];
-        dpm($data['target_id']);
         break;
 
       default:
