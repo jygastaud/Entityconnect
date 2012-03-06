@@ -138,6 +138,7 @@ function entityconnect_child_form_submit(&$form, &$form_state) {
 
       case 'user':
         $data['target_id'] = $form_state['values']['name'];
+        dpm($data['target_id']);
         break;
 
       default:
@@ -178,8 +179,8 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
     $data = $cache->data;
     $language = $form[$data['field']]['#language'];
 
-    if (isset($data['target_id']) && $data['target_id'] != 0 && $form_state['rebuild'] === TRUE) {
-      if ($node = node_load($data['target_id'])) {
+    if (isset($data['target_id']) && $form_state['rebuild'] === TRUE) {
+      if ($data['target_id'] != 0 && $node = node_load($data['target_id'])) {
 
         $element['#default_value'] = $node->title;
         $element['#default_value'] .= ' (' . $node->nid . ')';
@@ -187,8 +188,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
         $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
 
       }
-      elseif ($user = user_load_by_name($data['target_id'])) {
-
+      elseif ($data['target_id'] != NULL && $user = user_load_by_name($data['target_id'])) {
         $element['#default_value'] = $user->name;
         $element['#default_value'] .= ' (' . $user->uid . ')';
 
