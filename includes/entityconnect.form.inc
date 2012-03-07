@@ -187,7 +187,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
         $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
 
       }
-      elseif (($data['target_id'] != NULL or $data['target_id'] != 0) && $user = user_load_by_name($data['target_id'])) {
+      elseif (($data['target_id'] != NULL || $data['target_id'] != 0) && $user = user_load_by_name($data['target_id'])) {
 
         $element['#default_value'] = $user->name;
         $element['#default_value'] .= ' (' . $user->uid . ')';
