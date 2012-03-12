@@ -17,11 +17,11 @@
 function entityconnect_permission() {
   return array(
     'entityconnect add button' => array(
-      'title' => t('Allow user to see add button'),
+      'title' => t('Allows users to see add button'),
       'description' => t('Display the add button for user'),
     ),
     'entityconnect edit button' => array(
-      'title' => t('Allow user to see edit button'),
+      'title' => t('Allows users to see edit button'),
       'description' => t('Display the edit button for user'),
     ),
   );
