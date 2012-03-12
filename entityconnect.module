@@ -12,7 +12,6 @@
  *
  * @return Assoc
  *   permission items
- *
  */
 function entityconnect_permission() {
   return array(
