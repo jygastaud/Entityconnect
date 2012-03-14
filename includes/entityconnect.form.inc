@@ -81,8 +81,7 @@ function _entityconnect_edit_field_attach_form($entity_type, $entity, &$form, &$
 }
 
 /**
- * entityconnect_add_edit_button_submit() is called when a new node is to be
- * added.
+ * Call when a new node is to be added.
  *
  * We cache the current state and form
  * and redirect to the entityconnect_add page with an append build_cached_id.
