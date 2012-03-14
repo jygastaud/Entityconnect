@@ -34,16 +34,14 @@ function entityconnect_menu() {
   $items['admin/entityconnect/return/%'] = array(
     'page callback' => 'entityconnect_return',
     'page arguments' => array(3),
-    'access callback' => TRUE,
-    'access argument' => 'entityconnect_check_access',
+    'access callback' => 'entityconnect_check_access',
     'file' => 'includes/entityconnect.menu.inc',
   );
 
   $items['admin/entityconnect/edit/%'] = array(
     'page callback' => 'entityconnect_edit',
     'page arguments' => array(3),
-    //'access callback' => TRUE,
-    'access argument' => user_access('entityconnect edit button'),
+    'access argument' => array('entityconnect edit button'),
     'file' => 'includes/entityconnect.menu.inc',
   );
 
@@ -51,15 +49,14 @@ function entityconnect_menu() {
     'title' => "Choose type to create and add",
     'page callback' => 'entityconnect_add',
     'page arguments' => array(3),
-    //'access callback' => TRUE,
-    'access argument' => user_access('entityconnect add button'),
+    'access argument' => array('entityconnect add button'),
     'file' => 'includes/entityconnect.menu.inc',
   );
   return $items;
 }
 
 /**
- * entityconnect_check_access() is the access function called by return menu.
+ * Access callback: Used in return menu.
  */
 function entityconnect_check_access() {
   if (user_access('entityconnect add button') || user_access('entityconnect edit button')) {
@@ -90,7 +87,7 @@ function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_s
 }
 
 /**
- * entityconnect_include_form() includes the form inc file.
+ * Include the form inc file.
  *
  * This can be used in #submit array before the sumbit functions which are
  * located in the inc file.
@@ -100,10 +97,10 @@ function entityconnect_include_form() {
 }
 
 /**
- * Implements of hook_form_node_form_alter().
+ * Implements of hook_form_alter().
  *
- * If we are adding a new node we pass of to entityconnect_add_node_form_alter
- * if we are returning to the parent node we hand off to
+ * If we are adding a new node we pass of to entityconnect_add_form_alter
+ * if we are returning to the parent form we hand off to
  * entityconnect_return_form_alter.
  */
 function entityconnect_form_alter(&$form, &$form_state, $form_id) {
@@ -138,8 +135,7 @@ function entityconnect_form_alter(&$form, &$form_state, $form_id) {
 }
 
 /**
- * _entityconnect_get_ref_fields is a helper function to retieve all
- * entityreference_fields.
+ * Helper function to retieve all entityreference fields.
  */
 function _entityconnect_get_ref_fields() {
   $ref_fields = array();

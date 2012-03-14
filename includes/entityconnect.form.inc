@@ -7,7 +7,7 @@
 /**
  * Implements of hook_field_attach_form().
  *
- * Here we attach a submit button for each node ref field.
+ * Here we attach a "Add" submit button for each allowed entityreference field.
  */
 function _entityconnect_add_field_attach_form($entity_type, $entity, &$form, &$form_state, $field_name, $field, $langcode = LANGUAGE_NONE) {
   $language = $form[$field_name]['#language'];
@@ -45,7 +45,7 @@ function _entityconnect_add_field_attach_form($entity_type, $entity, &$form, &$f
 /**
  * Implements of hook_field_attach_form().
  *
- * Here we attach a submit button for each node ref field.
+ * Here we attach a "Edit" submit button for each allowed entityreference field.
  */
 function _entityconnect_edit_field_attach_form($entity_type, $entity, &$form, &$form_state, $field_name, $field, $langcode = LANGUAGE_NONE) {
   $language = $form[$field_name]['#language'];
@@ -81,10 +81,10 @@ function _entityconnect_edit_field_attach_form($entity_type, $entity, &$form, &$
 }
 
 /**
- * Call when a new node is to be added.
+ * Call when a new entity is to be added or edited.
  *
  * We cache the current state and form
- * and redirect to the entityconnect_add page with an append build_cached_id.
+ * and redirect to the add or edit page with an append build_cached_id.
  */
 function entityconnect_add_edit_button_submit(&$form, &$form_state) {
   $cache_id = "entityconnect-" . $form['#build_id'];
@@ -115,10 +115,10 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
 }
 
 /**
- * entityconnect_child_form_submit() is for submiting of are child create form
- * on submiting of a child form we set.
- *
- * Set the nid in the cache entry
+ * Sets submit button on child create form
+ * 
+ * On submiting of a child form we set:
+ * the target_id in the cache entry 
  * the rediect to our redirect page.
  */
 function entityconnect_child_form_submit(&$form, &$form_state) {
@@ -148,8 +148,7 @@ function entityconnect_child_form_submit(&$form, &$form_state) {
 }
 
 /**
- * entityconnect_child_form_cancel() simple
- * sets the redirect to a admin/entityconnect/redirect page.
+ * Sets the redirect to a admin/entityconnect/redirect page.
  */
 function entityconnect_child_form_cancel(&$form, &$form_state) {
   $cache_id = $form_state['clicked_button']['#parent_build_cache_id'];
@@ -159,11 +158,13 @@ function entityconnect_child_form_cancel(&$form, &$form_state) {
 }
 
 /**
+ * Complete entityreference field on parent form with the target_id value.
+ * 
  * This is for when we return to the parent page
  * we find the cached form and form_state clean up the form_state a bit
  * and mark it to be rebuilt.
  *
- * If the cache as an nid we set that in the input.
+ * If the cache as a target_id we set that in the input.
  */
 function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_id, $cache) {
   if (!isset($form_state['#entityconnect_processed'])) {
@@ -200,18 +201,20 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
 }
 
 /**
- * entityconnect_cache_set wraps cache set so we can
- * set the expire easily.
+ * Wraps cache set
+ * 
+ * We can set the expire easily if needed.
  */
 function entityconnect_cache_set($cid, $data) {
   return cache_set($cid, $data, 'cache', CACHE_PERMANENT);
 }
 
 /**
- * entityconnect_child_form_alter() alters are child create form
- * we add a value field to hold the parent build_cache_id
- * and then we add a cancel button that run entityconnect_child_form_cancel
- * and we add a new submit nodeconect_child_form_submit.
+ * Alters child create form.
+ *
+ * We add a value field to hold the parent build_cache_id
+ * then we add a cancel button that run entityconnect_child_form_cancel
+ * and a new submit button.
  */
 function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_id, $cache) {
   $form['parent_build_cache_id'] = array(

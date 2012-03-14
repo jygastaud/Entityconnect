@@ -5,8 +5,9 @@
  */
 
 /**
- * entityconnect_return is a hook_menu callback
- * redirects to the form page with the build_cache_id as a get param.
+ * Page callback: Redirects to the form page 
+ * 
+ * We redirect to the form page with the build_cache_id as a get param.
  */
 function entityconnect_return($cache_id) {
   $cache = cache_get($cache_id);
@@ -19,7 +20,7 @@ function entityconnect_return($cache_id) {
 }
 
 /**
- * entityconnect_add is hook_menu callback
+ * Page callback: Load cached form info.
  *
  * This page will load the cached form info, and display links to each of the
  * entityreference types.
@@ -80,7 +81,7 @@ function entityconnect_add($cache_id) {
 }
 
 /**
- * entityconnect_edit is a hook_menu callback
+ * Page callback: Redirect to edit form. 
  *
  * We use this to redirect to a edit form but pass the build_cache_id.
  */
