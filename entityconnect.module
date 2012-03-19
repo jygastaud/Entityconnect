@@ -99,7 +99,7 @@ function entityconnect_include_form() {
 /**
  * Implements of hook_form_alter().
  *
- * If we are adding a new node we pass of to entityconnect_add_form_alter
+ * If we are adding a new entity we pass of to entityconnect_add_form_alter
  * if we are returning to the parent form we hand off to
  * entityconnect_return_form_alter.
  */
