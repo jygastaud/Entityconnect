@@ -8,7 +8,7 @@
 
 
 /**
- * Implements of hook_permission().
+ * Implements hook_permission().
  *
  * @return Assoc
  *   permission items
@@ -27,7 +27,7 @@ function entityconnect_permission() {
 }
 
 /**
- * Implements of hook_menu().
+ * Implements hook_menu().
  */
 function entityconnect_menu() {
   $items = array();
@@ -68,7 +68,7 @@ function entityconnect_check_access() {
 }
 
 /**
- * Implements of hook_field_attach_form().
+ * Implements hook_field_attach_form().
  */
 function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode) {
   foreach (_entityconnect_get_ref_fields() as $field_name => $field) {
@@ -97,7 +97,7 @@ function entityconnect_include_form() {
 }
 
 /**
- * Implements of hook_form_alter().
+ * Implements hook_form_alter().
  *
  * If we are adding a new entity we pass of to entityconnect_add_form_alter
  * if we are returning to the parent form we hand off to
@@ -135,7 +135,7 @@ function entityconnect_form_alter(&$form, &$form_state, $form_id) {
 }
 
 /**
- * Helper function to retieve all entityreference fields.
+ * Helper function to retieve all allowed entityreference fields.
  */
 function _entityconnect_get_ref_fields() {
   $ref_fields = array();
@@ -158,16 +158,16 @@ function _entityconnect_get_ref_fields() {
             if ((user_access('create ' . array_pop($target_bundle) . ' content') || user_access('administer nodes'))
                     && (user_access('entityconnect add button') || user_access('entityconnect edit button'))) {
               $ref_fields[$id] = $field;
-            }
+            }// if()
           }
           elseif (user_access('entityconnect add button') || user_access('entityconnect edit button')) {
             $ref_fields[$id] = $field;
-          }
+          }// elseif()
           break;
 
         default:
           break;
-      }
+      }// switch()
     }// if()
   }// foreach()
   return $ref_fields;

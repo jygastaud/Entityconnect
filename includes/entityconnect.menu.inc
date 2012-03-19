@@ -5,7 +5,7 @@
  */
 
 /**
- * Page callback: Redirects to the form page 
+ * Page callback: Redirects to the form page.
  * 
  * We redirect to the form page with the build_cache_id as a get param.
  */
@@ -81,7 +81,7 @@ function entityconnect_add($cache_id) {
 }
 
 /**
- * Page callback: Redirect to edit form. 
+ * Page callback: Redirect to edit form.
  *
  * We use this to redirect to a edit form but pass the build_cache_id.
  */
@@ -94,11 +94,13 @@ function entityconnect_edit($cache_id) {
 
   switch ($entity_type) {
     case 'node':
-      drupal_goto("node/" . $cache->data['target_id'] . "/edit", array('query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
+      drupal_goto("node/" . $cache->data['target_id'] . "/edit", array(
+          'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
       break;
 
     case 'user':
-      drupal_goto("user/" . $cache->data['target_id'] . "/edit", array('query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
+      drupal_goto("user/" . $cache->data['target_id'] . "/edit", array(
+          'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
       break;
-  }
+  }// switch()
 }

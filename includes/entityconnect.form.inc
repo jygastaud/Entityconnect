@@ -5,7 +5,7 @@
  */
 
 /**
- * Implements of hook_field_attach_form().
+ * Implements hook_field_attach_form().
  *
  * Here we attach a "Add" submit button for each allowed entityreference field.
  */
@@ -43,7 +43,7 @@ function _entityconnect_add_field_attach_form($entity_type, $entity, &$form, &$f
 }
 
 /**
- * Implements of hook_field_attach_form().
+ * Implements hook_field_attach_form().
  *
  * Here we attach a "Edit" submit button for each allowed entityreference field.
  */
@@ -115,7 +115,7 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
 }
 
 /**
- * Sets submit button on child create form
+ * Sets submit button on child create form.
  * 
  * On submiting of a child form we set:
  * the target_id in the cache entry 
@@ -201,7 +201,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
 }
 
 /**
- * Wraps cache set
+ * Wraps cache set.
  * 
  * We can set the expire easily if needed.
  */
