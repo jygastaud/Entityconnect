@@ -116,9 +116,9 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
 
 /**
  * Sets submit button on child create form.
- * 
+ *
  * On submiting of a child form we set:
- * the target_id in the cache entry 
+ * the target_id in the cache entry
  * the rediect to our redirect page.
  */
 function entityconnect_child_form_submit(&$form, &$form_state) {
@@ -159,7 +159,7 @@ function entityconnect_child_form_cancel(&$form, &$form_state) {
 
 /**
  * Complete entityreference field on parent form with the target_id value.
- * 
+ *
  * This is for when we return to the parent page
  * we find the cached form and form_state clean up the form_state a bit
  * and mark it to be rebuilt.
@@ -202,7 +202,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
 
 /**
  * Wraps cache set.
- * 
+ *
  * We can set the expire easily if needed.
  */
 function entityconnect_cache_set($cid, $data) {

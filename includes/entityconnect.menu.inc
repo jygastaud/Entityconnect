@@ -6,7 +6,7 @@
 
 /**
  * Page callback: Redirects to the form page.
- * 
+ *
  * We redirect to the form page with the build_cache_id as a get param.
  */
 function entityconnect_return($cache_id) {
