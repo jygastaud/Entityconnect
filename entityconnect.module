@@ -41,6 +41,8 @@ function entityconnect_menu() {
   $items['admin/entityconnect/edit/%'] = array(
     'page callback' => 'entityconnect_edit',
     'page arguments' => array(3),
+    'access callback' => TRUE,
+    'access callback' => 'user_access',
     'access argument' => array('entityconnect edit button'),
     'file' => 'includes/entityconnect.menu.inc',
   );
@@ -49,6 +51,7 @@ function entityconnect_menu() {
     'title' => "Choose type to create and add",
     'page callback' => 'entityconnect_add',
     'page arguments' => array(3),
+    'access callback' => 'user_access',
     'access argument' => array('entityconnect add button'),
     'file' => 'includes/entityconnect.menu.inc',
   );
