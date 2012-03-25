@@ -64,7 +64,7 @@ function _entityconnect_edit_field_attach_form($entity_type, $entity, &$form, &$
         '#key' => $key,
         '#field' => $field_name,
         '#add_child' => FALSE,
-        '#language' => 'und',
+        '#language' => LANGUAGE_NONE,
         '#submit' => array('entityconnect_include_form', 'entityconnect_add_edit_button_submit'),
         '#weight' => -2,
         '#attached' => array(

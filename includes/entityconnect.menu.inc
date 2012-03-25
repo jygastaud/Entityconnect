@@ -70,7 +70,7 @@ function entityconnect_add($cache_id) {
       break;
 
     case 'user':
-      $item['href'] = 'admin/people/create/' . $cache_id . '';
+      $item['href'] = "admin/people/create/$cache_id";
       drupal_goto($item['href']);
       break;
 
