@@ -19,7 +19,7 @@ function _entityconnect_add_field_attach_form($entity_type, $entity, &$form, &$f
       $form[$field_name][$language][$key]["add_entityconnect__{$field_name}_$key"] = array(
         '#type' => 'submit',
         '#limit_validation_errors' => array(),
-        '#value' => t('New Content'),
+        '#value' => t('New content'),
         '#name' => "add_entityconnect__{$field_name}_$key",
         '#prefix' => "<div class = 'entityconnect-add $extra'>",
         '#suffix' => '</div>',
@@ -57,7 +57,7 @@ function _entityconnect_edit_field_attach_form($entity_type, $entity, &$form, &$
       $form[$field_name][$language][$key]["edit_entityconnect__{$field_name}_$key"] = array(
         '#type' => 'submit',
         '#limit_validation_errors' => array(array($field_name)),
-        '#value' => t('Edit Content'),
+        '#value' => t('Edit content'),
         '#name' => "edit_entityconnect__{$field_name}_$key",
         '#prefix' => "<div class = 'entityconnect-edit $extra'>",
         '#suffix' => '</div>',
@@ -230,10 +230,10 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
         case 'taxonomy_vocabulary':
           if (($data['target_id'] != NULL || $data['target_id'] != 0) && $vocabulary = taxonomy_vocabulary_load($data['target_id'])) {
 
-             $element['#default_value'] = $vocabulary->name;
-             $element['#default_value'] .= ' (' . $vocabulary->vid . ')';
+            $element['#default_value'] = $vocabulary->name;
+            $element['#default_value'] .= ' (' . $vocabulary->vid . ')';
 
-             $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
+            $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
 
           }// if()
           break;

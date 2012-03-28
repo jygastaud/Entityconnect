@@ -32,6 +32,7 @@ function entityconnect_permission() {
 function entityconnect_menu() {
   $items = array();
   $items['admin/entityconnect/return/%'] = array(
+    'description' => 'Return item for original entity.',
     'page callback' => 'entityconnect_return',
     'page arguments' => array(3),
     'access callback' => 'entityconnect_check_access',
@@ -39,6 +40,7 @@ function entityconnect_menu() {
   );
 
   $items['admin/entityconnect/edit/%'] = array(
+    'description' => 'Edit item for entity referenced.',
     'page callback' => 'entityconnect_edit',
     'page arguments' => array(3),
     'access callback' => 'user_access',
@@ -48,6 +50,7 @@ function entityconnect_menu() {
 
   $items['admin/entityconnect/add/%'] = array(
     'title' => "Choose type to create and add",
+    'description' => 'Add item for entity referenced.',
     'page callback' => 'entityconnect_add',
     'page arguments' => array(3),
     'access callback' => 'user_access',
