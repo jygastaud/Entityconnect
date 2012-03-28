@@ -89,6 +89,18 @@ function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_s
 }
 
 /**
+ * Implementation of hook_theme()
+ */
+function entityconnect_theme() {
+  return array(
+    'entityconnect_taxonomy_term_add_list' => array(
+      'arguments' => array('items' => NULL),
+      'file' => 'includes/entityconnect.pages.inc',
+    ),
+  );
+}
+
+/**
  * Include the form inc file.
  *
  * This can be used in #submit array before the sumbit functions which are
@@ -115,7 +127,9 @@ function entityconnect_form_alter(&$form, &$form_state, $form_id) {
   if ((isset($_REQUEST['build_cache_id'])
           && ($cid = $_REQUEST['build_cache_id']))
           || ((arg(1) == 'add') && ($cid = arg(3)) && $child = TRUE)
-          || ((arg(1) == 'people') && (arg(2) == 'create') && ($cid = arg(3)) && $child = TRUE)) {
+          || ((arg(1) == 'people') && (arg(2) == 'create') && ($cid = arg(3)) && $child = TRUE)
+          || ((arg(2) == 'taxonomy') && (arg(4) == 'add') && ($cid = arg(5)) && $child = TRUE)
+          || ((arg(2) == 'taxonomy') && (arg(3) == 'add') && ($cid = arg(4)) && $child = TRUE)) {
     $cache = cache_get($cid);
     entityconnect_include_form();
     if ($child) {
@@ -165,6 +179,24 @@ function _entityconnect_get_ref_fields() {
           elseif (user_access('entityconnect add button') || user_access('entityconnect edit button')) {
             $ref_fields[$id] = $field;
           }// elseif()
+          break;
+
+        case 'taxonomy_term':
+          if (user_access('entityconnect add button') || user_access('entityconnect edit button')) {
+            $ref_fields[$id] = $field;
+          }// if()
+          break;
+
+        case 'taxonomy_vocabulary':
+          if (user_access('entityconnect add button') || user_access('entityconnect edit button')) {
+            $ref_fields[$id] = $field;
+          }// if()
+          break;
+        
+        case 'comments':
+          if (user_access('entityconnect add button') || user_access('entityconnect edit button')) {
+            $ref_fields[$id] = $field;
+          }// if()
           break;
 
         default:

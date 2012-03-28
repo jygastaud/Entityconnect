@@ -27,14 +27,17 @@ FAQ
 Q. I have define "see add button" permissions but can't see the add button
 on my entityreference which point on an content type.
 A. When only one content type is defined on entityreference field, module
-also check if user has the permission to "create N content" where N is 
+also check if user has the permission to "create N content" where N is
 the content type or has the permission "administer nodes".
 
 
 Next steps
 ----------
+
+7.x-1.x-RC or Stable will come when all core entities will be supports.
+
 Release 7.x-2.x goals are:
-- Add supports for all core entities,
+- Add Ctools support,
 - Add Commerce Entities and reference fields for product reference fields,
 - Add compatibility with Entites UI like
   1. ECK (Entity Construction Kit)(http://drupal.org/project/eck),

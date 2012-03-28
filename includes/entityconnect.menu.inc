@@ -74,6 +74,51 @@ function entityconnect_add($cache_id) {
       drupal_goto($item['href']);
       break;
 
+    case 'taxonomy_term':
+      // We get bundles referenced.
+      $acceptable_types = $entity_reference_info->field['settings']['handler_settings']['target_bundles'];
+      $voc_list = array();
+
+      if (count($acceptable_types) > 0) {
+        foreach (taxonomy_get_vocabularies() as $key => $item) {
+          $type = $item->machine_name;
+          if (isset($acceptable_types[$type]) && $acceptable_types[$type]) {
+            $item->href = "admin/structure/taxonomy/$type/add/$cache_id";
+            $content[$key] = $item;
+            $voc_list[] = l($item->name, $item->href);
+
+          }// if()
+        }// foreach()
+        // If we have only one vocabulary defined,
+        // go directly to the term add form.
+        if (sizeof($content) == 1) {
+          $item = array_pop($content);
+          drupal_goto($item->href);
+        }// if()
+      }
+      else {
+        foreach (taxonomy_get_vocabularies() as $key => $item) {
+          (!isset($item->href)) ? $item->href = NULL : $item->href;
+          $type = $item->machine_name;
+          if (isset($acceptable_types[$type]) && $acceptable_types[$type]) {
+            $item->href = "admin/structure/taxonomy/$type/add/$cache_id";
+            $content[$key] = $item;
+            $voc_list[] = l($item->name, $item->href);
+          }// if()
+        }// foreach()
+      }// else()
+      $output = theme('entityconnect_taxonomy_term_add_list', array('items' => $content));
+      $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
+      break;
+
+    case 'taxonomy_vocabulary':   
+      $item['href'] = "admin/structure/taxonomy/add/$cache_id";
+      drupal_goto($item['href']);
+      break;
+
+    case 'comments':
+      break;
+
     default:
       break;
   }// switch()
@@ -101,6 +146,23 @@ function entityconnect_edit($cache_id) {
     case 'user':
       drupal_goto("user/" . $cache->data['target_id'] . "/edit", array(
           'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
+      break;
+
+    case 'taxonomy_term':
+      drupal_goto("taxonomy/term/" . $cache->data['target_id'] . "/edit", array(
+          'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
+
+      break;
+
+    case 'taxonomy_vocabulary':
+      drupal_goto("admin/structure/taxonomy/" . $cache->data['target_id'] . "/edit", array(
+          'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
+      break;
+
+    case 'comments':
+      break;
+
+    default:
       break;
   }// switch()
 }
