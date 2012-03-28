@@ -111,7 +111,7 @@ function entityconnect_add($cache_id) {
       $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
       break;
 
-    case 'taxonomy_vocabulary':   
+    case 'taxonomy_vocabulary':
       $item['href'] = "admin/structure/taxonomy/add/$cache_id";
       drupal_goto($item['href']);
       break;

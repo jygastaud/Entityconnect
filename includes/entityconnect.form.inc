@@ -92,7 +92,7 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
   $key   = $form_state['clicked_button']['#key'];
   $language = $form[$field]['#language'];
 
-  $field_info = field_info_field($field); 
+  $field_info = field_info_field($field);
   $entity_reference_info = entityreference_get_selection_handler($field_info);
   $entity_type = $entity_reference_info->field['settings']['target_type'];
 
@@ -289,11 +289,11 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
       break;
 
     case 'taxonomy_form_term':
-      $form['actions']['submit']['#submit'][] = 'taxonomy_form_term_submit';    
+      $form['actions']['submit']['#submit'][] = 'taxonomy_form_term_submit';
       break;
 
     case 'taxonomy_form_vocabulary':
-      $form['actions']['submit']['#submit'][] = 'taxonomy_form_vocabulary_submit';    
+      $form['actions']['submit']['#submit'][] = 'taxonomy_form_vocabulary_submit';
       break;
 
     default:
