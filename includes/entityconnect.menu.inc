@@ -116,9 +116,6 @@ function entityconnect_add($cache_id) {
       drupal_goto($item['href']);
       break;
 
-    case 'comments':
-      break;
-
     default:
       break;
   }// switch()
@@ -157,9 +154,6 @@ function entityconnect_edit($cache_id) {
     case 'taxonomy_vocabulary':
       drupal_goto("admin/structure/taxonomy/" . $cache->data['target_id'] . "/edit", array(
           'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
-      break;
-
-    case 'comments':
       break;
 
     default:

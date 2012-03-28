@@ -153,9 +153,6 @@ function entityconnect_child_form_submit(&$form, &$form_state) {
         $data['target_id'] = $form_state['values']['vid'];
         break;
 
-      case 'comments':
-        break;
-
       default:
         break;
     }// switch()
