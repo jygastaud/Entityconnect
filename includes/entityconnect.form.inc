@@ -18,7 +18,7 @@ function _entityconnect_add_field_attach_form($entity_type, $entity, &$form, &$f
       $extra = $form[$field_name][$language]['#cardinality'] == 1 ? 'single-value' : '';
       $form[$field_name][$language][$key]["add_entityconnect__{$field_name}_$key"] = array(
         '#type' => 'submit',
-        '#limit_validation_errors' => array(array($field_name)),
+        '#limit_validation_errors' => array(),
         '#value' => t('New Content'),
         '#name' => "add_entityconnect__{$field_name}_$key",
         '#prefix' => "<div class = 'entityconnect-add $extra'>",
@@ -91,6 +91,7 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
   $field = $form_state['clicked_button']['#field'];
   $key   = $form_state['clicked_button']['#key'];
   $language = $form[$field]['#language'];
+  $target_id = (isset($form_state['values'][$field][$language][$key]['target_id'])) ? $form_state['values'][$field][$language][$key]['target_id'] : 0;
 
   $field_info = field_info_field($field);
   $entity_reference_info = entityreference_get_selection_handler($field_info);
@@ -103,7 +104,7 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
     'field'      => $field,
     'key'        => $key,
     'add_child'  => $form_state['clicked_button']['#add_child'],
-    'target_id'  => $form_state['values'][$field][$language][$key]['target_id'],
+    'target_id'  => $target_id,
     'target_entity_type' => $entity_type,
   );
 
