@@ -91,11 +91,11 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
   $field = $form_state['clicked_button']['#field'];
   $key   = $form_state['clicked_button']['#key'];
   $language = $form[$field]['#language'];
-  
+
   $field_info = field_info_field($field); 
   $entity_reference_info = entityreference_get_selection_handler($field_info);
   $entity_type = $entity_reference_info->field['settings']['target_type'];
-  
+
   $data = array(
     'form'       => $form,
     'form_state' => $form_state,
@@ -106,7 +106,7 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
     'target_id'  => $form_state['values'][$field][$language][$key]['target_id'],
     'target_entity_type' => $entity_type,
   );
-    
+
   entityconnect_cache_set($cache_id, $data);
 
   unset($_GET['destination']);
@@ -217,29 +217,29 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
 
           }// if()
           break;
-        
+
         case 'taxonomy_term':
-            if (($data['target_id'] != NULL || $data['target_id'] != 0) && $term = taxonomy_term_load($data['target_id'])) {
+          if (($data['target_id'] != NULL || $data['target_id'] != 0) && $term = taxonomy_term_load($data['target_id'])) {
 
-              $element['#default_value'] = $term->name;
-              $element['#default_value'] .= ' (' . $term->tid . ')';
+            $element['#default_value'] = $term->name;
+            $element['#default_value'] .= ' (' . $term->tid . ')';
 
-              $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
+            $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
 
-            }// if()
+          }// if()
           break;
-        
-         case 'taxonomy_vocabulary':
-           if (($data['target_id'] != NULL || $data['target_id'] != 0) && $vocabulary = taxonomy_vocabulary_load($data['target_id'])) {
 
-              $element['#default_value'] = $vocabulary->name;
-              $element['#default_value'] .= ' (' . $vocabulary->vid . ')';
+        case 'taxonomy_vocabulary':
+          if (($data['target_id'] != NULL || $data['target_id'] != 0) && $vocabulary = taxonomy_vocabulary_load($data['target_id'])) {
 
-              $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
+             $element['#default_value'] = $vocabulary->name;
+             $element['#default_value'] .= ' (' . $vocabulary->vid . ')';
 
-            }// if()
-           break;
-           
+             $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
+
+          }// if()
+          break;
+
         default:
           break;
       }// if()
@@ -287,7 +287,7 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
     case 'user_profile_form':
       $form['actions']['submit']['#submit'][] = 'user_profile_form_submit';
       break;
-    
+
     case 'taxonomy_form_term':
       $form['actions']['submit']['#submit'][] = 'taxonomy_form_term_submit';    
       break;
@@ -295,7 +295,7 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
     case 'taxonomy_form_vocabulary':
       $form['actions']['submit']['#submit'][] = 'taxonomy_form_vocabulary_submit';    
       break;
-    
+
     default:
       break;
   }// switch()

@@ -6,9 +6,9 @@
  */
 
 /**
- * Returns HTML for a list of available node types for node creation.
+ * Returns HTML for a list of available taxonomy vocabularies for term creation.
  *
- * @param $variables
+ * @param array $variables
  *   An associative array containing:
  *   - content: An array of content types.
  *

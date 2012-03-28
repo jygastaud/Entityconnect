@@ -89,7 +89,7 @@ function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_s
 }
 
 /**
- * Implementation of hook_theme()
+ * Implements hook_theme().
  */
 function entityconnect_theme() {
   return array(
@@ -192,7 +192,7 @@ function _entityconnect_get_ref_fields() {
             $ref_fields[$id] = $field;
           }// if()
           break;
-        
+
         case 'comments':
           if (user_access('entityconnect add button') || user_access('entityconnect edit button')) {
             $ref_fields[$id] = $field;
