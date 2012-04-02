@@ -360,7 +360,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
                   $element['#default_value'] = $vocabulary->vid;
                   $form_state['input'][$data['field']][$language] = array($element['#default_value']);
                 }
-                else {                  
+                else {
                   $element['#default_value'] = $vocabulary->vid;
                   $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
                   $form_state['input'][$data['field']][$language] = $element['#default_value'];
@@ -375,7 +375,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
                   $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
                   $form_state['input'][$data['field']][$language] = $element['#default_value'];
               }
-            }            
+            }
           }// if()
           break;
 
