@@ -79,14 +79,16 @@ function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_s
   foreach (_entityconnect_get_ref_fields() as $field_name => $field) {
     if (isset($form[$field_name])) {
       entityconnect_include_form();
-      if (user_access('entityconnect add button')) {
+ /*     if (user_access('entityconnect add button')) {
         _entityconnect_add_field_attach_form($entity_type, $entity, $form,
         $form_state, $field_name, $field, $langcode);
       }// if()
       if (user_access('entityconnect edit button')) {
         _entityconnect_edit_field_attach_form($entity_type, $entity, $form,
         $form_state, $field_name, $field, $langcode);
-      }// if()
+      }// if() */
+      _entityconnect_field_attach_form($entity_type, $entity, $form,
+        $form_state, $field_name, $field, $langcode);
     }// if()
   }// foreach()
 }

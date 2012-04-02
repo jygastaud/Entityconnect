@@ -9,37 +9,60 @@
  *
  * Here we attach a "Add" submit button for each allowed entityreference field.
  */
-function _entityconnect_add_field_attach_form($entity_type, $entity, &$form, &$form_state, $field_name, $field, $langcode = LANGUAGE_NONE) {
+function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_state, $field_name, $field, $langcode = LANGUAGE_NONE) {
   $language = $form[$field_name]['#language'];
-  foreach ($form[$field_name][$language] as $key => $field) {
-    if (is_numeric($key)) {
-      // We have to add some extra js for single value fields so we add a class
-      // to let the js know.
-      $extra = $form[$field_name][$language]['#cardinality'] == 1 ? 'single-value' : '';
-      $form[$field_name][$language][$key]["add_entityconnect__{$field_name}_$key"] = array(
-        '#type' => 'submit',
-        '#limit_validation_errors' => array(),
-        '#value' => t('New content'),
-        '#name' => "add_entityconnect__{$field_name}_$key",
-        '#prefix' => "<div class = 'entityconnect-add $extra'>",
-        '#suffix' => '</div>',
-        '#key' => $key,
-        '#field' => $field_name,
-        '#add_child' => TRUE,
-        '#language' => $language,
-        '#submit' => array('entityconnect_include_form', 'entityconnect_add_edit_button_submit'),
-        '#weight' => -2,
-        '#attached' => array(
-          'js' => array(
-            drupal_get_path('module', 'entityconnect') . "/theme/js/entityconnect.js",
-          ),
-          'css' => array(
-            drupal_get_path('module', 'entityconnect') . "/theme/css/entityconnect.css",
-          ),
-        ),
-      );
-    }// if()
-  }// foreach()
+  $field_container = &$form[$field_name];
+  $widget_container = &$field_container[$language];
+
+  if (isset($widget_container['#type']) && user_access('entityconnect add button')) {
+    // type is set, so only one widget.
+    entityconnect_add_form_element_new($field_container, $language, $field_name, 'all', '');
+  }
+  else {
+    // type is not set, so multiple widgets.
+    // we have to add some extra js for single value fields so we add a class to let the js know
+    $extra_class = $widget_container['#cardinality'] == 1 ? 'single-value' : '';
+    foreach ($widget_container as $key => &$widget_element) {
+      if (is_numeric($key)) {
+        if (user_access('entityconnect add button')) {
+          entityconnect_add_form_element_new($widget_element, $language, $field_name, $key, $extra_class);
+        }
+        if (user_access('entityconnect edit button')) {
+          entityconnect_add_form_element_edit($widget_element, $language, $field_name, $key, $extra_class);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_field_attach_form().
+ *
+ * Here we attach a "Add" submit button for each allowed entityreference field.
+ */
+function entityconnect_add_form_element_new(&$widget_element, $language, $field_name, $key, $extra_class) {
+  $widget_element["add_entityconnect__{$field_name}_$key"] = array(
+    '#type' => 'submit',
+    '#limit_validation_errors' => array(),
+    '#value' => t('New content'),
+    '#name' => "add_entityconnect__{$field_name}_$key",
+    '#prefix' => "<div class = 'entityconnect-add $extra_class'>",
+    '#suffix' => '</div>',
+    '#key' => $key,
+    '#field' => $field_name,
+    '#add_child' => TRUE,
+    '#language' => $language,
+    '#submit' => array('entityconnect_include_form', 'entityconnect_add_edit_button_submit'),
+    '#weight' => -2,
+    '#attached' => array(
+      'js' => array(
+        drupal_get_path('module', 'entityconnect') . "/theme/js/entityconnect.js",
+      ),
+      'css' => array(
+        drupal_get_path('module', 'entityconnect') . "/theme/css/entityconnect.css",
+      ),
+    ),
+  );
 }
 
 /**
@@ -47,37 +70,29 @@ function _entityconnect_add_field_attach_form($entity_type, $entity, &$form, &$f
  *
  * Here we attach a "Edit" submit button for each allowed entityreference field.
  */
-function _entityconnect_edit_field_attach_form($entity_type, $entity, &$form, &$form_state, $field_name, $field, $langcode = LANGUAGE_NONE) {
-  $language = $form[$field_name]['#language'];
-  foreach ($form[$field_name][$language] as $key => $field) {
-    if (is_numeric($key)) {
-      // We have to add some extra js for single value fields so we add a class
-      // to let the js know.
-      $extra = $form[$field_name][$language]['#cardinality'] == 1 ? 'single-value' : '';
-      $form[$field_name][$language][$key]["edit_entityconnect__{$field_name}_$key"] = array(
-        '#type' => 'submit',
-        '#limit_validation_errors' => array(array($field_name)),
-        '#value' => t('Edit content'),
-        '#name' => "edit_entityconnect__{$field_name}_$key",
-        '#prefix' => "<div class = 'entityconnect-edit $extra'>",
-        '#suffix' => '</div>',
-        '#key' => $key,
-        '#field' => $field_name,
-        '#add_child' => FALSE,
-        '#language' => LANGUAGE_NONE,
-        '#submit' => array('entityconnect_include_form', 'entityconnect_add_edit_button_submit'),
-        '#weight' => -2,
-        '#attached' => array(
-          'js' => array(
-            drupal_get_path('module', 'entityconnect') . "/theme/js/entityconnect.js",
-          ),
-          'css' => array(
-            drupal_get_path('module', 'entityconnect') . "/theme/css/entityconnect.css",
-          ),
-        ),
-      );
-    }// if()
-  }// foreach()
+function entityconnect_add_form_element_edit(&$widget_element, $language, $field_name, $key, $extra_class) {
+  $widget_element["edit_entityconnect__{$field_name}_$key"] = array(
+    '#type' => 'submit',
+    '#limit_validation_errors' => array(array($field_name)),
+    '#value' => t('Edit content'),
+    '#name' => "edit_entityconnect__{$field_name}_$key",
+    '#prefix' => "<div class = 'entityconnect-edit $extra_class'>",
+    '#suffix' => '</div>',
+    '#key' => $key,
+    '#field' => $field_name,
+    '#add_child' => FALSE,
+    '#language' => LANGUAGE_NONE,
+    '#submit' => array('entityconnect_include_form', 'entityconnect_add_edit_button_submit'),
+    '#weight' => -2,
+    '#attached' => array(
+      'js' => array(
+        drupal_get_path('module', 'entityconnect') . "/theme/js/entityconnect.js",
+      ),
+      'css' => array(
+        drupal_get_path('module', 'entityconnect') . "/theme/css/entityconnect.css",
+      ),
+    ),
+  );
 }
 
 /**
@@ -109,7 +124,7 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
   );
 
   entityconnect_cache_set($cache_id, $data);
-
+  
   unset($_GET['destination']);
   if ($data['add_child']) {
     $form_state['redirect'] = "admin/entityconnect/add/$cache_id";
@@ -192,49 +207,175 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
 
     $data = $cache->data;
     $language = $form[$data['field']]['#language'];
+    $field_container = &$form[$data['field']];
+    $widget_container = &$field_container[$language];
+
     if (isset($data['target_id']) && $form_state['rebuild'] === TRUE) {
       switch ($data['target_entity_type']) {
         case 'node':
           if ($data['target_id'] != 0 && $node = node_load($data['target_id'])) {
-
-            $element['#default_value'] = $node->title;
-            $element['#default_value'] .= ' (' . $node->nid . ')';
-
-            $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
-
+            if (!isset($widget_container['#type'])) {
+              $element['#default_value'] = $node->title;
+              $element['#default_value'] .= ' (' . $node->nid . ')';
+              $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
+            }
+            else {
+              // Default value should have differents build function of the widget type.
+              if ($widget_container['#type'] == 'textfield') { // Autocomplete tags style.
+                $element['#default_value'] = $node->title;
+                $element['#default_value'] .= ' (' . $node->nid . ')';
+                if (!empty ($form[$data['field']][$language]['#value'])) {
+                  $element['#default_value'] .= ', ' . $form[$data['field']][$language]['#value'];
+                } 
+                $form_state['input'][$data['field']][$language] = $element['#default_value'];
+              }
+              elseif ($widget_container['#type'] == 'select') { // Select list.
+                if ($widget_container['#multiple'] == FALSE) {
+                  $element['#default_value'] = $node->nid;
+                  $form_state['input'][$data['field']][$language] = array($element['#default_value']);
+                }
+                else {                  
+                  $element['#default_value'] = $node->nid;
+                  $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
+                  $form_state['input'][$data['field']][$language] = $element['#default_value'];
+                }
+              }
+              elseif ($widget_container['#type'] == 'radios') { // Radios widget.
+                $element['#default_value'] = $node->nid;
+                $form_state['input'][$data['field']][$language] = $element['#default_value'];
+              }
+              elseif ($widget_container['#type'] == 'checkboxes') { // Checkboxes widget.
+                  $element['#default_value'] = $node->nid;
+                  $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
+                  $form_state['input'][$data['field']][$language] = $element['#default_value'];
+              }
+            }
           }
           break;
 
         case 'user':
           if (($data['target_id'] != NULL || $data['target_id'] != 0) && $user = user_load_by_name($data['target_id'])) {
+            if (!isset($widget_container['#type'])) {
+              $element['#default_value'] = $user->name;
+              $element['#default_value'] .= ' (' . $user->uid . ')';
 
-            $element['#default_value'] = $user->name;
-            $element['#default_value'] .= ' (' . $user->uid . ')';
-
-            $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
-
+              $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
+            }
+            else {
+              // Default value should have differents build function of the widget type.
+              if ($widget_container['#type'] == 'textfield') { // Autocomplete tags style.
+                $element['#default_value'] = $user->name;
+                $element['#default_value'] .= ' (' . $user->uid . ')';
+                if (!empty ($form[$data['field']][$language]['#value'])) {
+                  $element['#default_value'] .= ', ' . $form[$data['field']][$language]['#value'];
+                } 
+                $form_state['input'][$data['field']][$language] = $element['#default_value'];
+              }
+              elseif ($widget_container['#type'] == 'select') { // Select list.
+                if ($widget_container['#multiple'] == FALSE) {
+                  $element['#default_value'] = $user->uid;
+                  $form_state['input'][$data['field']][$language] = array($element['#default_value']);
+                }
+                else {                  
+                  $element['#default_value'] = $user->uid;
+                  $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
+                  $form_state['input'][$data['field']][$language] = $element['#default_value'];
+                }
+              }
+              elseif ($widget_container['#type'] == 'radios') { // Radios widget.
+                $element['#default_value'] = $user->uid;
+                $form_state['input'][$data['field']][$language] = $element['#default_value'];
+              }
+              elseif ($widget_container['#type'] == 'checkboxes') { // Checkboxes widget.
+                  $element['#default_value'] = $user->uid;
+                  $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
+                  $form_state['input'][$data['field']][$language] = $element['#default_value'];
+              }
+            }
           }// if()
           break;
 
         case 'taxonomy_term':
           if (($data['target_id'] != NULL || $data['target_id'] != 0) && $term = taxonomy_term_load($data['target_id'])) {
+            if (!isset($widget_container['#type'])) {
+              $element['#default_value'] = $term->name;
+              $element['#default_value'] .= ' (' . $term->tid . ')';
 
-            $element['#default_value'] = $term->name;
-            $element['#default_value'] .= ' (' . $term->tid . ')';
-
-            $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
-
+              $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
+            }
+            else {
+              // Default value should have differents build function of the widget type.
+              if ($widget_container['#type'] == 'textfield') { // Autocomplete tags style.
+                $element['#default_value'] = $term->name;
+                $element['#default_value'] .= ' (' . $term->tid . ')';
+                if (!empty ($form[$data['field']][$language]['#value'])) {
+                  $element['#default_value'] .= ', ' . $form[$data['field']][$language]['#value'];
+                } 
+                $form_state['input'][$data['field']][$language] = $element['#default_value'];
+              }
+              elseif ($widget_container['#type'] == 'select') { // Select list.
+                if ($widget_container['#multiple'] == FALSE) {
+                  $element['#default_value'] = $term->tid;
+                  $form_state['input'][$data['field']][$language] = array($element['#default_value']);
+                }
+                else {                  
+                  $element['#default_value'] = $term->tid;
+                  $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
+                  $form_state['input'][$data['field']][$language] = $element['#default_value'];
+                }
+              }
+              elseif ($widget_container['#type'] == 'radios') { // Radios widget.
+                $element['#default_value'] = $term->tid;
+                $form_state['input'][$data['field']][$language] = $element['#default_value'];
+              }
+              elseif ($widget_container['#type'] == 'checkboxes') { // Checkboxes widget.
+                  $element['#default_value'] = $term->tid;
+                  $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
+                  $form_state['input'][$data['field']][$language] = $element['#default_value'];
+              }
+            }
           }// if()
           break;
 
         case 'taxonomy_vocabulary':
           if (($data['target_id'] != NULL || $data['target_id'] != 0) && $vocabulary = taxonomy_vocabulary_load($data['target_id'])) {
+            if (!isset($widget_container['#type'])) {
+              $element['#default_value'] = $vocabulary->name;
+              $element['#default_value'] .= ' (' . $vocabulary->vid . ')';
 
-            $element['#default_value'] = $vocabulary->name;
-            $element['#default_value'] .= ' (' . $vocabulary->vid . ')';
-
-            $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
-
+              $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
+            }
+            else {
+              // Default value should have differents build function of the widget type.
+              if ($widget_container['#type'] == 'textfield') { // Autocomplete tags style.
+                $element['#default_value'] = $vocabulary->name;
+                $element['#default_value'] .= ' (' . $vocabulary->vid . ')';
+                if (!empty ($form[$data['field']][$language]['#value'])) {
+                  $element['#default_value'] .= ', ' . $form[$data['field']][$language]['#value'];
+                } 
+                $form_state['input'][$data['field']][$language] = $element['#default_value'];
+              }
+              elseif ($widget_container['#type'] == 'select') { // Select list.
+                if ($widget_container['#multiple'] == FALSE) {
+                  $element['#default_value'] = $vocabulary->vid;
+                  $form_state['input'][$data['field']][$language] = array($element['#default_value']);
+                }
+                else {                  
+                  $element['#default_value'] = $vocabulary->vid;
+                  $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
+                  $form_state['input'][$data['field']][$language] = $element['#default_value'];
+                }
+              }
+              elseif ($widget_container['#type'] == 'radios') { // Radios widget.
+                $element['#default_value'] = $vocabulary->vid;
+                $form_state['input'][$data['field']][$language] = $element['#default_value'];
+              }
+              elseif ($widget_container['#type'] == 'checkboxes') { // Checkboxes widget.
+                  $element['#default_value'] = $vocabulary->vid;
+                  $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
+                  $form_state['input'][$data['field']][$language] = $element['#default_value'];
+              }
+            }            
           }// if()
           break;
 
