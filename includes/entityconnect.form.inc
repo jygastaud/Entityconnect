@@ -124,7 +124,7 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
   );
 
   entityconnect_cache_set($cache_id, $data);
-  
+
   unset($_GET['destination']);
   if ($data['add_child']) {
     $form_state['redirect'] = "admin/entityconnect/add/$cache_id";
@@ -226,7 +226,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
                 $element['#default_value'] .= ' (' . $node->nid . ')';
                 if (!empty ($form[$data['field']][$language]['#value'])) {
                   $element['#default_value'] .= ', ' . $form[$data['field']][$language]['#value'];
-                } 
+                }
                 $form_state['input'][$data['field']][$language] = $element['#default_value'];
               }
               elseif ($widget_container['#type'] == 'select') { // Select list.
@@ -234,7 +234,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
                   $element['#default_value'] = $node->nid;
                   $form_state['input'][$data['field']][$language] = array($element['#default_value']);
                 }
-                else {                  
+                else {
                   $element['#default_value'] = $node->nid;
                   $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
                   $form_state['input'][$data['field']][$language] = $element['#default_value'];
@@ -268,7 +268,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
                 $element['#default_value'] .= ' (' . $user->uid . ')';
                 if (!empty ($form[$data['field']][$language]['#value'])) {
                   $element['#default_value'] .= ', ' . $form[$data['field']][$language]['#value'];
-                } 
+                }
                 $form_state['input'][$data['field']][$language] = $element['#default_value'];
               }
               elseif ($widget_container['#type'] == 'select') { // Select list.
@@ -276,7 +276,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
                   $element['#default_value'] = $user->uid;
                   $form_state['input'][$data['field']][$language] = array($element['#default_value']);
                 }
-                else {                  
+                else {
                   $element['#default_value'] = $user->uid;
                   $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
                   $form_state['input'][$data['field']][$language] = $element['#default_value'];
@@ -310,7 +310,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
                 $element['#default_value'] .= ' (' . $term->tid . ')';
                 if (!empty ($form[$data['field']][$language]['#value'])) {
                   $element['#default_value'] .= ', ' . $form[$data['field']][$language]['#value'];
-                } 
+                }
                 $form_state['input'][$data['field']][$language] = $element['#default_value'];
               }
               elseif ($widget_container['#type'] == 'select') { // Select list.
@@ -318,7 +318,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
                   $element['#default_value'] = $term->tid;
                   $form_state['input'][$data['field']][$language] = array($element['#default_value']);
                 }
-                else {                  
+                else {
                   $element['#default_value'] = $term->tid;
                   $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
                   $form_state['input'][$data['field']][$language] = $element['#default_value'];
@@ -352,7 +352,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
                 $element['#default_value'] .= ' (' . $vocabulary->vid . ')';
                 if (!empty ($form[$data['field']][$language]['#value'])) {
                   $element['#default_value'] .= ', ' . $form[$data['field']][$language]['#value'];
-                } 
+                }
                 $form_state['input'][$data['field']][$language] = $element['#default_value'];
               }
               elseif ($widget_container['#type'] == 'select') { // Select list.
