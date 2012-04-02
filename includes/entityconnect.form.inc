@@ -7,7 +7,8 @@
 /**
  * Implements hook_field_attach_form().
  *
- * Here we attach a "Add" submit button for each allowed entityreference field.
+ * Here we attach a "Add" et "Edit" submit button
+ * for each allowed entityreference field.
  */
 function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_state, $field_name, $field, $langcode = LANGUAGE_NONE) {
   $language = $form[$field_name]['#language'];
@@ -36,9 +37,7 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
 }
 
 /**
- * Implements hook_field_attach_form().
- *
- * Here we attach a "Add" submit button for each allowed entityreference field.
+ * Here we attach a "Add" submit button.
  */
 function entityconnect_add_form_element_new(&$widget_element, $language, $field_name, $key, $extra_class) {
   $widget_element["add_entityconnect__{$field_name}_$key"] = array(
@@ -66,9 +65,7 @@ function entityconnect_add_form_element_new(&$widget_element, $language, $field_
 }
 
 /**
- * Implements hook_field_attach_form().
- *
- * Here we attach a "Edit" submit button for each allowed entityreference field.
+ * Here we attach a "Edit" submit button.
  */
 function entityconnect_add_form_element_edit(&$widget_element, $language, $field_name, $key, $extra_class) {
   $widget_element["edit_entityconnect__{$field_name}_$key"] = array(
