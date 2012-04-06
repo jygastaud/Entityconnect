@@ -16,12 +16,12 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
   $widget_container = &$field_container[$language];
 
   if (isset($widget_container['#type']) && user_access('entityconnect add button')) {
-    // type is set, so only one widget.
+    // Type is set, so only one widget.
     entityconnect_add_form_element_new($field_container, $language, $field_name, 'all', '');
   }
   else {
-    // type is not set, so multiple widgets.
-    // we have to add some extra js for single value fields so we add a class to let the js know
+    // Type is not set, so multiple widgets.
+    // We have to add some extra js for single value fields so we add a class to let the js know.
     $extra_class = $widget_container['#cardinality'] == 1 ? 'single-value' : '';
     foreach ($widget_container as $key => &$widget_element) {
       if (is_numeric($key)) {
