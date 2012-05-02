@@ -15,8 +15,15 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
   $field_container = &$form[$field_name];
   $widget_container = &$field_container[$language];
 
-  if (isset($widget_container['#type']) && user_access('entityconnect add button')) {
-    // Type is set, so only one widget.
+  // We currently should separate Autocomplete widget from others default widget
+  // because "Edit" button will not react well on multiple selected items.
+  // Autocomplete widget has not #type value, so we are testing it 
+  // via $widget_container['#type'].
+  // We also test if $widget_container['view'] is set to support 
+  // the widget provided by entityreference_view_widget module.
+  if ((isset($widget_container['#type']) || isset($widget_container['view']))
+          && user_access('entityconnect add button')) {
+    // Type is set, so only the Add button will be displayed.
     entityconnect_add_form_element_new($field_container, $language, $field_name, 'all', '');
   }
   else {
