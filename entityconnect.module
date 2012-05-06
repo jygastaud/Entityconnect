@@ -157,7 +157,7 @@ function _entityconnect_get_ref_fields() {
     if ($field['type'] == 'entityreference') {
       $entity_reference_info = entityreference_get_selection_handler($field);
       $entity_type = $entity_reference_info->field['settings']['target_type'];
-      $target_bundle = $entity_reference_info->field['settings']['handler_settings']['target_bundles'];
+      $target_bundle = (isset($entity_reference_info->field['settings']['handler_settings']['target_bundles'])) ? $entity_reference_info->field['settings']['handler_settings']['target_bundles'] : '';
 
       switch ($entity_type) {
         case 'user':
