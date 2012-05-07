@@ -41,7 +41,7 @@ function entityconnect_add($cache_id) {
   switch ($entity_type) {
     case 'node':
       // We get bundles referenced.
-      $acceptable_types = $entity_reference_info->field['settings']['handler_settings']['target_bundles'];
+       $acceptable_types = (isset($entity_reference_info->field['settings']['handler_settings']['target_bundles'])) ? $entity_reference_info->field['settings']['handler_settings']['target_bundles'] : NULL;
 
       if (count($acceptable_types) > 0) {
         foreach (system_admin_menu_block(menu_get_item("node/add")) as $key => $item) {
@@ -76,7 +76,7 @@ function entityconnect_add($cache_id) {
 
     case 'taxonomy_term':
       // We get bundles referenced.
-      $acceptable_types = $entity_reference_info->field['settings']['handler_settings']['target_bundles'];
+      $acceptable_types = (isset($entity_reference_info->field['settings']['handler_settings']['target_bundles'])) ? $entity_reference_info->field['settings']['handler_settings']['target_bundles'] : NULL;
       $voc_list = array();
 
       if (count($acceptable_types) > 0) {
