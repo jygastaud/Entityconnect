@@ -4,6 +4,44 @@
  * Handles all form alters and submit functions for entityconnect.
  */
 
+
+/**
+ * Recursively hunt down all form elements
+ */
+//function _entityconnect_get_children($field_name, &$form, &$form_state, $data) {
+//  $field_info = $data['field_info'];
+////
+////  if ($form['#type'] == 'submit' || $form['#type'] == 'button') {
+////    $form = _button_edit_submit_markup($form);
+////  }
+//
+//  if (isset($field_info['bundles']['field_collection_item'])) {
+//    if (count($field_info['bundles']['field_collection_item']) == 1) {
+//      foreach ($field_info['bundles']['field_collection_item'] as $k => $parent) {
+//        $languages = element_children($form[$parent]);
+//        $indexes =  element_children($languages);
+//
+//        foreach ($languages as $k1 => $language) {
+//          foreach ($indexes as $k2 => $index) {
+//            if (isset($form[$parent][$language][$index][$field_name])) {
+//              $result = $parent .'-'. $language .'-' . $index;
+//              return $result;
+//            }
+//          }
+//        }
+//      }
+//    }
+//  }
+//  else {
+//    if (is_array($form)) {
+//      $children = element_children($form);
+//      if (is_array($children) && count($children > 0))
+//        foreach ($children as $childkey) {
+//          _entityconnect_get_children($form[$childkey]);
+//        }
+//    }
+//  }
+//}
 /**
  * Implements hook_field_attach_form().
  *
@@ -11,20 +49,54 @@
  * for each allowed entityreference field.
  */
 function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_state, $field_name, $field, $langcode = LANGUAGE_NONE) {
-  $language = $form[$field_name]['#language'];
-  $field_container = &$form[$field_name];
-  $widget_container = &$field_container[$language];
+  // @To Do:
+  // Put these code in a seperate function because it is used at least twice.
+  if (!isset($form[$field_name])) {
+    foreach ($form_state['clicked_button']['#parents'] as $key => $parent) {
+      if (stripos($parent, 'add_entityconnect') === false) {
+        if (isset($strPath)) {
+          $strPath .= '[\'' . $parent . '\']';
+        }
+        else {
+          $strPath = '[\'' . $parent . '\']';
+        }
+      }
+    }
+      
+    $input = "(isset(\$form" . $strPath . "['#language'])) ? \$language = " . "\$form" . $strPath . "['#language'] : \$language = NULL ;";
+    eval($input);
+    $input = "\$field_container = " . "&\$form" . $strPath . ";";
+    eval($input);
+    (isset($language)) ? $widget_container = &$field_container[$language] : $widget_container = $field_container;
+  }
+  else {
+    // Set value with root level information.
+    $language = $form[$field_name]['#language'];
+    $field_container = &$form[$field_name];
+    $widget_container = &$field_container[$language];
+  }
 
+  if (isset($widget_container['#field_parents'])) {
+    foreach ($widget_container['#field_parents'] as $key1 => $parent) {
+      if (!isset($parents)) {
+        $parents = $parent;
+      }
+      else {
+        $parents .= "-" . $parent;
+      }
+    }
+  }
   // We currently should separate Autocomplete widget from others default widget
   // because "Edit" button will not react well on multiple selected items.
-  // Autocomplete widget has not #type value, so we are testing it 
+  // Autocomplete widget has not #type value, so we are testing it
   // via $widget_container['#type'].
-  // We also test if $widget_container['view'] is set to support 
+  // We also test if $widget_container['view'] is set to support
   // the widget provided by entityreference_view_widget module.
   if ((isset($widget_container['#type']) || isset($widget_container['view']))
           && user_access('entityconnect add button')) {
     // Type is set, so only the Add button will be displayed.
-    entityconnect_add_form_element_new($field_container, $language, $field_name, 'all', '');
+    (isset($parents)) ? $parents : $parents = '';
+    entityconnect_add_form_element_new($field_container, $language, $field_name, $parents, 'all', '');
   }
   else {
     // Type is not set, so multiple widgets.
@@ -33,10 +105,12 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
     foreach ($widget_container as $key => &$widget_element) {
       if (is_numeric($key)) {
         if (user_access('entityconnect add button')) {
-          entityconnect_add_form_element_new($widget_element, $language, $field_name, $key, $extra_class);
+         (isset($parents)) ? $parents : $parents = '';
+          entityconnect_add_form_element_new($widget_element, $language, $field_name, $parents, $key, $extra_class);
         }
         if (user_access('entityconnect edit button')) {
-          entityconnect_add_form_element_edit($widget_element, $language, $field_name, $key, $extra_class);
+          (isset($parents)) ? $parents : $parents = '';
+          entityconnect_add_form_element_edit($widget_element, $language, $field_name, $parents, $key, $extra_class);
         }
       }
     }
@@ -46,12 +120,12 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
 /**
  * Here we attach a "Add" submit button.
  */
-function entityconnect_add_form_element_new(&$widget_element, $language, $field_name, $key, $extra_class) {
-  $widget_element["add_entityconnect__{$field_name}_$key"] = array(
+function entityconnect_add_form_element_new(&$widget_element, $language, $field_name, $parents, $key, $extra_class) {
+  $widget_element["add_entityconnect__{$field_name}_{$key}_{$parents}"] = array(
     '#type' => 'submit',
     '#limit_validation_errors' => array(),
     '#value' => t('New content'),
-    '#name' => "add_entityconnect__{$field_name}_$key",
+    '#name' => "add_entityconnect__{$field_name}_{$key}_{$parents}",
     '#prefix' => "<div class = 'entityconnect-add $extra_class'>",
     '#suffix' => '</div>',
     '#key' => $key,
@@ -74,12 +148,12 @@ function entityconnect_add_form_element_new(&$widget_element, $language, $field_
 /**
  * Here we attach a "Edit" submit button.
  */
-function entityconnect_add_form_element_edit(&$widget_element, $language, $field_name, $key, $extra_class) {
-  $widget_element["edit_entityconnect__{$field_name}_$key"] = array(
+function entityconnect_add_form_element_edit(&$widget_element, $language, $field_name, $parents, $key, $extra_class) {
+  $widget_element["edit_entityconnect__{$field_name}_{$key}_{$parents}"] = array(
     '#type' => 'submit',
     '#limit_validation_errors' => array(array($field_name)),
     '#value' => t('Edit content'),
-    '#name' => "edit_entityconnect__{$field_name}_$key",
+    '#name' => "edit_entityconnect__{$field_name}_{$key}_{$parents}",
     '#prefix' => "<div class = 'entityconnect-edit $extra_class'>",
     '#suffix' => '</div>',
     '#key' => $key,
@@ -109,9 +183,34 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
   $cache_id = "entityconnect-" . $form['#build_id'];
   $field = $form_state['clicked_button']['#field'];
   $key   = $form_state['clicked_button']['#key'];
-  $language = $form[$field]['#language'];
-  $target_id = (isset($form_state['values'][$field][$language][$key]['target_id'])) ? $form_state['values'][$field][$language][$key]['target_id'] : 0;
-
+  
+  // @To Do:
+  // Put these code in a seperate function because it is used at least twice.
+  if (!isset($form[$field])) {
+    foreach ($form_state['clicked_button']['#parents'] as $key => $parent) {
+      if (stripos($parent, 'add_entityconnect') === false) {
+        if (isset($strPath)) {
+        $strPath .= '[\'' . $parent . '\']';
+        }
+        else {
+          $strPath = '[\'' . $parent . '\']';
+        }
+      }
+    }
+    
+    $input = "\$target_id = (isset(\$form_state['values']" . $strPath . "['target_id']))";
+    $input .= "? \$form_state['values']" . $strPath . "['target_id']";
+    $input .= ": NULL;";
+    eval($input);
+  }
+  else {
+    // Set value with root level information.
+    $language = $form[$field_name]['#language'];
+    $field_container = &$form[$field_name];
+    $widget_container = &$field_container[$language];
+  }
+  
+  
   $field_info = field_info_field($field);
   $entity_reference_info = entityreference_get_selection_handler($field_info);
   $entity_type = $entity_reference_info->field['settings']['target_type'];
@@ -121,6 +220,7 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
     'form_state' => $form_state,
     'dest'       => $_GET['q'],
     'field'      => $field,
+    'field_info' => $field_info,
     'key'        => $key,
     'add_child'  => $form_state['clicked_button']['#add_child'],
     'target_id'  => $target_id,
@@ -206,13 +306,35 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
     $form = $cache->data['form'];
     $form_state['submitted'] = FALSE;
     $form_state['rebuild'] = TRUE;
+    $data = $cache->data;
+
+    if (!isset($form[$data['field']])) {
+      foreach ($form_state['clicked_button']['#parents'] as $key => $parent) {
+        if (stripos($parent, 'add_entityconnect') === false) {
+          if (isset($strPath)) {
+            $strPath .= '[\'' . $parent . '\']';
+          }
+          else {
+            $strPath = '[\'' . $parent . '\']';
+          }
+        }
+      }
+            
+      $input = "(isset(\$form" . $strPath . "['#language'])) ? \$language = " . "\$form" . $strPath . "['#language'] : \$language = NULL ;";
+      eval($input);
+      $input = "\$field_container = " . "&\$form" . $strPath . ";";
+      eval($input);
+      (isset($language)) ? $widget_container = &$field_container[$language] : $widget_container = $field_container;
+    }
+    else {
+      // Set value with root level information.
+      $language = $form[$data['field']]['#language'];
+      $field_container = &$form[$data['field']];
+      $widget_container = &$field_container[$language];
+    }
+
     unset($form_state['clicked_button']);
     unset($form_state['submit_handlers']);
-
-    $data = $cache->data;
-    $language = $form[$data['field']]['#language'];
-    $field_container = &$form[$data['field']];
-    $widget_container = &$field_container[$language];
 
     if (isset($data['target_id']) && $form_state['rebuild'] === TRUE) {
       switch ($data['target_entity_type']) {
@@ -221,37 +343,63 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
             if (!isset($widget_container['#type'])) {
               $element['#default_value'] = $node->title;
               $element['#default_value'] .= ' (' . $node->nid . ')';
-              $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
+ //           $form_state['input'][$data['field']][$language][$data['key']]['target_id'] = $element['#default_value'];
+              $input = "\$form_state['input']";
+              $input .= $strPath;
+              $input .= "['target_id']";
+              $input .= " = \$element['#default_value'];";
+              eval($input);
             }
             else {
               // Default value should have differents build function of the widget type.
               if ($widget_container['#type'] == 'textfield') { // Autocomplete tags style.
                 $element['#default_value'] = $node->title;
                 $element['#default_value'] .= ' (' . $node->nid . ')';
-                if (!empty ($form[$data['field']][$language]['#value'])) {
-                  $element['#default_value'] .= ', ' . $form[$data['field']][$language]['#value'];
+                if (!empty ($widget_container['#value'])) {
+                  $element['#default_value'] .= ', ' . $widget_container['#value'];
                 }
-                $form_state['input'][$data['field']][$language] = $element['#default_value'];
+//                $form_state['input'][$field_container][$language] = $element['#default_value'];
+                $input = "\$form_state['input']";
+                $input .= $strPath;
+                $input .= "['". $language . "']";
+                $input .= " = \$element['#default_value'];";
+                eval($input);
               }
               elseif ($widget_container['#type'] == 'select') { // Select list.
                 if ($widget_container['#multiple'] == FALSE) {
                   $element['#default_value'] = $node->nid;
-                  $form_state['input'][$data['field']][$language] = array($element['#default_value']);
+                  $input = "\$form_state['input']";
+                  $input .= $strPath;
+                  $input .= "['". $language . "']";
+                  $input .= " = \$element['#default_value'];";
+                  eval($input);
                 }
                 else {
                   $element['#default_value'] = $node->nid;
-                  $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
-                  $form_state['input'][$data['field']][$language] = $element['#default_value'];
+                  $element['#default_value'] = $widget_container['#value'] + array($element['#default_value'] => $element['#default_value']);
+                  $input = "\$form_state['input']";
+                  $input .= $strPath;
+                  $input .= "['". $language . "']";
+                  $input .= " = \$element['#default_value'];";
+                  eval($input);
                 }
               }
               elseif ($widget_container['#type'] == 'radios') { // Radios widget.
                 $element['#default_value'] = $node->nid;
-                $form_state['input'][$data['field']][$language] = $element['#default_value'];
+                $input = "\$form_state['input']";
+                $input .= $strPath;
+                $input .= "['". $language . "']";
+                $input .= " = \$element['#default_value'];";
+                eval($input);  
               }
               elseif ($widget_container['#type'] == 'checkboxes') { // Checkboxes widget.
                   $element['#default_value'] = $node->nid;
-                  $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
-                  $form_state['input'][$data['field']][$language] = $element['#default_value'];
+                  $element['#default_value'] = $widget_container['#value'] + array($element['#default_value'] => $element['#default_value']);
+                  $input = "\$form_state['input']";
+                  $input .= $strPath;
+                  $input .= "['". $language . "']";
+                  $input .= " = \$element['#default_value'];";
+                  eval($input);                  
               }
             }
           }
