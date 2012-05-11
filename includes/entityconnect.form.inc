@@ -146,32 +146,24 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
   $field = $form_state['clicked_button']['#field'];
   $key   = $form_state['clicked_button']['#key'];
 
+  // Get the list of all parents element for the clicked button.
   // @To Do:
   // Put these code in a seperate function because it is used at least twice.
-  if (!isset($form[$field])) {
-    foreach ($form_state['clicked_button']['#parents'] as $key => $parent) {
-      if (stripos($parent, 'add_entityconnect') === false) {
-        if (isset($strPath)) {
-        $strPath .= '[\'' . $parent . '\']';
-        }
-        else {
-          $strPath = '[\'' . $parent . '\']';
-        }
+  foreach ($form_state['clicked_button']['#parents'] as $key => $parent) {
+    if (stripos($parent, 'add_entityconnect') === false) {
+      if (isset($strPath)) {
+      $strPath .= '[\'' . $parent . '\']';
+      }
+      else {
+        $strPath = '[\'' . $parent . '\']';
       }
     }
-
-    $input = "\$target_id = (isset(\$form_state['values']" . $strPath . "['target_id']))";
-    $input .= "? \$form_state['values']" . $strPath . "['target_id']";
-    $input .= ": NULL;";
-    eval($input);
-  }
-  else {
-    // Set value with root level information.
-    $language = $form[$field_name]['#language'];
-    $field_container = &$form[$field_name];
-    $widget_container = &$field_container[$language];
   }
 
+  $input = "\$target_id = (isset(\$form_state['values']" . $strPath . "['target_id']))";
+  $input .= "? \$form_state['values']" . $strPath . "['target_id']";
+  $input .= ": 0;";
+  eval($input);
 
   $field_info = field_info_field($field);
   $entity_reference_info = entityreference_get_selection_handler($field_info);
@@ -269,34 +261,27 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
     $form_state['submitted'] = FALSE;
     $form_state['rebuild'] = TRUE;
     $data = $cache->data;
-
-    if (!isset($form[$data['field']])) {
-      foreach ($form_state['clicked_button']['#parents'] as $key => $parent) {
-        if (stripos($parent, 'add_entityconnect') === false) {
-          if (isset($strPath)) {
-            $strPath .= '[\'' . $parent . '\']';
-          }
-          else {
-            $strPath = '[\'' . $parent . '\']';
-          }
-        }
-      }
-
-      $input = "(isset(\$form" . $strPath . "['#language'])) ? \$language = " . "\$form" . $strPath . "['#language'] : \$language = NULL ;";
-      eval($input);
-      $input = "\$field_container = " . "&\$form" . $strPath . ";";
-      eval($input);
-      (isset($language)) ? $widget_container = &$field_container[$language] : $widget_container = $field_container;
-    }
-    else {
-      // Set value with root level information.
-      $language = $form[$data['field']]['#language'];
-      $field_container = &$form[$data['field']];
-      $widget_container = &$field_container[$language];
-    }
+    $parents = $form_state['clicked_button']['#parents'];
 
     unset($form_state['clicked_button']);
     unset($form_state['submit_handlers']);
+
+    foreach ($parents as $key => $parent) {
+      if (stripos($parent, 'add_entityconnect') === false) {
+        if (isset($strPath)) {
+          $strPath .= '[\'' . $parent . '\']';
+        }
+        else {
+          $strPath = '[\'' . $parent . '\']';
+        }
+      }
+    }
+
+    $input = "(isset(\$form" . $strPath . "['#language'])) ? \$language = " . "\$form" . $strPath . "['#language'] : \$language = NULL ;";
+    eval($input);
+    $input = "\$field_container = " . "&\$form" . $strPath . ";";
+    eval($input);
+    (isset($language)) ? $widget_container = &$field_container[$language] : $widget_container = $field_container;
 
     if (isset($data['target_id']) && $form_state['rebuild'] === TRUE) {
       switch ($data['target_entity_type']) {
