@@ -140,12 +140,12 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
   // Get the list of all parents element for the clicked button.
   $parents = (isset($form_state['clicked_button']['#parents'])) ? $form_state['clicked_button']['#parents'] : NULL;
   $strPath = _entityconnect_get_parents($parents);
-
+  
   $input = "\$target_id = (isset(\$form_state['values']" . $strPath . "['target_id']))";
   $input .= "? \$form_state['values']" . $strPath . "['target_id']";
   $input .= ": 0;";
   eval($input);
-
+  
   $field_info = field_info_field($field);
   $entity_reference_info = entityreference_get_selection_handler($field_info);
   $entity_type = $entity_reference_info->field['settings']['target_type'];
@@ -487,7 +487,8 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
 
 function _entityconnect_get_parents($parents) {
   foreach ($parents as $key => $parent) {
-    if (stripos($parent, 'add_entityconnect') === false) {
+    if (stripos($parent, 'add_entityconnect') === false
+            && stripos($parent, 'edit_entityconnect') === false ) {
       if (isset($path)) {
         $path .= '[\'' . $parent . '\']';
       }

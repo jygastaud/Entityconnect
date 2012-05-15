@@ -114,7 +114,7 @@ function entityconnect_include_form() {
  * if we are returning to the parent form we hand off to
  * entityconnect_return_form_alter.
  */
-function entityconnect_form_alter(&$form, &$form_state, $form_id) {
+function entityconnect_form_alter(&$form, &$form_state, $form_id) {  
   $child = isset($_REQUEST['child']);
 
   // We can get the cid two different ways

@@ -133,7 +133,7 @@ function entityconnect_edit($cache_id) {
 
   $entity_reference_info = entityreference_get_selection_handler($field);
   $entity_type = $entity_reference_info->field['settings']['target_type'];
-
+  
   switch ($entity_type) {
     case 'node':
       drupal_goto("node/" . $cache->data['target_id'] . "/edit", array(
