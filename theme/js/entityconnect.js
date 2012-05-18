@@ -8,23 +8,23 @@
       $(".entityconnect-edit.single-value", context).each(function() {
         $(this).insertAfter($(this).next().find("label"));
       });
-      $(".entityconnect-edit", context).each(function() {
-        edit = $(this).find('input');
-        text = $(this).siblings("[type='text']");
+
+      $(".entityconnect-edit input").click(function() {
+
+        var wrapper = $(this).parents(".entityconnect-edit");
+
+        text = $(wrapper).siblings("[type='text']");
+
         if(text.length == 0) {
-          text = $(this).siblings().find("[type='text']");
+          text = $(wrapper).siblings().find("[type='text']");
         }
-        text
-          .bind('change', function(e) {
-            if($(this).val() == '') {
-              $(edit).attr('disabled', 'disabled');
-            }
-            else {
-              $(edit).attr('disabled', '');
-            }
-          })
-          .trigger('change');
+
+        if($.trim($(text).val()) == '') {
+          return false;
+        }
+        return true;
       });
+
     },
   };
 })(jQuery);
