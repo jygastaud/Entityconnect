@@ -104,7 +104,8 @@ function entityconnect_add_form_element_new(&$widget_element, $language, $field_
 function entityconnect_add_form_element_edit(&$widget_element, $language, $field_name, $parents, $key, $extra_class) {
   $widget_element["edit_entityconnect__{$field_name}_{$key}_{$parents}"] = array(
     '#type' => 'submit',
-    '#limit_validation_errors' => array(array($field_name)),
+    //'#limit_validation_errors' => array(array($field_name)),
+    '#limit_validation_errors' => array(array()),
     '#value' => t('Edit content'),
     '#name' => "edit_entityconnect__{$field_name}_{$key}_{$parents}",
     '#prefix' => "<div class = 'entityconnect-edit $extra_class'>",
@@ -133,6 +134,7 @@ function entityconnect_add_form_element_edit(&$widget_element, $language, $field
  * and redirect to the add or edit page with an append build_cached_id.
  */
 function entityconnect_add_edit_button_submit(&$form, &$form_state) {
+
   $cache_id = "entityconnect-" . $form['#build_id'];
   $field = $form_state['clicked_button']['#field'];
   $key   = $form_state['clicked_button']['#key'];
@@ -140,12 +142,24 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
   // Get the list of all parents element for the clicked button.
   $parents = (isset($form_state['clicked_button']['#parents'])) ? $form_state['clicked_button']['#parents'] : NULL;
   $strPath = _entityconnect_get_parents($parents);
-  
-  $input = "\$target_id = (isset(\$form_state['values']" . $strPath . "['target_id']))";
-  $input .= "? \$form_state['values']" . $strPath . "['target_id']";
+
+  $input = "\$target_id = (isset(\$form_state['input']" . $strPath . "['target_id']))";
+  $input .= "? \$form_state['input']" . $strPath . "['target_id']";
   $input .= ": 0;";
   eval($input);
+
   
+  /**
+   * TODO : Find the original problem of the entity connect use with Field
+   * Collection.
+   */
+  if (!empty($target_id) && !intval($target_id)) {
+    // Take "label (entity id)', match the id from parenthesis.
+    if (preg_match("/.+\((\d+)\)/", $target_id, $matches)) {
+      $target_id = $matches[1];
+    }
+  }
+
   $field_info = field_info_field($field);
   $entity_reference_info = entityreference_get_selection_handler($field_info);
   $entity_type = $entity_reference_info->field['settings']['target_type'];
