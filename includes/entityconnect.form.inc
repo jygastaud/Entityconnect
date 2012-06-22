@@ -54,7 +54,7 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
   else {
     // Type is not set, so multiple widgets.
     // We have to add some extra js for single value fields so we add a class to let the js know.
-    $extra_class = $widget_container['#cardinality'] == 1 ? 'single-value' : '';
+    $extra_class = (!isset($widget_container['#cardinality']) || $widget_container['#cardinality'] == 1) ? 'single-value' : '';
     foreach ($widget_container as $key => &$widget_element) {
       if (is_numeric($key)) {
         if (user_access('entityconnect add button')) {
