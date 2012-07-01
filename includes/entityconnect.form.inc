@@ -10,7 +10,7 @@
  * Here we attach a "Add" et "Edit" submit button
  * for each allowed entityreference field.
  */
-function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_state, $field_name, $field, $langcode = LANGUAGE_NONE) {
+function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_state, $field_name, $field, $langcode = LANGUAGE_NONE, $addbuttonallowed, $editbuttonallowed) {
   if (!isset($form[$field_name])) {
     // Get the list of all parents element for the clicked button.
     $parents = (isset($form_state['clicked_button']['#parents'])) ? $form_state['clicked_button']['#parents'] : NULL;
@@ -46,7 +46,7 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
   // We also test if $widget_container['view'] is set to support
   // the widget provided by entityreference_view_widget module.
   if ((isset($widget_container['#type']) || isset($widget_container['view']))
-          && user_access('entityconnect add button')) {
+          && user_access('entityconnect add button') && $addbuttonallowed == 0) {
     // Type is set, so only the Add button will be displayed.
     (isset($parents)) ? $parents : $parents = '';
     entityconnect_add_form_element_new($field_container, $language, $field_name, $parents, 'all', '');
@@ -57,11 +57,11 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
     $extra_class = (!isset($widget_container['#cardinality']) || $widget_container['#cardinality'] == 1) ? 'single-value' : '';
     foreach ($widget_container as $key => &$widget_element) {
       if (is_numeric($key)) {
-        if (user_access('entityconnect add button')) {
+        if (user_access('entityconnect add button') && $addbuttonallowed == 0) {
          (isset($parents)) ? $parents : $parents = '';
           entityconnect_add_form_element_new($widget_element, $language, $field_name, $parents, $key, $extra_class);
         }
-        if (user_access('entityconnect edit button')) {
+        if (user_access('entityconnect edit button') && $editbuttonallowed == 0) {
           (isset($parents)) ? $parents : $parents = '';
           entityconnect_add_form_element_edit($widget_element, $language, $field_name, $parents, $key, $extra_class);
         }
@@ -148,7 +148,7 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
   $input .= ": 0;";
   eval($input);
 
-  
+
   /**
    * TODO : Find the original problem of the entity connect use with Field
    * Collection.
@@ -260,7 +260,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
 
     unset($form_state['clicked_button']);
     unset($form_state['submit_handlers']);
-    
+
     $strPath = _entityconnect_get_parents($parents);
 
     $input = "(isset(\$form" . $strPath . "['#language'])) ? \$language = " . "\$form" . $strPath . "['#language'] : \$language = NULL ;";
@@ -516,7 +516,7 @@ function _entityconnect_get_parents($parents) {
 
 function _entityconnect_alter_form_state_input(&$form, &$form_state, $widget_type, $strPath, $language, $element) {
   $input = "\$form_state['input']";
-  
+
   switch ($widget_type) {
     case 'autocomplete':
       $input .= $strPath;
@@ -533,6 +533,6 @@ function _entityconnect_alter_form_state_input(&$form, &$form_state, $widget_typ
     default:
       break;
   }
-  
+
   eval($input);
 }
