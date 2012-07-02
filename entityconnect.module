@@ -234,7 +234,7 @@ function _entityconnect_get_ref_fields() {
  */
 function entityconnect_field_instance_settings_form($field, $instance) {
   if (module_exists('entityreference')) {
-    $settings = $instance['settings'];
+    $settings = $instance;
 
     // Add choice for user to not load entity connect "add" button editor on the field.
     $form['entityconnect_unload_add'] = array(
