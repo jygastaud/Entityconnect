@@ -239,12 +239,12 @@ function entityconnect_field_instance_settings_form($field, $instance) {
     // Add choice for user to not load entity connect "add" button editor on the field.
     $form['entityconnect_unload_add'] = array(
       '#type' => 'radios',
-      '#title' => t('Unload entityconnect add button for this field.'),
+      '#title' => t('Display Entity Connect "add" button for this field.'),
       '#default_value' => (!isset ($settings['entityconnect_unload_add'])) ? 0 : $settings['entityconnect_unload_add'],
-      '#description' => t('Choose "Yes" if you want to unload "add" button for the field'),
+      '#description' => t('Choose "No" if you want to unload "add" button for the field'),
       '#options' => array(
-        '0' => t('No'),
-        '1' => t('Yes'),
+        '0' => t('Yes'),
+        '1' => t('No'),
       ),
       '#weight' => 1,
     );
@@ -252,12 +252,12 @@ function entityconnect_field_instance_settings_form($field, $instance) {
     // Add choice for user to not load entity connect "edit" button editor on the field.
     $form['entityconnect_unload_edit'] = array(
       '#type' => 'radios',
-      '#title' => t('Unload entityconnect "edit" button for this field.'),
+      '#title' => t('Display Entity Connect "edit" button for this field.'),
       '#default_value' => (!isset ($settings['entityconnect_unload_edit'])) ? 0 : $settings['entityconnect_unload_edit'],
-      '#description' => t('Choose "Yes" if you want to unload "edit" button for the field'),
+      '#description' => t('Choose "No" if you want to unload "edit" button for the field'),
       '#options' => array(
-        '0' => t('No'),
-        '1' => t('Yes'),
+        '0' => t('Yes'),
+        '1' => t('No'),
       ),
       '#weight' => 1,
     );
