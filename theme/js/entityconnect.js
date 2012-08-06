@@ -24,7 +24,6 @@
         }
         return true;
       });
-
-    },
+    }
   };
 })(jQuery);

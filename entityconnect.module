@@ -81,6 +81,21 @@ function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_s
     foreach (_entityconnect_get_ref_fields() as $field_name => $field) {
       if (isset($form[$field_name])) {
         $instance = field_info_instance($form['#entity_type'], $field_name, $bundle);
+        $entity_reference_info = entityreference_get_selection_handler($field, $instance);
+
+        if (isset($entity_reference_info->field['settings']['handler_settings']['view'])) {
+          $name = $entity_reference_info->field['settings']['handler_settings']['view']['view_name'];
+          $display = $entity_reference_info->field['settings']['handler_settings']['view']['display_name'];
+          $views = views_get_view($name);
+          $views_display = $views->display;
+
+          if (isset($views_display[$display]->display_options['filters']['type'])) {
+            $views_filters = $views_display[$display]->display_options['filters']['type']['value'];
+          }
+          else {
+            $views_filters = $views_display['default']->display_options['filters']['type']['value'];
+          }
+        }
 
         if (!isset ($instance['entityconnect_unload_add'])) {
           $instance['entityconnect_unload_add'] = 0;
@@ -92,7 +107,8 @@ function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_s
 
         entityconnect_include_form();
         _entityconnect_field_attach_form($entity_type, $entity, $form,
-          $form_state, $field_name, $field, $langcode, $instance['entityconnect_unload_add'], $instance['entityconnect_unload_edit']);
+          $form_state, $field_name, $field, $langcode,
+          $instance, $views_filters);
       }// if()
     }// foreach()
   }// if()
@@ -154,6 +170,8 @@ function entityconnect_form_alter(&$form, &$form_state, $form_id) {
   // Note that we are doing this here becuase when we retrun to a form it gets
   // rebuild so this will get cuaght in the rebuild.
   if (isset($form_state['#entityconnect_child_form'])) {
+//  if (isset($form_state['#entityconnect_child_form']) && $form_state['#nodeconnect_child_form']) {
+//    entityconnect_include_form();
     $cache = $form_state['#entityconnect_child_form'];
     module_load_include('inc', 'entityconnect', 'includes/entityconnect.form');
     entityconnect_child_form_alter($form, $form_state, $form_id, $cache->cid, $cache);
@@ -179,7 +197,8 @@ function _entityconnect_get_ref_fields() {
   $ref_fields = array();
 
   foreach (field_info_fields() as $id => $field) {
-    if ($field['type'] == 'entityreference') {
+    // Add support for Entity reference module.
+    if ($field['type'] == 'entityreference' && $field['module'] == 'entityreference') {
       $entity_reference_info = entityreference_get_selection_handler($field);
       $entity_type = $entity_reference_info->field['settings']['target_type'];
       $target_bundle = (isset($entity_reference_info->field['settings']['handler_settings']['target_bundles'])) ? $entity_reference_info->field['settings']['handler_settings']['target_bundles'] : NULL;
@@ -219,6 +238,10 @@ function _entityconnect_get_ref_fields() {
           break;
       }// switch()
     }// if()
+    // Add support for Reference module.
+    if ($field['type'] == 'node_reference' && $field['module'] == 'node_reference') {
+      $ref_fields[$id] = $field;
+    }// if()
   }// foreach()
   return $ref_fields;
 }
@@ -233,34 +256,32 @@ function _entityconnect_get_ref_fields() {
  *   The form definition for the field instance settings.
  */
 function entityconnect_field_instance_settings_form($field, $instance) {
-  if (module_exists('entityreference')) {
-    $settings = $instance;
+  $settings = $instance;
 
-    // Add choice for user to not load entity connect "add" button editor on the field.
-    $form['entityconnect_unload_add'] = array(
-      '#type' => 'radios',
-      '#title' => t('Display Entity Connect "add" button.'),
-      '#default_value' => (!isset ($settings['entityconnect_unload_add'])) ? 0 : $settings['entityconnect_unload_add'],
-      '#description' => t('Choose "No" if you want to unload "add" button for the field'),
-      '#options' => array(
-        '0' => t('Yes'),
-        '1' => t('No'),
-      ),
-      '#weight' => 1,
-    );
+  // Add choice for user to not load entity connect "add" button editor on the field.
+  $form['entityconnect_unload_add'] = array(
+    '#type' => 'radios',
+    '#title' => t('Display Entity Connect "add" button.'),
+    '#default_value' => (!isset ($settings['entityconnect_unload_add'])) ? 0 : $settings['entityconnect_unload_add'],
+    '#description' => t('Choose "No" if you want to unload "add" button for the field'),
+    '#options' => array(
+      '0' => t('Yes'),
+      '1' => t('No'),
+    ),
+    '#weight' => 1,
+  );
 
-    // Add choice for user to not load entity connect "edit" button editor on the field.
-    $form['entityconnect_unload_edit'] = array(
-      '#type' => 'radios',
-      '#title' => t('Display Entity Connect "edit" button.'),
-      '#default_value' => (!isset ($settings['entityconnect_unload_edit'])) ? 0 : $settings['entityconnect_unload_edit'],
-      '#description' => t('Choose "No" if you want to unload "edit" button for the field'),
-      '#options' => array(
-        '0' => t('Yes'),
-        '1' => t('No'),
-      ),
-      '#weight' => 1,
-    );
-  }// if()
+  // Add choice for user to not load entity connect "edit" button editor on the field.
+  $form['entityconnect_unload_edit'] = array(
+    '#type' => 'radios',
+    '#title' => t('Display Entity Connect "edit" button.'),
+    '#default_value' => (!isset ($settings['entityconnect_unload_edit'])) ? 0 : $settings['entityconnect_unload_edit'],
+    '#description' => t('Choose "No" if you want to unload "edit" button for the field'),
+    '#options' => array(
+      '0' => t('Yes'),
+      '1' => t('No'),
+    ),
+    '#weight' => 1,
+  );
   return $form;
 }

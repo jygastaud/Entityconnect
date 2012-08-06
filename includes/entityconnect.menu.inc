@@ -35,14 +35,11 @@ function entityconnect_add($cache_id) {
   $cache = cache_get($cache_id);
   $field = field_info_field($cache->data['field']);
 
-  $entity_reference_info = entityreference_get_selection_handler($field);
-  $entity_type = $entity_reference_info->field['settings']['target_type'];
+  $entity_type = $cache->data['target_entity_type'];
+  $acceptable_types = $cache->data['acceptable_types'];
 
   switch ($entity_type) {
     case 'node':
-      // We get bundles referenced.
-       $acceptable_types = (isset($entity_reference_info->field['settings']['handler_settings']['target_bundles'])) ? $entity_reference_info->field['settings']['handler_settings']['target_bundles'] : NULL;
-
       if (count($acceptable_types) > 0) {
         foreach (system_admin_menu_block(menu_get_item("node/add")) as $key => $item) {
           $type = str_replace("-", '_', str_replace("node/add/", "", $item['path']));
@@ -75,8 +72,6 @@ function entityconnect_add($cache_id) {
       break;
 
     case 'taxonomy_term':
-      // We get bundles referenced.
-      $acceptable_types = (isset($entity_reference_info->field['settings']['handler_settings']['target_bundles'])) ? $entity_reference_info->field['settings']['handler_settings']['target_bundles'] : NULL;
       $voc_list = array();
 
       if (count($acceptable_types) > 0) {
@@ -133,7 +128,7 @@ function entityconnect_edit($cache_id) {
 
   $entity_reference_info = entityreference_get_selection_handler($field);
   $entity_type = $entity_reference_info->field['settings']['target_type'];
-  
+
   switch ($entity_type) {
     case 'node':
       drupal_goto("node/" . $cache->data['target_id'] . "/edit", array(
