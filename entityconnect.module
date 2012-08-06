@@ -83,7 +83,6 @@ function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_s
         $instance = field_info_instance($form['#entity_type'], $field_name, $bundle);
 
         if ($field['type'] == 'entityreference' && $field['module'] == 'entityreference') {
-
           $entity_reference_info = entityreference_get_selection_handler($field, $instance);
 
           if (isset($entity_reference_info->field['settings']['handler_settings']['view'])) {
@@ -98,6 +97,9 @@ function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_s
             else {
               $views_filters = $views_display['default']->display_options['filters']['type']['value'];
             }
+          }
+          else {
+            $views_filters = NULL;
           }
         }
 
