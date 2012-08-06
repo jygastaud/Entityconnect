@@ -81,19 +81,23 @@ function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_s
     foreach (_entityconnect_get_ref_fields() as $field_name => $field) {
       if (isset($form[$field_name])) {
         $instance = field_info_instance($form['#entity_type'], $field_name, $bundle);
-        $entity_reference_info = entityreference_get_selection_handler($field, $instance);
 
-        if (isset($entity_reference_info->field['settings']['handler_settings']['view'])) {
-          $name = $entity_reference_info->field['settings']['handler_settings']['view']['view_name'];
-          $display = $entity_reference_info->field['settings']['handler_settings']['view']['display_name'];
-          $views = views_get_view($name);
-          $views_display = $views->display;
+        if ($field['type'] == 'entityreference' && $field['module'] == 'entityreference') {
 
-          if (isset($views_display[$display]->display_options['filters']['type'])) {
-            $views_filters = $views_display[$display]->display_options['filters']['type']['value'];
-          }
-          else {
-            $views_filters = $views_display['default']->display_options['filters']['type']['value'];
+          $entity_reference_info = entityreference_get_selection_handler($field, $instance);
+
+          if (isset($entity_reference_info->field['settings']['handler_settings']['view'])) {
+            $name = $entity_reference_info->field['settings']['handler_settings']['view']['view_name'];
+            $display = $entity_reference_info->field['settings']['handler_settings']['view']['display_name'];
+            $views = views_get_view($name);
+            $views_display = $views->display;
+
+            if (isset($views_display[$display]->display_options['filters']['type'])) {
+              $views_filters = $views_display[$display]->display_options['filters']['type']['value'];
+            }
+            else {
+              $views_filters = $views_display['default']->display_options['filters']['type']['value'];
+            }
           }
         }
 
