@@ -14,11 +14,11 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
   if (!isset($form[$field_name])) {
     // Get the list of all parents element for the clicked button.
     $parents = (isset($form_state['clicked_button']['#parents'])) ? $form_state['clicked_button']['#parents'] : NULL;
-    $strPath = _entityconnect_get_parents($parents);
+    $str_path = _entityconnect_get_parents($parents);
 
-    $input = "(isset(\$form" . $strPath . "['#language'])) ? \$language = " . "\$form" . $strPath . "['#language'] : \$language = NULL ;";
+    $input = "(isset(\$form" . $str_path . "['#language'])) ? \$language = " . "\$form" . $str_path . "['#language'] : \$language = NULL ;";
     eval($input);
-    $input = "\$field_container = " . "&\$form" . $strPath . ";";
+    $input = "\$field_container = " . "&\$form" . $str_path . ";";
     eval($input);
     (isset($language)) ? $widget_container = &$field_container[$language] : $widget_container = $field_container;
   }
@@ -51,7 +51,7 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
     $entity_type = $entity_reference_info->field['settings']['target_type'];
 
     if (isset($entity_reference_info->field['settings']['handler_settings']['target_bundles'])) {
-     $acceptable_types = $entity_reference_info->field['settings']['handler_settings']['target_bundles'];
+      $acceptable_types = $entity_reference_info->field['settings']['handler_settings']['target_bundles'];
     }
     else {
       $acceptable_types = $filters;
@@ -61,7 +61,10 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
     $entity_type = 'node';
     $acceptable_types = $field['settings']['referenceable_types'];
   }
-
+  elseif ($field['module'] == 'user_reference') {
+    $entity_type = 'user';
+    $acceptable_types = $field['settings']['referenceable_roles'];
+  }
 
   // We currently should separate Autocomplete widget from others default widget
   // because "Edit" button will not react well on multiple selected items.
@@ -73,16 +76,17 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
           && user_access('entityconnect add button') && $addbuttonallowed == 0) {
     // Type is set, so only the Add button will be displayed.
     (isset($parents)) ? $parents : $parents = '';
-    entityconnect_add_form_element_new($field_container, $language, $field_name, $parents, 'all', '', $instance, $entity_type, $acceptable_types);
+    $extra_class = (isset($widget_container['#type'])) ? $widget_container['#type'] : '';
+    entityconnect_add_form_element_new($field_container, $language, $field_name, $parents, 'all', $extra_class, $instance, $entity_type, $acceptable_types);
   }
   else {
     // Type is not set, so multiple widgets.
     // We have to add some extra js for single value fields so we add a class to let the js know.
-    $extra_class = (!isset($widget_container['#cardinality']) || $widget_container['#cardinality'] == 1) ? 'single-value' : '';
+    $extra_class = (!isset($widget_container['#cardinality']) || $widget_container['#cardinality'] == 1) ? 'single-value' : 'multiple-values';
     foreach ($widget_container as $key => &$widget_element) {
       if (is_numeric($key)) {
         if (user_access('entityconnect add button') && $addbuttonallowed == 0) {
-         (isset($parents)) ? $parents : $parents = '';
+          (isset($parents)) ? $parents : $parents = '';
           entityconnect_add_form_element_new($widget_element, $language, $field_name, $parents, $key, $extra_class, $instance, $entity_type, $acceptable_types);
         }
         if (user_access('entityconnect edit button') && $editbuttonallowed == 0) {
@@ -173,11 +177,11 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
 
   // Get the list of all parents element for the clicked button.
   $parents = (isset($form_state['clicked_button']['#parents'])) ? $form_state['clicked_button']['#parents'] : NULL;
-  $strPath = _entityconnect_get_parents($parents);
+  $str_path = _entityconnect_get_parents($parents);
 
   if ($field_info['module'] == 'entityreference') {
-    $input = "\$target_id = (isset(\$form_state['input']" . $strPath . "['target_id']))";
-    $input .= "? \$form_state['input']" . $strPath . "['target_id']";
+    $input = "\$target_id = (isset(\$form_state['input']" . $str_path . "['target_id']))";
+    $input .= "? \$form_state['input']" . $str_path . "['target_id']";
     $input .= ": 0;";
     eval($input);
 
@@ -201,7 +205,13 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
     $target_id = isset($form_state['values'][$field][$language][$key]['nid'])
       ? $form_state['values'][$field][$language][$key]['nid'] : 0;
   }
-
+  elseif ($field_info['module'] == 'user_reference') {
+//    $entity_type = 'user';
+    //$language = $form[$field]['#language'];
+    $language = $form_state['clicked_button']['#language'];
+    $target_id = isset($form_state['values'][$field][$language][$key]['nid'])
+      ? $form_state['values'][$field][$language][$key]['nid'] : 0;
+  }
   $data = array(
     'form'       => $form,
     'form_state' => $form_state,
@@ -250,6 +260,10 @@ function entityconnect_child_form_submit(&$form, &$form_state) {
     if ($field['module'] == 'node_reference') {
       $entity_type = 'node';
     }
+    if ($field['module'] == 'user_reference') {
+      $entity_type = 'user';
+    }
+
     switch ($entity_type) {
       case 'node':
         $data['target_id'] = $form_state['values']['nid'];
@@ -306,206 +320,233 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
     unset($form_state['clicked_button']);
     unset($form_state['submit_handlers']);
 
-    $strPath = _entityconnect_get_parents($parents);
+    $str_path = _entityconnect_get_parents($parents);
 
-    $input = "(isset(\$form" . $strPath . "['#language'])) ? \$language = " . "\$form" . $strPath . "['#language'] : \$language = NULL;";
+    $input = "(isset(\$form" . $str_path . "['#language'])) ? \$language = " . "\$form" . $str_path . "['#language'] : \$language = NULL;";
     eval($input);
-    $input = "\$field_container = " . "&\$form" . $strPath . ";";
+    $input = "\$field_container = " . "&\$form" . $str_path . ";";
     eval($input);
     (isset($language)) ? $widget_container = &$field_container[$language] : $widget_container = $field_container;
     (!isset($language)) ? $language = LANGUAGE_NONE : $language;
 //    $language = $data['language'];
+    (isset($widget_container['#type'])) ? $widget_container_type = $widget_container['#type'] : $widget_container_type = 'autocomplete' ;
+
+    $field_info = field_info_field($data['field']);
+
     if (isset($data['target_id']) && $form_state['rebuild'] === TRUE) {
       switch ($data['target_entity_type']) {
         case 'node':
           if ($data['target_id'] != 0 && $node = node_load($data['target_id'])) {
-            $field_info = field_info_field($data['field']);
-            if ($field_info['module'] == 'entityreference') {
-              if (!isset($widget_container['#type'])) {
+//            $field_info = field_info_field($data['field']);
+
+            // ['#default_value'] should have differents build function of the widget type.
+            switch ($widget_container_type) {
+              case 'textfield': // Autocomplete tags style.
                 $element['#default_value'] = $node->title;
                 $element['#default_value'] .= ' (' . $node->nid . ')';
-                _entityconnect_alter_form_state_input($form, $form_state, 'autocomplete', $strPath, $language, $element['#default_value']);
-              }
-              else {
-                // Default value should have differents build function of the widget type.
-                if ($widget_container['#type'] == 'textfield') { // Autocomplete tags style.
+                if (!empty ($widget_container['#value'])) {
+                  $element['#default_value'] .= ', ' . $widget_container['#value'];
+                }
+//                _entityconnect_alter_form_state_input($form, $form_state, 'textfield', $str_path, $language, $element['#default_value']);
+                break;
+
+              case 'select': // Select list.
+                if ($widget_container['#multiple'] == FALSE) {
+                  $element['#default_value'] = $node->nid;
+//                  _entityconnect_alter_form_state_input($form, $form_state, 'select', $str_path, $language, $element['#default_value']);
+                }
+                else {
+                  $element['#default_value'] = $node->nid;
+                  $element['#default_value'] = $widget_container['#value'] + array($element['#default_value'] => $element['#default_value']);
+//                  _entityconnect_alter_form_state_input($form, $form_state, 'select', $str_path, $language, $element['#default_value']);
+                }
+                break;
+
+              case 'radios': // Radios widget.
+                $element['#default_value'] = $node->nid;
+//                _entityconnect_alter_form_state_input($form, $form_state, 'radios', $str_path, $language, $element['#default_value']);
+                break;
+
+              case 'checkboxes': // Checkboxes widget.
+                $element['#default_value'] = $node->nid;
+                $element['#default_value'] = $widget_container['#value'] + array($element['#default_value'] => $element['#default_value']);
+//                _entityconnect_alter_form_state_input($form, $form_state, 'checkboxes', $str_path, $language, $element['#default_value']);
+                break;
+
+              default:
+                if ($field_info['module'] == 'entityreference') {
                   $element['#default_value'] = $node->title;
                   $element['#default_value'] .= ' (' . $node->nid . ')';
-                  if (!empty ($widget_container['#value'])) {
-                    $element['#default_value'] .= ', ' . $widget_container['#value'];
-                  }
-                _entityconnect_alter_form_state_input($form, $form_state, 'others', $strPath, $language, $element['#default_value']);
+//                  _entityconnect_alter_form_state_input($form, $form_state, 'autocomplete', $str_path, $language, $element['#default_value']);
                 }
-                elseif ($widget_container['#type'] == 'select') { // Select list.
-                  if ($widget_container['#multiple'] == FALSE) {
-                    $element['#default_value'] = $node->nid;
-                    _entityconnect_alter_form_state_input($form, $form_state, 'others', $strPath, $language, $element['#default_value']);
-                    eval($input);
-                  }
-                  else {
-                    $element['#default_value'] = $node->nid;
-                    $element['#default_value'] = $widget_container['#value'] + array($element['#default_value'] => $element['#default_value']);
-                    _entityconnect_alter_form_state_input($form, $form_state, 'others', $strPath, $language, $element['#default_value']);
-                  }
-                }
-                elseif ($widget_container['#type'] == 'radios') { // Radios widget.
-                  $element['#default_value'] = $node->nid;
-                  _entityconnect_alter_form_state_input($form, $form_state, 'others', $strPath, $language, $element['#default_value']);
-                }
-                elseif ($widget_container['#type'] == 'checkboxes') { // Checkboxes widget.
-                    $element['#default_value'] = $node->nid;
-                    $element['#default_value'] = $widget_container['#value'] + array($element['#default_value'] => $element['#default_value']);
-                    _entityconnect_alter_form_state_input($form, $form_state, 'others', $strPath, $language, $element['#default_value']);
-                }
-              }
-            }
-            if ($field_info['module'] == 'node_reference') {
-              $element['#default_value'] = $node->nid;
 
-              if (!is_array($form_state['input'][$data['field']][$language])) {
-                $form_state['input'][$data['field']][$language] = array();
-              }
-              // Different processing if noderef is an autocomplete or a select.
-              switch ($form[$data['field']][$language]['#type']) {
-                case 'select':
-                  $form_state['input'][$data['field']][$language] = $node->nid;
-                  break;
-                default:
+                if ($field_info['module'] == 'node_reference') {
+                  $element['#default_value'] = $node->nid;
                   // Use the autocomplete value so we are sure we validate.
-                  $value =  node_reference_autocomplete_value($element, FALSE, $form_state);
-                  $form_state['input'][$data['field']][$language][$data['key']]['nid'] = $value;
-                  break;
-              }
+//                  $value = node_reference_autocomplete_value($element, FALSE, $form_state);
+                  $element['#default_value'] = node_reference_autocomplete_value($element, FALSE, $form_state);
+//                  $form_state['input'][$data['field']][$language][$data['key']]['nid'] = $value;
+                }
+                break;
             }
           }
           break;
 
         case 'user':
           if (($data['target_id'] != NULL || $data['target_id'] != 0) && $user = user_load_by_name($data['target_id'])) {
-            if (!isset($widget_container['#type'])) {
-              $element['#default_value'] = $user->name;
-              $element['#default_value'] .= ' (' . $user->uid . ')';
-              _entityconnect_alter_form_state_input($form, $form_state, 'autocomplete', $strPath, $language, $element['#default_value']);
-            }
-            else {
-              // Default value should have differents build function of the widget type.
-              if ($widget_container['#type'] == 'textfield') { // Autocomplete tags style.
+//            $field_info = field_info_field($data['field']);
+
+            switch ($widget_container_type) {
+              case 'textfield': // Autocomplete tags style.
                 $element['#default_value'] = $user->name;
                 $element['#default_value'] .= ' (' . $user->uid . ')';
                 if (!empty ($widget_container['#value'])) {
                   $element['#default_value'] .= ', ' . $widget_container['#value'];
                 }
-               _entityconnect_alter_form_state_input($form, $form_state, 'others', $strPath, $language, $element['#default_value']);
-              }
-              elseif ($widget_container['#type'] == 'select') { // Select list.
+//                _entityconnect_alter_form_state_input($form, $form_state, 'textfield', $str_path, $language, $element['#default_value']);
+                break;
+
+              case 'select': // Select list.
                 if ($widget_container['#multiple'] == FALSE) {
                   $element['#default_value'] = $user->uid;
-                  _entityconnect_alter_form_state_input($form, $form_state, 'others', $strPath, $language, $element['#default_value']);
+//                  _entityconnect_alter_form_state_input($form, $form_state, 'select', $str_path, $language, $element['#default_value']);
                 }
                 else {
                   $element['#default_value'] = $user->uid;
                   $element['#default_value'] = $widget_container['#value'] + array($element['#default_value'] => $element['#default_value']);
-                  _entityconnect_alter_form_state_input($form, $form_state, 'others', $strPath, $language, $element['#default_value']);
+//                  _entityconnect_alter_form_state_input($form, $form_state, 'select', $str_path, $language, $element['#default_value']);
                 }
-              }
-              elseif ($widget_container['#type'] == 'radios') { // Radios widget.
+                break;
+
+              case 'radios': // Radios widget.
                 $element['#default_value'] = $user->uid;
-                _entityconnect_alter_form_state_input($form, $form_state, 'others', $strPath, $language, $element['#default_value']);
-              }
-              elseif ($widget_container['#type'] == 'checkboxes') { // Checkboxes widget.
+//                _entityconnect_alter_form_state_input($form, $form_state, 'radios', $str_path, $language, $element['#default_value']);
+                break;
+
+              case 'checkboxes': // Checkboxes widget.
+                $element['#default_value'] = $user->uid;
+                $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
+//                _entityconnect_alter_form_state_input($form, $form_state, 'checkboxes', $str_path, $language, $element['#default_value']);
+                break;
+
+              default:
+                if ($field_info['module'] == 'entityreference') {
+                  $element['#default_value'] = $user->name;
+                  $element['#default_value'] .= ' (' . $user->uid . ')';
+//                  _entityconnect_alter_form_state_input($form, $form_state, 'autocomplete', $str_path, $language, $element['#default_value']);
+                }
+
+                if ($field_info['module'] == 'user_reference') {
+//                  $element['#default_value'] = $user->name;
+//                  $element['#default_value'] .= ' [uid:' . $user->uid . ']';
+//                  _entityconnect_alter_form_state_input($form, $form_state, 'autocomplete', $str_path, $language, $element['#default_value']);
                   $element['#default_value'] = $user->uid;
-                  $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
-                  _entityconnect_alter_form_state_input($form, $form_state, 'others', $strPath, $language, $element['#default_value']);
-              }
+                  // Use the autocomplete value so we are sure we validate.
+//                  $value =  user_reference_autocomplete_value($element, FALSE, $form_state);
+                  $element['#default_value'] = user_reference_autocomplete_value($element, FALSE, $form_state);
+//                  $form_state['input'][$data['field']][$language][$data['key']]['uid'] = $value;
+                }
+                break;
             }
-          }// if()
+          }
           break;
 
         case 'taxonomy_term':
           if (($data['target_id'] != NULL || $data['target_id'] != 0) && $term = taxonomy_term_load($data['target_id'])) {
-            if (!isset($widget_container['#type'])) {
-              $element['#default_value'] = $term->name;
-              $element['#default_value'] .= ' (' . $term->tid . ')';
-              _entityconnect_alter_form_state_input($form, $form_state, 'autocomplete', $strPath, $language, $element['#default_value']);
-            }
-            else {
-              // Default value should have differents build function of the widget type.
-              if ($widget_container['#type'] == 'textfield') { // Autocomplete tags style.
+            switch ($widget_container_type) {
+              case 'textfield': // Autocomplete tags style.
                 $element['#default_value'] = $term->name;
                 $element['#default_value'] .= ' (' . $term->tid . ')';
                 if (!empty ($widget_container['#value'])) {
                   $element['#default_value'] .= ', ' . $widget_container['#value'];
                 }
-                _entityconnect_alter_form_state_input($form, $form_state, 'others', $strPath, $language, $element['#default_value']);
-              }
-              elseif ($widget_container['#type'] == 'select') { // Select list.
+//                _entityconnect_alter_form_state_input($form, $form_state, 'textfield', $str_path, $language, $element['#default_value']);
+                break;
+
+              case 'select': // Select list.
                 if ($widget_container['#multiple'] == FALSE) {
                   $element['#default_value'] = $term->tid;
-                  _entityconnect_alter_form_state_input($form, $form_state, 'others', $strPath, $language, $element['#default_value']);
+//                  _entityconnect_alter_form_state_input($form, $form_state, 'select', $str_path, $language, $element['#default_value']);
                 }
                 else {
                   $element['#default_value'] = $term->tid;
                   $element['#default_value'] = $widget_container['#value'] + array($element['#default_value'] => $element['#default_value']);
-                  _entityconnect_alter_form_state_input($form, $form_state, 'others', $strPath, $language, $element['#default_value']);
+//                  _entityconnect_alter_form_state_input($form, $form_state, 'select', $str_path, $language, $element['#default_value']);
                 }
-              }
-              elseif ($widget_container['#type'] == 'radios') { // Radios widget.
+                break;
+
+              case 'radios': // Radios widget.
                 $element['#default_value'] = $term->tid;
-                _entityconnect_alter_form_state_input($form, $form_state, 'others', $strPath, $language, $element['#default_value']);
-              }
-              elseif ($widget_container['#type'] == 'checkboxes') { // Checkboxes widget.
-                  $element['#default_value'] = $term->tid;
-                  $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
-                  _entityconnect_alter_form_state_input($form, $form_state, 'others', $strPath, $language, $element['#default_value']);
-              }
+//                _entityconnect_alter_form_state_input($form, $form_state, 'radios', $str_path, $language, $element['#default_value']);
+                break;
+
+              case 'checkboxes': // Checkboxes widget.
+                $element['#default_value'] = $term->tid;
+                $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
+//                _entityconnect_alter_form_state_input($form, $form_state, 'checkboxes', $str_path, $language, $element['#default_value']);
+                break;
+
+              default:
+                if ($field_info['module'] == 'entityreference') {
+                  $element['#default_value'] = $term->name;
+                  $element['#default_value'] .= ' (' . $term->tid . ')';
+//                  _entityconnect_alter_form_state_input($form, $form_state, 'autocomplete', $str_path, $language, $element['#default_value']);
+                }
+                break;
             }
-          }// if()
+          }
           break;
 
         case 'taxonomy_vocabulary':
           if (($data['target_id'] != NULL || $data['target_id'] != 0) && $vocabulary = taxonomy_vocabulary_load($data['target_id'])) {
-            if (!isset($widget_container['#type'])) {
-              $element['#default_value'] = $vocabulary->name;
-              $element['#default_value'] .= ' (' . $vocabulary->vid . ')';
-              _entityconnect_alter_form_state_input($form, $form_state, 'autocomplete', $strPath, $language, $element['#default_value']);
-            }
-            else {
-              // Default value should have differents build function of the widget type.
-              if ($widget_container['#type'] == 'textfield') { // Autocomplete tags style.
+            switch ($widget_container_type) {
+              case 'textfield': // Autocomplete tags style.
                 $element['#default_value'] = $vocabulary->name;
                 $element['#default_value'] .= ' (' . $vocabulary->vid . ')';
                 if (!empty ($widget_container['#value'])) {
                   $element['#default_value'] .= ', ' . $widget_container['#value'];
                 }
-                _entityconnect_alter_form_state_input($form, $form_state, 'others', $strPath, $language, $element['#default_value']);
-              }
-              elseif ($widget_container['#type'] == 'select') { // Select list.
+//                _entityconnect_alter_form_state_input($form, $form_state, 'textfield', $str_path, $language, $element['#default_value']);
+                break;
+
+              case 'select': // Select list.
                 if ($widget_container['#multiple'] == FALSE) {
                   $element['#default_value'] = $vocabulary->vid;
-                  _entityconnect_alter_form_state_input($form, $form_state, 'others', $strPath, $language, $element['#default_value']);
+                  _entityconnect_alter_form_state_input($form, $form_state, 'select', $str_path, $language, $element['#default_value']);
                 }
                 else {
                   $element['#default_value'] = $vocabulary->vid;
                   $element['#default_value'] = $widget_container['#value'] + array($element['#default_value'] => $element['#default_value']);
-                  _entityconnect_alter_form_state_input($form, $form_state, 'others', $strPath, $language, $element['#default_value']);
+//                  _entityconnect_alter_form_state_input($form, $form_state, 'select', $str_path, $language, $element['#default_value']);
                 }
-              }
-              elseif ($widget_container['#type'] == 'radios') { // Radios widget.
+                break;
+
+              case 'radios': // Radios widget.
                 $element['#default_value'] = $vocabulary->vid;
-                _entityconnect_alter_form_state_input($form, $form_state, 'others', $strPath, $language, $element['#default_value']);
-              }
-              elseif ($widget_container['#type'] == 'checkboxes') { // Checkboxes widget.
-                  $element['#default_value'] = $vocabulary->vid;
-                  $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
-                  _entityconnect_alter_form_state_input($form, $form_state, 'others', $strPath, $language, $element['#default_value']);
-              }
+//                _entityconnect_alter_form_state_input($form, $form_state, 'radios', $str_path, $language, $element['#default_value']);
+                break;
+
+              case 'checkboxes': // Checkboxes widget.
+                $element['#default_value'] = $vocabulary->vid;
+                $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
+//                _entityconnect_alter_form_state_input($form, $form_state, 'checkboxes', $str_path, $language, $element['#default_value']);
+                break;
+
+              default:
+                if ($field_info['module'] == 'entityreference') {
+                  $element['#default_value'] = $vocabulary->name;
+                  $element['#default_value'] .= ' (' . $vocabulary->vid . ')';
+//                  _entityconnect_alter_form_state_input($form, $form_state, 'autocomplete', $str_path, $language, $element['#default_value']);
+                }
+                break;
             }
-          }// if()
+          }
           break;
 
         default:
           break;
       }// if()
+      _entityconnect_alter_form_state_input($form, $form_state, $field_info['module'], $widget_container_type, $str_path, $language, $element['#default_value']);
     }// if()
     $form_state['#entityconnect_processed'] = TRUE;
     $form = drupal_rebuild_form($form_id, $form_state, $form);
@@ -574,8 +615,8 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
  */
 function _entityconnect_get_parents($parents) {
   foreach ($parents as $key => $parent) {
-    if (stripos($parent, 'add_entityconnect') === false
-            && stripos($parent, 'edit_entityconnect') === false ) {
+    if (stripos($parent, 'add_entityconnect') === FALSE
+            && stripos($parent, 'edit_entityconnect') === FALSE ) {
       if (isset($path)) {
         $path .= '[\'' . $parent . '\']';
       }
@@ -594,29 +635,82 @@ function _entityconnect_get_parents($parents) {
  * @param type $form
  * @param type $form_state
  * @param type $widget_type
- * @param type $strPath
+ * @param type $str_path
  * @param type $language
  * @param type $element
  */
-function _entityconnect_alter_form_state_input(&$form, &$form_state, $widget_type, $strPath, $language, $element) {
+function _entityconnect_alter_form_state_input(&$form, &$form_state, $module, $widget_type, $str_path, $language, $element) {
   $input = "\$form_state['input']";
 
-  switch ($widget_type) {
-    case 'autocomplete':
-      $input .= $strPath;
-      $input .= "['target_id']";
-      $input .= " = \$element;";
+  switch ($module) {
+    case 'entityreference':
+      switch ($widget_type) {
+        case 'autocomplete':
+          $input .= $str_path;
+          $input .= "['target_id']";
+          $input .= " = \$element;";
+          break;
+
+        case 'textfield':
+        case 'select':
+        case 'radios':
+        case 'checkboxes':
+          $input .= $str_path;
+          $input .= "['" . $language . "']";
+          $input .= " = \$element;";
+          break;
+
+        default:
+          break;
+      }
       break;
 
-    case 'others':
-      $input .= $strPath;
-      $input .= "['". $language . "']";
-      $input .= " = \$element;";
+    case 'node_reference':
+      switch ($widget_type) {
+        case 'autocomplete':
+          $input .= $str_path;
+          $input .= "['nid']";
+          $input .= " = \$element;";
+          break;
+
+        case 'textfield':
+        case 'select':
+        case 'radios':
+        case 'checkboxes':
+          $input .= $str_path;
+          $input .= "['" . $language . "']";
+          $input .= " = \$element;";
+          break;
+
+        default:
+          break;
+      }
+      break;
+
+    case 'user_reference':
+      switch ($widget_type) {
+        case 'autocomplete':
+          $input .= $str_path;
+          $input .= "['uid']";
+          $input .= " = \$element;";
+          break;
+
+        case 'textfield':
+        case 'select':
+        case 'radios':
+        case 'checkboxes':
+          $input .= $str_path;
+          $input .= "['" . $language . "']";
+          $input .= " = \$element;";
+          break;
+
+        default:
+          break;
+      }
       break;
 
     default:
       break;
   }
-
   eval($input);
 }

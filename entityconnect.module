@@ -174,7 +174,7 @@ function entityconnect_form_alter(&$form, &$form_state, $form_id) {
   }// if()
   // If this for is a child form lets add alter for that purpose
   // Note that we are doing this here becuase when we retrun to a form it gets
-  // rebuild so this will get cuaght in the rebuild.
+  // rebuild so this will get caught in the rebuild.
   if (isset($form_state['#entityconnect_child_form'])) {
 //  if (isset($form_state['#entityconnect_child_form']) && $form_state['#nodeconnect_child_form']) {
 //    entityconnect_include_form();
@@ -185,7 +185,9 @@ function entityconnect_form_alter(&$form, &$form_state, $form_id) {
 
   if ($form_id == 'field_ui_field_edit_form') {
     // Use to add choice field.
-    if ($form['#field']['type'] == 'entityreference') {
+    if ($form['#field']['type'] == 'entityreference'
+          || $form['#field']['type'] == 'node_reference'
+          || $form['#field']['type'] == 'user_reference') {
       $instance = $form['#instance'];
       $field = $form['#field'];
       $additions = module_invoke('entityconnect', 'field_instance_settings_form', $field, $instance);
@@ -245,7 +247,8 @@ function _entityconnect_get_ref_fields() {
       }// switch()
     }// if()
     // Add support for Reference module.
-    if ($field['type'] == 'node_reference' && $field['module'] == 'node_reference') {
+    if (($field['type'] == 'node_reference' && $field['module'] == 'node_reference')
+          || ($field['type'] == 'user_reference' && $field['module'] == 'user_reference')) {
       $ref_fields[$id] = $field;
     }// if()
   }// foreach()
