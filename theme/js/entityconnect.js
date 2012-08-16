@@ -18,7 +18,7 @@
       });
       // Radios widget.
       $(".entityconnect-add.radios", context).each(function() {
-        $(this).insertAfter($(this).next().find("label"));
+        $(this).insertBefore($(this).siblings("div.form-type-radios").find("label").first());
       });
       // Checkboxes widget.
       $(".entityconnect-add.checkboxes", context).each(function() {

@@ -337,8 +337,6 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
       switch ($data['target_entity_type']) {
         case 'node':
           if ($data['target_id'] != 0 && $node = node_load($data['target_id'])) {
-//            $field_info = field_info_field($data['field']);
-
             // ['#default_value'] should have differents build function of the widget type.
             switch ($widget_container_type) {
               case 'textfield': // Autocomplete tags style.
@@ -347,45 +345,37 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
                 if (!empty ($widget_container['#value'])) {
                   $element['#default_value'] .= ', ' . $widget_container['#value'];
                 }
-//                _entityconnect_alter_form_state_input($form, $form_state, 'textfield', $str_path, $language, $element['#default_value']);
                 break;
 
               case 'select': // Select list.
                 if ($widget_container['#multiple'] == FALSE) {
                   $element['#default_value'] = $node->nid;
-//                  _entityconnect_alter_form_state_input($form, $form_state, 'select', $str_path, $language, $element['#default_value']);
                 }
                 else {
                   $element['#default_value'] = $node->nid;
                   $element['#default_value'] = $widget_container['#value'] + array($element['#default_value'] => $element['#default_value']);
-//                  _entityconnect_alter_form_state_input($form, $form_state, 'select', $str_path, $language, $element['#default_value']);
                 }
                 break;
 
               case 'radios': // Radios widget.
                 $element['#default_value'] = $node->nid;
-//                _entityconnect_alter_form_state_input($form, $form_state, 'radios', $str_path, $language, $element['#default_value']);
                 break;
 
               case 'checkboxes': // Checkboxes widget.
                 $element['#default_value'] = $node->nid;
                 $element['#default_value'] = $widget_container['#value'] + array($element['#default_value'] => $element['#default_value']);
-//                _entityconnect_alter_form_state_input($form, $form_state, 'checkboxes', $str_path, $language, $element['#default_value']);
                 break;
 
               default:
                 if ($field_info['module'] == 'entityreference') {
                   $element['#default_value'] = $node->title;
                   $element['#default_value'] .= ' (' . $node->nid . ')';
-//                  _entityconnect_alter_form_state_input($form, $form_state, 'autocomplete', $str_path, $language, $element['#default_value']);
                 }
 
                 if ($field_info['module'] == 'node_reference') {
                   $element['#default_value'] = $node->nid;
                   // Use the autocomplete value so we are sure we validate.
-//                  $value = node_reference_autocomplete_value($element, FALSE, $form_state);
                   $element['#default_value'] = node_reference_autocomplete_value($element, FALSE, $form_state);
-//                  $form_state['input'][$data['field']][$language][$data['key']]['nid'] = $value;
                 }
                 break;
             }
@@ -394,8 +384,6 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
 
         case 'user':
           if (($data['target_id'] != NULL || $data['target_id'] != 0) && $user = user_load_by_name($data['target_id'])) {
-//            $field_info = field_info_field($data['field']);
-
             switch ($widget_container_type) {
               case 'textfield': // Autocomplete tags style.
                 $element['#default_value'] = $user->name;
@@ -403,48 +391,36 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
                 if (!empty ($widget_container['#value'])) {
                   $element['#default_value'] .= ', ' . $widget_container['#value'];
                 }
-//                _entityconnect_alter_form_state_input($form, $form_state, 'textfield', $str_path, $language, $element['#default_value']);
                 break;
 
               case 'select': // Select list.
                 if ($widget_container['#multiple'] == FALSE) {
                   $element['#default_value'] = $user->uid;
-//                  _entityconnect_alter_form_state_input($form, $form_state, 'select', $str_path, $language, $element['#default_value']);
                 }
                 else {
                   $element['#default_value'] = $user->uid;
                   $element['#default_value'] = $widget_container['#value'] + array($element['#default_value'] => $element['#default_value']);
-//                  _entityconnect_alter_form_state_input($form, $form_state, 'select', $str_path, $language, $element['#default_value']);
                 }
                 break;
 
               case 'radios': // Radios widget.
                 $element['#default_value'] = $user->uid;
-//                _entityconnect_alter_form_state_input($form, $form_state, 'radios', $str_path, $language, $element['#default_value']);
                 break;
 
               case 'checkboxes': // Checkboxes widget.
                 $element['#default_value'] = $user->uid;
                 $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
-//                _entityconnect_alter_form_state_input($form, $form_state, 'checkboxes', $str_path, $language, $element['#default_value']);
                 break;
 
               default:
                 if ($field_info['module'] == 'entityreference') {
                   $element['#default_value'] = $user->name;
                   $element['#default_value'] .= ' (' . $user->uid . ')';
-//                  _entityconnect_alter_form_state_input($form, $form_state, 'autocomplete', $str_path, $language, $element['#default_value']);
                 }
 
                 if ($field_info['module'] == 'user_reference') {
-//                  $element['#default_value'] = $user->name;
-//                  $element['#default_value'] .= ' [uid:' . $user->uid . ']';
-//                  _entityconnect_alter_form_state_input($form, $form_state, 'autocomplete', $str_path, $language, $element['#default_value']);
                   $element['#default_value'] = $user->uid;
-                  // Use the autocomplete value so we are sure we validate.
-//                  $value =  user_reference_autocomplete_value($element, FALSE, $form_state);
                   $element['#default_value'] = user_reference_autocomplete_value($element, FALSE, $form_state);
-//                  $form_state['input'][$data['field']][$language][$data['key']]['uid'] = $value;
                 }
                 break;
             }
@@ -460,37 +436,31 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
                 if (!empty ($widget_container['#value'])) {
                   $element['#default_value'] .= ', ' . $widget_container['#value'];
                 }
-//                _entityconnect_alter_form_state_input($form, $form_state, 'textfield', $str_path, $language, $element['#default_value']);
                 break;
 
               case 'select': // Select list.
                 if ($widget_container['#multiple'] == FALSE) {
                   $element['#default_value'] = $term->tid;
-//                  _entityconnect_alter_form_state_input($form, $form_state, 'select', $str_path, $language, $element['#default_value']);
                 }
                 else {
                   $element['#default_value'] = $term->tid;
                   $element['#default_value'] = $widget_container['#value'] + array($element['#default_value'] => $element['#default_value']);
-//                  _entityconnect_alter_form_state_input($form, $form_state, 'select', $str_path, $language, $element['#default_value']);
                 }
                 break;
 
               case 'radios': // Radios widget.
                 $element['#default_value'] = $term->tid;
-//                _entityconnect_alter_form_state_input($form, $form_state, 'radios', $str_path, $language, $element['#default_value']);
                 break;
 
               case 'checkboxes': // Checkboxes widget.
                 $element['#default_value'] = $term->tid;
                 $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
-//                _entityconnect_alter_form_state_input($form, $form_state, 'checkboxes', $str_path, $language, $element['#default_value']);
                 break;
 
               default:
                 if ($field_info['module'] == 'entityreference') {
                   $element['#default_value'] = $term->name;
                   $element['#default_value'] .= ' (' . $term->tid . ')';
-//                  _entityconnect_alter_form_state_input($form, $form_state, 'autocomplete', $str_path, $language, $element['#default_value']);
                 }
                 break;
             }
@@ -506,37 +476,31 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
                 if (!empty ($widget_container['#value'])) {
                   $element['#default_value'] .= ', ' . $widget_container['#value'];
                 }
-//                _entityconnect_alter_form_state_input($form, $form_state, 'textfield', $str_path, $language, $element['#default_value']);
                 break;
 
               case 'select': // Select list.
                 if ($widget_container['#multiple'] == FALSE) {
                   $element['#default_value'] = $vocabulary->vid;
-                  _entityconnect_alter_form_state_input($form, $form_state, 'select', $str_path, $language, $element['#default_value']);
                 }
                 else {
                   $element['#default_value'] = $vocabulary->vid;
                   $element['#default_value'] = $widget_container['#value'] + array($element['#default_value'] => $element['#default_value']);
-//                  _entityconnect_alter_form_state_input($form, $form_state, 'select', $str_path, $language, $element['#default_value']);
                 }
                 break;
 
               case 'radios': // Radios widget.
                 $element['#default_value'] = $vocabulary->vid;
-//                _entityconnect_alter_form_state_input($form, $form_state, 'radios', $str_path, $language, $element['#default_value']);
                 break;
 
               case 'checkboxes': // Checkboxes widget.
                 $element['#default_value'] = $vocabulary->vid;
                 $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
-//                _entityconnect_alter_form_state_input($form, $form_state, 'checkboxes', $str_path, $language, $element['#default_value']);
                 break;
 
               default:
                 if ($field_info['module'] == 'entityreference') {
                   $element['#default_value'] = $vocabulary->name;
                   $element['#default_value'] .= ' (' . $vocabulary->vid . ')';
-//                  _entityconnect_alter_form_state_input($form, $form_state, 'autocomplete', $str_path, $language, $element['#default_value']);
                 }
                 break;
             }
