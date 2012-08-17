@@ -176,8 +176,6 @@ function entityconnect_form_alter(&$form, &$form_state, $form_id) {
   // Note that we are doing this here becuase when we retrun to a form it gets
   // rebuild so this will get caught in the rebuild.
   if (isset($form_state['#entityconnect_child_form'])) {
-//  if (isset($form_state['#entityconnect_child_form']) && $form_state['#nodeconnect_child_form']) {
-//    entityconnect_include_form();
     $cache = $form_state['#entityconnect_child_form'];
     module_load_include('inc', 'entityconnect', 'includes/entityconnect.form');
     entityconnect_child_form_alter($form, $form_state, $form_id, $cache->cid, $cache);
