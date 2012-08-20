@@ -8,7 +8,6 @@
 /**
  * Implements hook_requirements().
  */
-
 function entityconnect_requirements($phase) {
   $requirements = array();
   $t = get_t();
@@ -16,7 +15,7 @@ function entityconnect_requirements($phase) {
   switch ($phase) {
     case 'install':
       $requirements['entityconnect'] = array();
-      $requirements['entityconnect']['title'] = t('Private filesystem support');
+      $requirements['entityconnect']['title'] = $t('Private filesystem support');
 
       if (module_exists('entityreference')) {
         $requirements['entityconnect']['severity'] = REQUIREMENT_OK;

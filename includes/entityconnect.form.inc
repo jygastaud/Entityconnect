@@ -67,7 +67,8 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
   }
   else {
     // Type is not set, so multiple widgets.
-    // We have to add some extra js for single value fields so we add a class to let the js know.
+    // We have to add some extra js for single value fields so we add
+    // a class to let the js know.
     $extra_class = (!isset($widget_container['#cardinality']) || $widget_container['#cardinality'] == 1) ? 'single-value' : 'multiple-values';
     foreach ($widget_container as $key => &$widget_element) {
       if (is_numeric($key)) {
@@ -166,14 +167,12 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
   $field_container = entityconnect_array_get_nested_value($form_state['input'], $parents, $key_exists);
 
   if ($field_info['module'] == 'entityreference') {
-    if($key_exists) {
+    if ($key_exists) {
       $target_id = (isset($field_container['target_id'])) ? $field_container['target_id'] : 0;
     }
 
-    /**
-    * TODO : Find the original problem of the entity connect use with
-    * Field Collection.
-    */
+    // TODO : Find the original problem of the entity connect use with
+    // Field Collection.
     if (!empty($target_id) && !intval($target_id)) {
       // Take "label (entity id)', match the id from parenthesis.
       if (preg_match("/.+\((\d+)\)/", $target_id, $matches)) {
@@ -182,14 +181,12 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
     }
   }
   elseif ($field_info['module'] == 'node_reference') {
-    if($key_exists) {
+    if ($key_exists) {
       $target_id = (isset($field_container['nid'])) ? $field_container['nid'] : 0;
     }
 
-    /**
-    * TODO : Find the original problem of the entity connect use with
-    * Field Collection.
-    */
+    // TODO : Find the original problem of the entity connect use with
+    // Field Collection.
     if (!empty($target_id) && !intval($target_id)) {
       // Take "label (entity id)', match the id from parenthesis.
       if (preg_match("/.+\[nid:(\d+)\]/", $target_id, $matches)) {
@@ -198,14 +195,12 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
     }
   }
   elseif ($field_info['module'] == 'user_reference') {
-    if($key_exists) {
+    if ($key_exists) {
       $target_id = (isset($field_container['uid'])) ? $field_container['uid'] : 0;
     }
 
-    /**
-    * TODO : Find the original problem of the entity connect use with
-    * Field Collection.
-    */
+    // TODO : Find the original problem of the entity connect use with
+    // Field Collection.
     if (!empty($target_id) && !intval($target_id)) {
       // Take "label (entity id)', match the id from parenthesis.
       if (preg_match("/.+\[uid:(\d+)\]/", $target_id, $matches)) {
@@ -225,7 +220,6 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
     'target_id'  => $target_id,
     'target_entity_type' => $entity_type,
     'acceptable_types' => $acceptable_types,
-//    'language'   => $language,
   );
 
   entityconnect_cache_set($cache_id, $data);
@@ -313,12 +307,11 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
 
     $key_exists = NULL;
     $field_container = entityconnect_array_get_nested_value($form, $parents, $key_exists);
-    if($key_exists) {
+    if ($key_exists) {
       $language = (isset($field_container['#language'])) ? $field_container['#language'] : LANGUAGE_NONE;
     } 
 
     (isset($language)) ? $widget_container = &$field_container[$language] : $widget_container = $field_container;
-//    $language = $data['language'];
     (isset($widget_container['#type'])) ? $widget_container_type = $widget_container['#type'] : $widget_container_type = 'autocomplete' ;
 
     $field_info = field_info_field($data['field']);
@@ -340,7 +333,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
                 break;
 
               // Select list.
-              case 'select': 
+              case 'select':
                 if ($widget_container['#multiple'] == FALSE) {
                   $element['#default_value'] = $node->nid;
                 }
@@ -438,7 +431,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
                 }
                 break;
 
-              // Select list.  
+              // Select list.
               case 'select':
                 if ($widget_container['#multiple'] == FALSE) {
                   $element['#default_value'] = $term->tid;
@@ -579,39 +572,19 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
 }
 
 /**
- * Helper function to get path array build by parents of a field.
- *
- * @param array $parents
- * @return string $path
- */
-function _entityconnect_get_parents($parents) {
-  $path = '';
-
-  foreach ($parents as $key => $parent) {
-    if (stripos($parent, 'add_entityconnect') === FALSE
-            && stripos($parent, 'edit_entityconnect') === FALSE ) {
-      if (isset($path)) {
-        $path .= '[\'' . $parent . '\']';
-      }
-      else {
-        $path = '[\'' . $parent . '\']';
-      }
-    }
-  }
-  return $path;
-}
-
-/**
- * Used to update the form state value of entityreference field
+ * Used to update the form state value of
+ * entityreference field
+ * or node reference field and user reference field
  * after adding a new entity.
  *
  * @param array $form
  * @param array $form_state
  * @param string $module
  * @param string $widget_type
- * @param string $parents
+ * @param array $parents
  * @param string $language
  * @param array $element
+ *
  */
 function _entityconnect_alter_form_state_input(&$form, &$form_state, $module, $widget_type, $parents, $language, $element) {
   switch ($widget_type) {
@@ -645,12 +618,12 @@ function _entityconnect_alter_form_state_input(&$form, &$form_state, $module, $w
 }
 
 /**
- * Reimplements drupal_array_get_nested_value(array &$array, array $parents, &$key_exists = NULL)
+ * Reimplements drupal_array_get_nested_value()
  * to answer specific needs of the module.
  * Entityconnect button adds a new level in parents array,
  * named "add_entityconnect" and "edit_entityconnect" and we need to remove them
- * into our array building. So we need to rewrite drupal_array_set_nested_value()
- * to include these remove.
+ * into our array building. So we need to
+ * rewrite drupal_array_set_nested_value() to include these remove.
  */
 
 function &entityconnect_array_get_nested_value(array &$array, array $parents, &$key_exists = NULL) {
@@ -674,12 +647,12 @@ function &entityconnect_array_get_nested_value(array &$array, array $parents, &$
 }
 
 /**
- * Reimplements drupal_array_set_nested_value(array &$array, array $parents, &$key_exists = NULL)
+ * Reimplements drupal_array_set_nested_value()
  * to ansewer specific needs of the module.
  * Entityconnect button adds a new level in parents array,
  * named "add_entityconnect" and "edit_entityconnect" and we need to remove them
- * into our array building. So we need to rewrite drupal_array_set_nested_value()
- * to include these remove.
+ * into our array building. So we need to
+ * rewrite drupal_array_set_nested_value() to include these remove.
  */
 function entityconnect_array_set_nested_value(array &$array, array $parents, $value, $force = FALSE) {
   $ref = &$array;
