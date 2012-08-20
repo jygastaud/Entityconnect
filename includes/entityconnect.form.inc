@@ -11,23 +11,10 @@
  * for each allowed entityreference field.
  */
 function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_state, $field_name, $field, $langcode = LANGUAGE_NONE, $instance, $filters = NULL) {
-  if (!isset($form[$field_name])) {
-    // Get the list of all parents element for the clicked button.
-    $parents = (isset($form_state['clicked_button']['#parents'])) ? $form_state['clicked_button']['#parents'] : NULL;
-    $str_path = _entityconnect_get_parents($parents);
-
-    $input = "(isset(\$form" . $str_path . "['#language'])) ? \$language = " . "\$form" . $str_path . "['#language'] : \$language = NULL ;";
-    eval($input);
-    $input = "\$field_container = " . "&\$form" . $str_path . ";";
-    eval($input);
-    (isset($language)) ? $widget_container = &$field_container[$language] : $widget_container = $field_container;
-  }
-  else {
-    // Set value with root level information.
-    $language = $form[$field_name]['#language'];
-    $field_container = &$form[$field_name];
-    $widget_container = &$field_container[$language];
-  }
+  // Set value with root level information.
+  $language = $form[$field_name]['#language'];
+  $field_container = &$form[$field_name];
+  $widget_container = &$field_container[$language];
 
   if (isset($widget_container['#field_parents'])) {
     foreach ($widget_container['#field_parents'] as $key1 => $parent) {
@@ -42,7 +29,6 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
 
   $addbuttonallowed = $instance['entityconnect_unload_add'];
   $editbuttonallowed = $instance['entityconnect_unload_edit'];
-
 
   $field = field_info_field($field_name);
   // We get bundles referenced.
@@ -134,8 +120,7 @@ function entityconnect_add_form_element_new(&$widget_element, $language, $field_
 function entityconnect_add_form_element_edit(&$widget_element, $language, $field_name, $parents, $key, $extra_class, $entity_type) {
   $widget_element["edit_entityconnect__{$field_name}_{$key}_{$parents}"] = array(
     '#type' => 'submit',
-    //'#limit_validation_errors' => array(array($field_name)),
-    '#limit_validation_errors' => array(array()),
+    '#limit_validation_errors' => array(array($field_name)),
     '#value' => t('Edit content'),
     '#name' => "edit_entityconnect__{$field_name}_{$key}_{$parents}",
     '#prefix' => "<div class = 'entityconnect-edit $extra_class'>",
@@ -171,19 +156,19 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
   $key   = $form_state['clicked_button']['#key'];
 
   $entity_type = $form_state['clicked_button']['#entity_type_target'];
-  $acceptable_types = $form_state['clicked_button']['#acceptable_types'];
+  $acceptable_types = (isset($form_state['clicked_button']['#acceptable_types'])) ? $form_state['clicked_button']['#acceptable_types'] : NULL;
 
   $field_info = field_info_field($field);
 
   // Get the list of all parents element for the clicked button.
   $parents = (isset($form_state['clicked_button']['#parents'])) ? $form_state['clicked_button']['#parents'] : NULL;
-  $str_path = _entityconnect_get_parents($parents);
+  $key_exists = NULL;
+  $field_container = entityconnect_array_get_nested_value($form_state['input'], $parents, $key_exists);
 
   if ($field_info['module'] == 'entityreference') {
-    $input = "\$target_id = (isset(\$form_state['input']" . $str_path . "['target_id']))";
-    $input .= "? \$form_state['input']" . $str_path . "['target_id']";
-    $input .= ": 0;";
-    eval($input);
+    if($key_exists) {
+      $target_id = (isset($field_container['target_id'])) ? $field_container['target_id'] : 0;
+    }
 
     /**
     * TODO : Find the original problem of the entity connect use with
@@ -197,17 +182,38 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
     }
   }
   elseif ($field_info['module'] == 'node_reference') {
-    //$language = $form[$field]['#language'];
-    $language = $form_state['clicked_button']['#language'];
-    $target_id = isset($form_state['values'][$field][$language][$key]['nid'])
-      ? $form_state['values'][$field][$language][$key]['nid'] : 0;
+    if($key_exists) {
+      $target_id = (isset($field_container['nid'])) ? $field_container['nid'] : 0;
+    }
+
+    /**
+    * TODO : Find the original problem of the entity connect use with
+    * Field Collection.
+    */
+    if (!empty($target_id) && !intval($target_id)) {
+      // Take "label (entity id)', match the id from parenthesis.
+      if (preg_match("/.+\[nid:(\d+)\]/", $target_id, $matches)) {
+        $target_id = $matches[1];
+      }
+    }
   }
   elseif ($field_info['module'] == 'user_reference') {
-    //$language = $form[$field]['#language'];
-    $language = $form_state['clicked_button']['#language'];
-    $target_id = isset($form_state['values'][$field][$language][$key]['nid'])
-      ? $form_state['values'][$field][$language][$key]['nid'] : 0;
+    if($key_exists) {
+      $target_id = (isset($field_container['uid'])) ? $field_container['uid'] : 0;
+    }
+
+    /**
+    * TODO : Find the original problem of the entity connect use with
+    * Field Collection.
+    */
+    if (!empty($target_id) && !intval($target_id)) {
+      // Take "label (entity id)', match the id from parenthesis.
+      if (preg_match("/.+\[uid:(\d+)\]/", $target_id, $matches)) {
+        $target_id = $matches[1];
+      }
+    }
   }
+
   $data = array(
     'form'       => $form,
     'form_state' => $form_state,
@@ -247,18 +253,7 @@ function entityconnect_child_form_submit(&$form, &$form_state) {
 
   if ($cache_id && ($cache = cache_get($cache_id))) {
     $data = $cache->data;
-    $field = field_info_field($cache->data['field']);
-
-    if ($field['module'] == 'entityreference') {
-      $entity_reference_info = entityreference_get_selection_handler($field);
-      $entity_type = $entity_reference_info->field['settings']['target_type'];
-    }
-    if ($field['module'] == 'node_reference') {
-      $entity_type = 'node';
-    }
-    if ($field['module'] == 'user_reference') {
-      $entity_type = 'user';
-    }
+    $entity_type = $cache->data['target_entity_type'];
 
     switch ($entity_type) {
       case 'node':
@@ -316,18 +311,18 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
     unset($form_state['clicked_button']);
     unset($form_state['submit_handlers']);
 
-    $str_path = _entityconnect_get_parents($parents);
+    $key_exists = NULL;
+    $field_container = entityconnect_array_get_nested_value($form, $parents, $key_exists);
+    if($key_exists) {
+      $language = (isset($field_container['#language'])) ? $field_container['#language'] : LANGUAGE_NONE;
+    } 
 
-    $input = "(isset(\$form" . $str_path . "['#language'])) ? \$language = " . "\$form" . $str_path . "['#language'] : \$language = NULL;";
-    eval($input);
-    $input = "\$field_container = " . "&\$form" . $str_path . ";";
-    eval($input);
     (isset($language)) ? $widget_container = &$field_container[$language] : $widget_container = $field_container;
-    (!isset($language)) ? $language = LANGUAGE_NONE : $language;
 //    $language = $data['language'];
     (isset($widget_container['#type'])) ? $widget_container_type = $widget_container['#type'] : $widget_container_type = 'autocomplete' ;
 
-    $field_info = field_info_field($data['field']);
+//    $field_info = field_info_field($data['field']);
+    $field_info = $date['field_info'];
 
     if (isset($data['target_id']) && $form_state['rebuild'] === TRUE) {
       switch ($data['target_entity_type']) {
@@ -523,7 +518,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
         default:
           break;
       }// if()
-      _entityconnect_alter_form_state_input($form, $form_state, $field_info['module'], $widget_container_type, $str_path, $language, $element['#default_value']);
+      _entityconnect_alter_form_state_input($form, $form_state, $field_info['module'], $widget_container_type, $parents, $language, $element['#default_value']);
     }// if()
     $form_state['#entityconnect_processed'] = TRUE;
     $form = drupal_rebuild_form($form_id, $form_state, $form);
@@ -592,7 +587,7 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
  */
 function _entityconnect_get_parents($parents) {
   $path = '';
-  
+
   foreach ($parents as $key => $parent) {
     if (stripos($parent, 'add_entityconnect') === FALSE
             && stripos($parent, 'edit_entityconnect') === FALSE ) {
@@ -615,82 +610,81 @@ function _entityconnect_get_parents($parents) {
  * @param array $form_state
  * @param string $module
  * @param string $widget_type
- * @param string $str_path
+ * @param string $parents
  * @param string $language
  * @param array $element
  */
-function _entityconnect_alter_form_state_input(&$form, &$form_state, $module, $widget_type, $str_path, $language, $element) {
-  $input = "\$form_state['input']";
-
-  switch ($module) {
-    case 'entityreference':
-      switch ($widget_type) {
-        case 'autocomplete':
-          $input .= $str_path;
-          $input .= "['target_id']";
-          $input .= " = \$element;";
+function _entityconnect_alter_form_state_input(&$form, &$form_state, $module, $widget_type, $parents, $language, $element) {
+  switch ($widget_type) {
+    case 'autocomplete':
+      switch ($module) {
+        case 'entityreference':
+          array_push($parents, "target_id");
           break;
 
-        case 'textfield':
-        case 'select':
-        case 'radios':
-        case 'checkboxes':
-          $input .= $str_path;
-          $input .= "['" . $language . "']";
-          $input .= " = \$element;";
+        case 'node_reference':
+          array_push($parents, "nid");
           break;
 
-        default:
+        case 'user_reference':
+          array_push($parents, "uid");
           break;
       }
-      break;
 
-    case 'node_reference':
-      switch ($widget_type) {
-        case 'autocomplete':
-          $input .= $str_path;
-          $input .= "['nid']";
-          $input .= " = \$element;";
-          break;
-
-        case 'textfield':
-        case 'select':
-        case 'radios':
-        case 'checkboxes':
-          $input .= $str_path;
-          $input .= "['" . $language . "']";
-          $input .= " = \$element;";
-          break;
-
-        default:
-          break;
-      }
-      break;
-
-    case 'user_reference':
-      switch ($widget_type) {
-        case 'autocomplete':
-          $input .= $str_path;
-          $input .= "['uid']";
-          $input .= " = \$element;";
-          break;
-
-        case 'textfield':
-        case 'select':
-        case 'radios':
-        case 'checkboxes':
-          $input .= $str_path;
-          $input .= "['" . $language . "']";
-          $input .= " = \$element;";
-          break;
-
-        default:
-          break;
-      }
+    case 'textfield':
+    case 'select':
+    case 'radios':
+    case 'checkboxes':
+      array_push($parents, $language);
       break;
 
     default:
       break;
   }
-  eval($input);
+  entityconnect_array_set_nested_value($form_state['input'], $parents, $element);
+}
+
+/**
+ * Reimplements drupal_array_get_nested_value(array &$array, array $parents, &$key_exists = NULL)
+ * to answer specific needs of the module.
+ */
+
+function &entityconnect_array_get_nested_value(array &$array, array $parents, &$key_exists = NULL) {
+  $ref = &$array;
+
+  foreach ($parents as $parent) {
+    if (stripos($parent, 'add_entityconnect') === FALSE
+            && stripos($parent, 'edit_entityconnect') === FALSE ) {
+      if (is_array($ref) && array_key_exists($parent, $ref)) {
+        $ref = &$ref[$parent];
+      }
+      else {
+        $key_exists = FALSE;
+        $null = NULL;
+        return $null;
+      }
+    }
+  }
+  $key_exists = TRUE;
+  return $ref;
+}
+
+/**
+ * Reimplements drupal_array_set_nested_value(array &$array, array $parents, &$key_exists = NULL)
+ * to ansewer specific needs of the module.
+ */
+function entityconnect_array_set_nested_value(array &$array, array $parents, $value, $force = FALSE) {
+  $ref = &$array;
+  foreach ($parents as $parent) {
+    if (stripos($parent, 'add_entityconnect') === FALSE
+        && stripos($parent, 'edit_entityconnect') === FALSE ) {
+      // PHP auto-creates container arrays and NULL entries without error if $ref
+      // is NULL, but throws an error if $ref is set, but not an array.
+      if ($force && isset($ref) && !is_array($ref)) {
+        $ref = array();
+      }
+      $ref = &$ref[$parent];
+    }
+  }
+  $ref = $value;
 }

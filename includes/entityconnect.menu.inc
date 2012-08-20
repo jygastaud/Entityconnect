@@ -124,10 +124,7 @@ function entityconnect_add($cache_id) {
  */
 function entityconnect_edit($cache_id) {
   $cache = cache_get($cache_id);
-  $field = field_info_field($cache->data['field']);
-
-  $entity_reference_info = entityreference_get_selection_handler($field);
-  $entity_type = $entity_reference_info->field['settings']['target_type'];
+  $entity_type = $cache->data['target_entity_type'];
 
   switch ($entity_type) {
     case 'node':
