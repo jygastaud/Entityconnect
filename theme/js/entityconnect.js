@@ -12,6 +12,10 @@
         $(this).insertAfter($(this).next().find("label"));
       });
 
+      // Autocomplete tags style widget.
+      $(".entityconnect-add.textfield", context).each(function() {
+        $(this).insertAfter($(this).next().find("label"));
+      });
       // Select widget.
       $(".entityconnect-add.select", context).each(function() {
         $(this).insertAfter($(this).next().find("label"));
