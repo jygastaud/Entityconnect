@@ -120,8 +120,7 @@ function entityconnect_add_form_element_new(&$widget_element, $language, $field_
 function entityconnect_add_form_element_edit(&$widget_element, $language, $field_name, $parents, $key, $extra_class, $entity_type) {
   $widget_element["edit_entityconnect__{$field_name}_{$key}_{$parents}"] = array(
     '#type' => 'submit',
-//    '#limit_validation_errors' => array(array($field_name)),
-    '#limit_validation_errors' => array(array()),
+    '#limit_validation_errors' => array(array($field_name)),
     '#value' => t('Edit content'),
     '#name' => "edit_entityconnect__{$field_name}_{$key}_{$parents}",
     '#prefix' => "<div class = 'entityconnect-edit $extra_class'>",
@@ -323,7 +322,6 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
     (isset($widget_container['#type'])) ? $widget_container_type = $widget_container['#type'] : $widget_container_type = 'autocomplete' ;
 
     $field_info = field_info_field($data['field']);
-//    $field_info = $data['field_info'];
 
     if (isset($data['target_id']) && $form_state['rebuild'] === TRUE) {
       switch ($data['target_entity_type']) {
@@ -631,6 +629,7 @@ function _entityconnect_alter_form_state_input(&$form, &$form_state, $module, $w
           array_push($parents, "uid");
           break;
       }
+      break;
 
     case 'textfield':
     case 'select':
