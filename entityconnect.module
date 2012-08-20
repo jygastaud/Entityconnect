@@ -264,7 +264,8 @@ function _entityconnect_get_ref_fields() {
 function entityconnect_field_instance_settings_form($field, $instance) {
   $settings = $instance;
 
-  // Add choice for user to not load entity connect "add" button editor on the field.
+  // Add choice for user to not load entity connect "add" button
+  // on the field.
   $form['entityconnect_unload_add'] = array(
     '#type' => 'radios',
     '#title' => t('Display Entity Connect "add" button.'),
@@ -277,7 +278,8 @@ function entityconnect_field_instance_settings_form($field, $instance) {
     '#weight' => 1,
   );
 
-  // Add choice for user to not load entity connect "edit" button editor on the field.
+  // Add choice for user to not load entity connect "edit" button
+  // on the field.
   $form['entityconnect_unload_edit'] = array(
     '#type' => 'radios',
     '#title' => t('Display Entity Connect "edit" button.'),

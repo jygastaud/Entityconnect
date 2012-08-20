@@ -633,13 +633,12 @@ function _entityconnect_alter_form_state_input(&$form_state, $module, $widget_ty
  *
  * @see &drupal_array_get_nested_value()
  */
-
 function &entityconnect_array_get_nested_value(array &$array, array $parents, &$key_exists = NULL) {
   $ref = &$array;
 
   foreach ($parents as $parent) {
     if (stripos($parent, 'add_entityconnect') === FALSE
-            && stripos($parent, 'edit_entityconnect') === FALSE ) {
+            && stripos($parent, 'edit_entityconnect') === FALSE) {
       if (is_array($ref) && array_key_exists($parent, $ref)) {
         $ref = &$ref[$parent];
       }
@@ -668,7 +667,7 @@ function entityconnect_array_set_nested_value(array &$array, array $parents, $va
   $ref = &$array;
   foreach ($parents as $parent) {
     if (stripos($parent, 'add_entityconnect') === FALSE
-        && stripos($parent, 'edit_entityconnect') === FALSE ) {
+        && stripos($parent, 'edit_entityconnect') === FALSE) {
       // PHP auto-creates container arrays and NULL entries without error if $ref
       // is NULL, but throws an error if $ref is set, but not an array.
       if ($force && isset($ref) && !is_array($ref)) {
