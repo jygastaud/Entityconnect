@@ -309,10 +309,10 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
     $field_container = entityconnect_array_get_nested_value($form, $parents, $key_exists);
     if ($key_exists) {
       $language = (isset($field_container['#language'])) ? $field_container['#language'] : LANGUAGE_NONE;
-    } 
+    }
 
     (isset($language)) ? $widget_container = &$field_container[$language] : $widget_container = $field_container;
-    (isset($widget_container['#type'])) ? $widget_container_type = $widget_container['#type'] : $widget_container_type = 'autocomplete' ;
+    (isset($widget_container['#type'])) ? $widget_container_type = $widget_container['#type'] : $widget_container_type = 'autocomplete';
 
     $field_info = field_info_field($data['field']);
 
@@ -510,7 +510,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
         default:
           break;
       }// switch()
-      _entityconnect_alter_form_state_input($form, $form_state, $field_info['module'], $widget_container_type, $parents, $language, $element['#default_value']);
+      _entityconnect_alter_form_state_input($form_state, $field_info['module'], $widget_container_type, $parents, $language, $element['#default_value']);
     }// if()
     $form_state['#entityconnect_processed'] = TRUE;
     $form = drupal_rebuild_form($form_id, $form_state, $form);
@@ -573,20 +573,26 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
 
 /**
  * Used to update the form state value of
- * entityreference field
- * or node reference field and user reference field
+ * entityreference, node_reference or user_reference field
  * after adding a new entity.
  *
- * @param array $form
  * @param array $form_state
+ *   The form_state we need to change.
  * @param string $module
+ *   As entityconnect deals with 3 different modules,
+ *   we need to know which one is used.
  * @param string $widget_type
+ *   The type of the widget used for reference field.
  * @param array $parents
+ *   The array of all parents of the field.
+ *   We used them to change the value to the right level in the array.
  * @param string $language
+ *   The language of the field.
  * @param array $element
+ *   The value we need to insert.
  *
  */
-function _entityconnect_alter_form_state_input(&$form, &$form_state, $module, $widget_type, $parents, $language, $element) {
+function _entityconnect_alter_form_state_input(&$form_state, $module, $widget_type, $parents, $language, $element) {
   switch ($widget_type) {
     case 'autocomplete':
       switch ($module) {
@@ -624,6 +630,8 @@ function _entityconnect_alter_form_state_input(&$form, &$form_state, $module, $w
  * named "add_entityconnect" and "edit_entityconnect" and we need to remove them
  * into our array building. So we need to
  * rewrite drupal_array_set_nested_value() to include these remove.
+ *
+ * @see &drupal_array_get_nested_value()
  */
 
 function &entityconnect_array_get_nested_value(array &$array, array $parents, &$key_exists = NULL) {
@@ -653,6 +661,8 @@ function &entityconnect_array_get_nested_value(array &$array, array $parents, &$
  * named "add_entityconnect" and "edit_entityconnect" and we need to remove them
  * into our array building. So we need to
  * rewrite drupal_array_set_nested_value() to include these remove.
+ *
+ * @see drupal_array_set_nested_value()
  */
 function entityconnect_array_set_nested_value(array &$array, array $parents, $value, $force = FALSE) {
   $ref = &$array;
