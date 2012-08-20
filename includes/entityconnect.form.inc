@@ -323,7 +323,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
 
     $field_info = field_info_field($data['field']);
 
-    if (isset($data['target_id']) && $form_state['rebuild'] === TRUE) {
+    if (isset($data['target_id']) && $data['target_id'] != 0 && $form_state['rebuild'] === TRUE) {
       switch ($data['target_entity_type']) {
         case 'node':
           if ($data['target_id'] != 0 && $node = node_load($data['target_id'])) {
@@ -516,7 +516,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
 
         default:
           break;
-      }// if()
+      }// switch()
       _entityconnect_alter_form_state_input($form, $form_state, $field_info['module'], $widget_container_type, $parents, $language, $element['#default_value']);
     }// if()
     $form_state['#entityconnect_processed'] = TRUE;
@@ -647,6 +647,10 @@ function _entityconnect_alter_form_state_input(&$form, &$form_state, $module, $w
 /**
  * Reimplements drupal_array_get_nested_value(array &$array, array $parents, &$key_exists = NULL)
  * to answer specific needs of the module.
+ * Entityconnect button adds a new level in parents array,
+ * named "add_entityconnect" and "edit_entityconnect" and we need to remove them
+ * into our array building. So we need to rewrite drupal_array_set_nested_value()
+ * to include these remove.
  */
 
 function &entityconnect_array_get_nested_value(array &$array, array $parents, &$key_exists = NULL) {
@@ -672,6 +676,10 @@ function &entityconnect_array_get_nested_value(array &$array, array $parents, &$
 /**
  * Reimplements drupal_array_set_nested_value(array &$array, array $parents, &$key_exists = NULL)
  * to ansewer specific needs of the module.
+ * Entityconnect button adds a new level in parents array,
+ * named "add_entityconnect" and "edit_entityconnect" and we need to remove them
+ * into our array building. So we need to rewrite drupal_array_set_nested_value()
+ * to include these remove.
  */
 function entityconnect_array_set_nested_value(array &$array, array $parents, $value, $force = FALSE) {
   $ref = &$array;
