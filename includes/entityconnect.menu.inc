@@ -95,11 +95,9 @@ function entityconnect_add($cache_id) {
         foreach (taxonomy_get_vocabularies() as $key => $item) {
           (!isset($item->href)) ? $item->href = NULL : $item->href;
           $type = $item->machine_name;
-          if (isset($acceptable_types[$type]) && $acceptable_types[$type]) {
             $item->href = "admin/structure/taxonomy/$type/add/$cache_id";
             $content[$key] = $item;
             $voc_list[] = l($item->name, $item->href);
-          }// if()
         }// foreach()
       }// else()
       $output = theme('entityconnect_taxonomy_term_add_list', array('items' => $content));
