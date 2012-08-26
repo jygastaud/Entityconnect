@@ -58,18 +58,21 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
   // via $widget_container['#type'].
   // We also test if $widget_container['view'] is set to support
   // the widget provided by entityreference_view_widget module.
-  if ((isset($widget_container['#type']) || isset($widget_container['view']))
-          && user_access('entityconnect add button') && $addbuttonallowed == 0) {
+  if (isset($widget_container['#type']) || isset($widget_container['view'])
+      && user_access('entityconnect add button') && $addbuttonallowed == 0) {
     // Type is set, so only the Add button will be displayed.
     (isset($parents)) ? $parents : $parents = '';
-    $extra_class = (isset($widget_container['#type'])) ? $widget_container['#type'] : '';
+    $extra_class = (isset($widget_container['#type'])) ? $widget_container['#type'] : 'autocomplete';
+    $extra_class .= (!isset($widget_container['#cardinality']) || $widget_container['#cardinality'] == 1) ? ' single-value' : ' multiple-values';
     entityconnect_add_form_element_new($field_container, $language, $field_name, $parents, 'all', $extra_class, $instance, $entity_type, $acceptable_types);
+    entityconnect_add_form_element_edit($field_container, $language, $field_name, $parents, 'all', $extra_class, $entity_type);
   }
   else {
     // Type is not set, so multiple widgets.
     // We have to add some extra js for single value fields so we add
     // a class to let the js know.
-    $extra_class = (!isset($widget_container['#cardinality']) || $widget_container['#cardinality'] == 1) ? 'single-value' : 'multiple-values';
+    $extra_class = (isset($widget_container['#type'])) ? $widget_container['#type'] : 'autocomplete';
+    $extra_class .= (!isset($widget_container['#cardinality']) || $widget_container['#cardinality'] == 1) ? ' single-value' : ' multiple-values';
     foreach ($widget_container as $key => &$widget_element) {
       if (is_numeric($key)) {
         if (user_access('entityconnect add button') && $addbuttonallowed == 0) {
@@ -151,7 +154,6 @@ function entityconnect_add_form_element_edit(&$widget_element, $language, $field
  * and redirect to the add or edit page with an append build_cached_id.
  */
 function entityconnect_add_edit_button_submit(&$form, &$form_state) {
-
   $cache_id = "entityconnect-" . $form['#build_id'];
   $field = $form_state['clicked_button']['#field'];
   $key   = $form_state['clicked_button']['#key'];
@@ -168,7 +170,7 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
 
   if ($field_info['module'] == 'entityreference') {
     if ($key_exists) {
-      $target_id = (isset($field_container['target_id'])) ? $field_container['target_id'] : 0;
+      $target_id = (isset($field_container['target_id'])) ? $field_container['target_id'] : array_pop($field_container);
     }
 
     // TODO : Find the original problem of the entity connect use with
@@ -182,7 +184,7 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
   }
   elseif ($field_info['module'] == 'node_reference') {
     if ($key_exists) {
-      $target_id = (isset($field_container['nid'])) ? $field_container['nid'] : 0;
+      $target_id = (isset($field_container['nid'])) ? $field_container['nid'] : array_pop($field_container);
     }
 
     // TODO : Find the original problem of the entity connect use with
@@ -196,7 +198,7 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
   }
   elseif ($field_info['module'] == 'user_reference') {
     if ($key_exists) {
-      $target_id = (isset($field_container['uid'])) ? $field_container['uid'] : 0;
+      $target_id = (isset($field_container['uid'])) ? $field_container['uid'] : array_pop($field_container);
     }
 
     // TODO : Find the original problem of the entity connect use with
