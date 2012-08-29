@@ -170,7 +170,21 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
 
   if ($field_info['module'] == 'entityreference') {
     if ($key_exists) {
-      $target_id = (isset($field_container['target_id'])) ? $field_container['target_id'] : array_pop($field_container);
+      $target_id = (isset($field_container['target_id'])) ? $field_container['target_id'] : '';
+      if ($target_id == '' && is_array($field_container)) {
+        foreach ($field_container as $key => $value) {
+          if (is_array($value)) {
+            foreach ($value as $key2 => $value2) {
+              if (!is_null($value2)) {
+                $target_id[$key2] = $value2;
+              }
+            }
+          }
+          else {
+            $target_id = $value;
+          }
+        }
+      }
     }
 
     // TODO : Find the original problem of the entity connect use with
@@ -184,7 +198,21 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
   }
   elseif ($field_info['module'] == 'node_reference') {
     if ($key_exists) {
-      $target_id = (isset($field_container['nid'])) ? $field_container['nid'] : array_pop($field_container);
+      $target_id = (isset($field_container['nid'])) ? $field_container['nid'] : '';
+      if ($target_id == '' && is_array($field_container)) {
+        foreach ($field_container as $key => $value) {
+          if (is_array($value)) {
+            foreach ($value as $key2 => $value2) {
+              if (!is_null($value2)) {
+                $target_id[$key2] = $value2;
+              }
+            }
+          }
+          else {
+            $target_id = $value;
+          }
+        }
+      }
     }
 
     // TODO : Find the original problem of the entity connect use with
@@ -198,7 +226,21 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
   }
   elseif ($field_info['module'] == 'user_reference') {
     if ($key_exists) {
-      $target_id = (isset($field_container['uid'])) ? $field_container['uid'] : array_pop($field_container);
+      $target_id = (isset($field_container['uid'])) ? $field_container['uid'] : '';
+      if ($target_id == '' && is_array($field_container)) {
+        foreach ($field_container as $key => $value) {
+          if (is_array($value)) {
+            foreach ($value as $key2 => $value2) {
+              if (!is_null($value2)) {
+                $target_id[$key2] = $value2;
+              }
+            }
+          }
+          else {
+            $target_id = $value;
+          }
+        }
+      }
     }
 
     // TODO : Find the original problem of the entity connect use with

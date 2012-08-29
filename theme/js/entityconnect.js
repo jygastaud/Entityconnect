@@ -48,6 +48,7 @@
 
         text = $(wrapper).siblings("[type='text']");
         radio = $(wrapper).siblings("[type='radio']");
+        checkbox = $(wrapper).siblings("[type='checkbox']");
         select = $(wrapper).siblings("select");
 
         if(text.length == 0) {
@@ -56,12 +57,17 @@
         if(radio.length == 0) {
           radio = $(wrapper).siblings().find("[type='radio']");
         }
+        if(checkbox.length == 0) {
+          checkbox = $(wrapper).siblings().find("[type='checkbox']");
+        }
         if(select.length == 0) {
-          select = $(wrapper).siblings().find("select > option");
+          select = $(wrapper).siblings().find("select > option:selected");
         }
 
-        if($.trim($(text).val()) == '' && $.trim($(radio).val()) == ''
-             && $.trim($(select).val()) == '') {
+        if($.trim($(text).val()) == ''
+            && $.trim($(radio).val()) == ''
+            && $.trim($(select).val()) == ''
+            && $.trim($(checkbox).val()) == '') {
           return false;
         }
         return true;

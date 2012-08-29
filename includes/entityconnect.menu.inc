@@ -95,9 +95,9 @@ function entityconnect_add($cache_id) {
         foreach (taxonomy_get_vocabularies() as $key => $item) {
           (!isset($item->href)) ? $item->href = NULL : $item->href;
           $type = $item->machine_name;
-            $item->href = "admin/structure/taxonomy/$type/add/$cache_id";
-            $content[$key] = $item;
-            $voc_list[] = l($item->name, $item->href);
+          $item->href = "admin/structure/taxonomy/$type/add/$cache_id";
+          $content[$key] = $item;
+          $voc_list[] = l($item->name, $item->href);
         }// foreach()
       }// else()
       $output = theme('entityconnect_taxonomy_term_add_list', array('items' => $content));
@@ -123,30 +123,97 @@ function entityconnect_add($cache_id) {
 function entityconnect_edit($cache_id) {
   $cache = cache_get($cache_id);
   $entity_type = $cache->data['target_entity_type'];
+  $target_id = $cache->data['target_id'];
+  $output = '';
 
   switch ($entity_type) {
     case 'node':
-      drupal_goto("node/" . $cache->data['target_id'] . "/edit", array(
-          'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
+      if (is_array($target_id)) {
+        $info = entity_load($entity_type, $target_id);
+        foreach ($info as $key => $value) {
+          $content[$key] = array (
+            'label' => $value->title,
+            'href' => 'node/' . $value->nid . '/edit',
+          );
+        }
+        $output = theme('entityconnect_entity_add_list', array(
+          'items' => $content,
+          'cache id' => $cache_id)
+        );
+        $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
+      }
+      else {
+        drupal_goto("node/" . $cache->data['target_id'] . "/edit", array(
+            'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
+      }
       break;
 
     case 'user':
-      drupal_goto("user/" . $cache->data['target_id'] . "/edit", array(
-          'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
+      if (is_array($target_id)) {
+        $info = entity_load($entity_type, $target_id);
+        foreach ($info as $key => $value) {
+          $content[$key] = array (
+            'label' => $value->name,
+            'href' => 'user/' . $value->uid . '/edit',
+          );
+        }
+        $output = theme('entityconnect_entity_add_list', array(
+          'items' => $content,
+          'cache id' => $cache_id)
+        );
+        $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
+      }
+      else {
+        drupal_goto("user/" . $cache->data['target_id'] . "/edit", array(
+            'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
+      }
       break;
 
     case 'taxonomy_term':
-      drupal_goto("taxonomy/term/" . $cache->data['target_id'] . "/edit", array(
-          'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
-
+      if (is_array($target_id)) {
+        $info = entity_load($entity_type, $target_id);
+        foreach ($info as $key => $value) {
+          $content[$key] = array (
+            'label' => $value->name,
+            'href' => 'taxonomy/term/' . $value->tid . '/edit',
+          );
+        }
+        $output = theme('entityconnect_entity_add_list', array(
+          'items' => $content,
+          'cache id' => $cache_id)
+        );
+        $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
+      }
+      else {
+        drupal_goto("taxonomy/term/" . $cache->data['target_id'] . "/edit", array(
+            'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
+      }
       break;
 
     case 'taxonomy_vocabulary':
-      drupal_goto("admin/structure/taxonomy/" . $cache->data['target_id'] . "/edit", array(
-          'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
-      break;
+      if (is_array($target_id)) {
+        $info = entity_load($entity_type, $target_id);
+        foreach ($info as $key => $value) {
+          $content[$key] = array (
+            'label' => $value->name,
+            'href' => 'admin/structure/taxonomy/' . $value->name . '/edit',
+          );
+        }
+        $output = theme('entityconnect_entity_add_list', array(
+          'items' => $content,
+          'cache id' => $cache_id)
+        );
+        $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
+      }
+      else {
+        $info = entity_load_single($entity_type, $target_id);
+        drupal_goto("admin/structure/taxonomy/" . $info->name . "/edit", array(
+            'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
+      }
+        break;
 
     default:
       break;
   }// switch()
+  return $output;
 }
