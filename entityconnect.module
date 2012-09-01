@@ -76,7 +76,7 @@ function entityconnect_check_access() {
  */
 function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode) {
   if (!empty($form['#entity']) || !empty($form["#{$entity_type}"])) {
-    list(, , $bundle) = entity_extract_ids($form['#entity_type'], $form['#entity']);
+    list(, , $bundle) = entity_extract_ids($entity_type, $entity);
     foreach (_entityconnect_get_ref_fields() as $field_name => $field) {
       if (isset($form[$field_name])) {
         $instance = field_info_instance($form['#entity_type'], $field_name, $bundle);
