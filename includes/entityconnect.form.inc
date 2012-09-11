@@ -10,7 +10,7 @@
  * Here we attach a "Add" et "Edit" submit button
  * for each allowed entityreference field.
  */
-function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_state, $field_name, $field, $langcode = LANGUAGE_NONE, $instance, $filters = NULL) {
+function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_state, $field_name, $field, $langcode = LANGUAGE_NONE) {
   // Set value with root level information.
   $language = $form[$field_name]['#language'];
   $field_container = &$form[$field_name];
@@ -27,20 +27,44 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
     }
   }
 
+  if (!empty($entity_type) && !empty($entity)) {
+    list(, , $bundle) = entity_extract_ids($entity_type, $entity);
+    $instance = field_info_instance($form['#entity_type'], $field_name, $bundle);
+  }
+
+  if (!isset($instance['entityconnect_unload_add'])) {
+    $instance['entityconnect_unload_add'] = 0;
+  }
+
+  if (!isset($instance['entityconnect_unload_edit'])) {
+    $instance['entityconnect_unload_edit'] = 0;
+  }
+
   $addbuttonallowed = $instance['entityconnect_unload_add'];
   $editbuttonallowed = $instance['entityconnect_unload_edit'];
 
   $field = field_info_field($field_name);
+  $acceptable_types = NULL;
   // We get bundles referenced.
   if ($field['module'] == 'entityreference') {
-    $entity_reference_info = entityreference_get_selection_handler($field);
+    $entity_reference_info = entityreference_get_selection_handler($field, $instance);
     $entity_type = $entity_reference_info->field['settings']['target_type'];
 
     if (isset($entity_reference_info->field['settings']['handler_settings']['target_bundles'])) {
       $acceptable_types = $entity_reference_info->field['settings']['handler_settings']['target_bundles'];
     }
-    else {
-      $acceptable_types = $filters;
+    elseif (isset($entity_reference_info->field['settings']['handler_settings']['view'])) {
+      $name = $entity_reference_info->field['settings']['handler_settings']['view']['view_name'];
+      $display = $entity_reference_info->field['settings']['handler_settings']['view']['display_name'];
+      $views = views_get_view($name);
+      $views_display = $views->display;
+
+      if (isset($views_display[$display]->display_options['filters']['type'])) {
+        $acceptable_types = $views_display[$display]->display_options['filters']['type']['value'];
+      }
+      else {
+        $acceptable_types = $views_display['default']->display_options['filters']['type']['value'];
+      }
     }
   }
   elseif ($field['module'] == 'node_reference') {
@@ -58,14 +82,17 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
   // via $widget_container['#type'].
   // We also test if $widget_container['view'] is set to support
   // the widget provided by entityreference_view_widget module.
-  if (isset($widget_container['#type']) || isset($widget_container['view'])
-      && user_access('entityconnect add button') && $addbuttonallowed == 0) {
+  if (isset($widget_container['#type']) || isset($widget_container['view'])) {
     // Type is set, so only the Add button will be displayed.
     (isset($parents)) ? $parents : $parents = '';
     $extra_class = (isset($widget_container['#type'])) ? $widget_container['#type'] : 'autocomplete';
     $extra_class .= (!isset($widget_container['#cardinality']) || $widget_container['#cardinality'] == 1) ? ' single-value' : ' multiple-values';
-    entityconnect_add_form_element_new($field_container, $language, $field_name, $parents, 'all', $extra_class, $instance, $entity_type, $acceptable_types);
-    entityconnect_add_form_element_edit($field_container, $language, $field_name, $parents, 'all', $extra_class, $entity_type);
+    if (user_access('entityconnect add button') && $addbuttonallowed == 0) {
+      entityconnect_add_form_element_new($field_container, $language, $field_name, $parents, 'all', $extra_class, $instance, $entity_type, $acceptable_types);
+    }
+    if (user_access('entityconnect edit button') && $editbuttonallowed == 0) {
+      entityconnect_add_form_element_edit($field_container, $language, $field_name, $parents, 'all', $extra_class, $entity_type);
+    }
   }
   else {
     // Type is not set, so multiple widgets.

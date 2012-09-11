@@ -74,49 +74,17 @@ function entityconnect_check_access() {
 /**
  * Implements hook_field_attach_form().
  */
+/**
+ * Implements hook_field_attach_form().
+ */
 function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode) {
-  if (!empty($form['#entity']) || !empty($form["#{$entity_type}"])) {
-    list(, , $bundle) = entity_extract_ids($entity_type, $entity);
-    foreach (_entityconnect_get_ref_fields() as $field_name => $field) {
-      if (isset($form[$field_name])) {
-        $instance = field_info_instance($form['#entity_type'], $field_name, $bundle);
-
-        if ($field['type'] == 'entityreference' && $field['module'] == 'entityreference') {
-          $entity_reference_info = entityreference_get_selection_handler($field, $instance);
-
-          if (isset($entity_reference_info->field['settings']['handler_settings']['view'])) {
-            $name = $entity_reference_info->field['settings']['handler_settings']['view']['view_name'];
-            $display = $entity_reference_info->field['settings']['handler_settings']['view']['display_name'];
-            $views = views_get_view($name);
-            $views_display = $views->display;
-
-            if (isset($views_display[$display]->display_options['filters']['type'])) {
-              $views_filters = $views_display[$display]->display_options['filters']['type']['value'];
-            }
-            else {
-              $views_filters = $views_display['default']->display_options['filters']['type']['value'];
-            }
-          }
-          else {
-            $views_filters = NULL;
-          }
-        }
-
-        if (!isset ($instance['entityconnect_unload_add'])) {
-          $instance['entityconnect_unload_add'] = 0;
-        }
-
-        if (!isset ($instance['entityconnect_unload_edit'])) {
-          $instance['entityconnect_unload_edit'] = 0;
-        }
-
-        entityconnect_include_form();
-        _entityconnect_field_attach_form($entity_type, $entity, $form,
-          $form_state, $field_name, $field, $langcode,
-          $instance, $views_filters);
-      }// if()
-    }// foreach()
-  }// if()
+  entityconnect_include_form();
+  foreach (_entityconnect_get_ref_fields() as $field_name => $field) {
+    if (isset($form[$field_name])) {
+      _entityconnect_field_attach_form($entity_type, $entity, $form,
+        $form_state, $field_name, $field, $langcode);
+    }
+  }
 }
 
 /**
