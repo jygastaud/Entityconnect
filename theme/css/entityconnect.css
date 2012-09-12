@@ -27,3 +27,6 @@ form div.entityconnect-edit input {
 .field-type-node-reference .form-type-textfield input[type=text] {
   width: 88%;
 }
+.field-type-entityreference .form-type-textfield input[type=text] {
+  width: 88%;
+}

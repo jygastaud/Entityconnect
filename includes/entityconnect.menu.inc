@@ -93,7 +93,7 @@ function entityconnect_add($cache_id) {
       }
       else {
         foreach (taxonomy_get_vocabularies() as $key => $item) {
-          (!isset($item->href)) ? $item->href = NULL : $item->href;
+          !isset($item->href) ? $item->href = NULL : $item->href;
           $type = $item->machine_name;
           $item->href = "admin/structure/taxonomy/$type/add/$cache_id";
           $content[$key] = $item;

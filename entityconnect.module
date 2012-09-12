@@ -178,7 +178,7 @@ function _entityconnect_get_ref_fields() {
     if ($field['type'] == 'entityreference' && $field['module'] == 'entityreference') {
       $entity_reference_info = entityreference_get_selection_handler($field);
       $entity_type = $entity_reference_info->field['settings']['target_type'];
-      $target_bundle = (isset($entity_reference_info->field['settings']['handler_settings']['target_bundles'])) ? $entity_reference_info->field['settings']['handler_settings']['target_bundles'] : NULL;
+      $target_bundle = isset($entity_reference_info->field['settings']['handler_settings']['target_bundles']) ? $entity_reference_info->field['settings']['handler_settings']['target_bundles'] : NULL;
 
       switch ($entity_type) {
         case 'user':
@@ -241,7 +241,7 @@ function entityconnect_field_instance_settings_form($field, $instance) {
   $form['entityconnect_unload_add'] = array(
     '#type' => 'radios',
     '#title' => t('Display Entity Connect "add" button.'),
-    '#default_value' => (!isset ($settings['entityconnect_unload_add'])) ? 0 : $settings['entityconnect_unload_add'],
+    '#default_value' => !isset ($settings['entityconnect_unload_add']) ? 0 : $settings['entityconnect_unload_add'],
     '#description' => t('Choose "No" if you want to unload "add" button for the field'),
     '#options' => array(
       '0' => t('Yes'),
@@ -255,7 +255,7 @@ function entityconnect_field_instance_settings_form($field, $instance) {
   $form['entityconnect_unload_edit'] = array(
     '#type' => 'radios',
     '#title' => t('Display Entity Connect "edit" button.'),
-    '#default_value' => (!isset ($settings['entityconnect_unload_edit'])) ? 0 : $settings['entityconnect_unload_edit'],
+    '#default_value' => !isset ($settings['entityconnect_unload_edit']) ? 0 : $settings['entityconnect_unload_edit'],
     '#description' => t('Choose "No" if you want to unload "edit" button for the field'),
     '#options' => array(
       '0' => t('Yes'),

@@ -83,9 +83,8 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
   // We also test if $widget_container['view'] is set to support
   // the widget provided by entityreference_view_widget module.
   if (isset($widget_container['#type']) || isset($widget_container['view'])) {
-    // Type is set, so only the Add button will be displayed.
-    (isset($parents)) ? $parents : $parents = '';
-    $extra_class = (isset($widget_container['#type'])) ? $widget_container['#type'] : 'autocomplete';
+    isset($parents) ? $parents : $parents = '';
+    $extra_class = isset($widget_container['#type']) ? $widget_container['#type'] : 'autocomplete';
     $extra_class .= (!isset($widget_container['#cardinality']) || $widget_container['#cardinality'] == 1) ? ' single-value' : ' multiple-values';
     if (user_access('entityconnect add button') && $addbuttonallowed == 0) {
       entityconnect_add_form_element_new($field_container, $language, $field_name, $parents, 'all', $extra_class, $instance, $entity_type, $acceptable_types);
@@ -98,16 +97,16 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
     // Type is not set, so multiple widgets.
     // We have to add some extra js for single value fields so we add
     // a class to let the js know.
-    $extra_class = (isset($widget_container['#type'])) ? $widget_container['#type'] : 'autocomplete';
+    $extra_class = isset($widget_container['#type']) ? $widget_container['#type'] : 'autocomplete';
     $extra_class .= (!isset($widget_container['#cardinality']) || $widget_container['#cardinality'] == 1) ? ' single-value' : ' multiple-values';
     foreach ($widget_container as $key => &$widget_element) {
       if (is_numeric($key)) {
         if (user_access('entityconnect add button') && $addbuttonallowed == 0) {
-          (isset($parents)) ? $parents : $parents = '';
+          isset($parents) ? $parents : $parents = '';
           entityconnect_add_form_element_new($widget_element, $language, $field_name, $parents, $key, $extra_class, $instance, $entity_type, $acceptable_types);
         }
         if (user_access('entityconnect edit button') && $editbuttonallowed == 0) {
-          (isset($parents)) ? $parents : $parents = '';
+          isset($parents) ? $parents : $parents = '';
           entityconnect_add_form_element_edit($widget_element, $language, $field_name, $parents, $key, $extra_class, $entity_type);
         }
       }
@@ -186,18 +185,18 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
   $key   = $form_state['clicked_button']['#key'];
 
   $entity_type = $form_state['clicked_button']['#entity_type_target'];
-  $acceptable_types = (isset($form_state['clicked_button']['#acceptable_types'])) ? $form_state['clicked_button']['#acceptable_types'] : NULL;
+  $acceptable_types = isset($form_state['clicked_button']['#acceptable_types']) ? $form_state['clicked_button']['#acceptable_types'] : NULL;
 
   $field_info = field_info_field($field);
 
   // Get the list of all parents element for the clicked button.
-  $parents = (isset($form_state['clicked_button']['#parents'])) ? $form_state['clicked_button']['#parents'] : NULL;
+  $parents = isset($form_state['clicked_button']['#parents']) ? $form_state['clicked_button']['#parents'] : NULL;
   $key_exists = NULL;
   $field_container = entityconnect_array_get_nested_value($form_state['input'], $parents, $key_exists);
 
   if ($field_info['module'] == 'entityreference') {
     if ($key_exists) {
-      $target_id = (isset($field_container['target_id'])) ? $field_container['target_id'] : '';
+      $target_id = isset($field_container['target_id']) ? $field_container['target_id'] : '';
       if ($target_id == '' && is_array($field_container)) {
         foreach ($field_container as $key => $value) {
           if (is_array($value)) {
@@ -225,7 +224,7 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
   }
   elseif ($field_info['module'] == 'node_reference') {
     if ($key_exists) {
-      $target_id = (isset($field_container['nid'])) ? $field_container['nid'] : '';
+      $target_id = isset($field_container['nid']) ? $field_container['nid'] : '';
       if ($target_id == '' && is_array($field_container)) {
         foreach ($field_container as $key => $value) {
           if (is_array($value)) {
@@ -253,7 +252,7 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
   }
   elseif ($field_info['module'] == 'user_reference') {
     if ($key_exists) {
-      $target_id = (isset($field_container['uid'])) ? $field_container['uid'] : '';
+      $target_id = isset($field_container['uid']) ? $field_container['uid'] : '';
       if ($target_id == '' && is_array($field_container)) {
         foreach ($field_container as $key => $value) {
           if (is_array($value)) {
@@ -371,7 +370,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
     $form_state['submitted'] = FALSE;
     $form_state['rebuild'] = TRUE;
     $data = $cache->data;
-    $parents = (isset($form_state['clicked_button']['#parents'])) ? $form_state['clicked_button']['#parents'] : NULL;
+    $parents = isset($form_state['clicked_button']['#parents']) ? $form_state['clicked_button']['#parents'] : NULL;
 
     unset($form_state['clicked_button']);
     unset($form_state['submit_handlers']);
@@ -379,11 +378,11 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
     $key_exists = NULL;
     $field_container = entityconnect_array_get_nested_value($form, $parents, $key_exists);
     if ($key_exists) {
-      $language = (isset($field_container['#language'])) ? $field_container['#language'] : LANGUAGE_NONE;
+      $language = isset($field_container['#language']) ? $field_container['#language'] : LANGUAGE_NONE;
     }
 
-    (isset($language)) ? $widget_container = &$field_container[$language] : $widget_container = $field_container;
-    (isset($widget_container['#type'])) ? $widget_container_type = $widget_container['#type'] : $widget_container_type = 'autocomplete';
+    isset($language) ? $widget_container = &$field_container[$language] : $widget_container = $field_container;
+    isset($widget_container['#type']) ? $widget_container_type = $widget_container['#type'] : $widget_container_type = 'autocomplete';
 
     $field_info = field_info_field($data['field']);
 
