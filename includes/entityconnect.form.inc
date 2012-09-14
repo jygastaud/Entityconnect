@@ -644,9 +644,8 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
 }
 
 /**
- * Used to update the form state value of
- * entityreference, node_reference or user_reference field
- * after adding a new entity.
+ * Used to update the form state value of entityreference,
+ * node_reference or user_reference field after adding a new entity.
  *
  * @param array $form_state
  *   The form_state we need to change.
@@ -695,14 +694,14 @@ function _entityconnect_alter_form_state_input(&$form_state, $module, $widget_ty
 }
 
 /**
- * Reimplements drupal_array_get_nested_value()
- * to answer specific needs of the module.
+ * Reimplements drupal_array_get_nested_value() to answer specific needs of
+ * the module.
  * Entityconnect button adds a new level in parents array,
  * named "add_entityconnect" and "edit_entityconnect" and we need to remove them
  * into our array building. So we need to
  * rewrite drupal_array_set_nested_value() to include these remove.
  *
- * @see &drupal_array_get_nested_value()
+ * @see drupal_array_get_nested_value()
  */
 function &entityconnect_array_get_nested_value(array &$array, array $parents, &$key_exists = NULL) {
   $ref = &$array;
@@ -725,8 +724,8 @@ function &entityconnect_array_get_nested_value(array &$array, array $parents, &$
 }
 
 /**
- * Reimplements drupal_array_set_nested_value()
- * to ansewer specific needs of the module.
+ * Reimplements drupal_array_set_nested_value() to ansewer specific needs of
+ * the module.
  * Entityconnect button adds a new level in parents array,
  * named "add_entityconnect" and "edit_entityconnect" and we need to remove them
  * into our array building. So we need to
