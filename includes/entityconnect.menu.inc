@@ -46,22 +46,23 @@ function entityconnect_add($cache_id) {
           if (isset($acceptable_types[$type]) && $acceptable_types[$type]) {
             $item['href'] = $item['href'] . "/$cache_id";
             $content[$key] = $item;
-          }// if()
-        }// foreach()
+          }
+        }
+
         // If we have only one content-type defined,
         // go directly to the node form.
         if (sizeof($content) == 1) {
           $item = array_pop($content);
           drupal_goto($item['href']);
-        }// if()
+        }
       }
       else {
         foreach (system_admin_menu_block(menu_get_item("node/add")) as $key => $item) {
           $type = str_replace("-", '_', str_replace("node/add/", "", $item['path']));
           $item['href'] = $item['href'] . "/$cache_id";
           $content[$key] = $item;
-        }// foreach()
-      }// else()
+        }
+      }
       $output = theme('node_add_list', array('content' => $content));
       $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
       break;
@@ -81,15 +82,15 @@ function entityconnect_add($cache_id) {
             $item->href = "admin/structure/taxonomy/$type/add/$cache_id";
             $content[$key] = $item;
             $voc_list[] = l($item->name, $item->href);
+          }
+        }
 
-          }// if()
-        }// foreach()
         // If we have only one vocabulary defined,
         // go directly to the term add form.
         if (sizeof($content) == 1) {
           $item = array_pop($content);
           drupal_goto($item->href);
-        }// if()
+        }
       }
       else {
         foreach (taxonomy_get_vocabularies() as $key => $item) {
@@ -98,8 +99,8 @@ function entityconnect_add($cache_id) {
           $item->href = "admin/structure/taxonomy/$type/add/$cache_id";
           $content[$key] = $item;
           $voc_list[] = l($item->name, $item->href);
-        }// foreach()
-      }// else()
+        }
+      }
       $output = theme('entityconnect_taxonomy_term_add_list', array('items' => $content));
       $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
       break;
@@ -111,7 +112,7 @@ function entityconnect_add($cache_id) {
 
     default:
       break;
-  }// switch()
+  }
   return $output;
 }
 
@@ -131,7 +132,7 @@ function entityconnect_edit($cache_id) {
       if (is_array($target_id)) {
         $info = entity_load($entity_type, $target_id);
         foreach ($info as $key => $value) {
-          $content[$key] = array (
+          $content[$key] = array(
             'label' => $value->title,
             'href' => 'node/' . $value->nid . '/edit',
           );
@@ -152,7 +153,7 @@ function entityconnect_edit($cache_id) {
       if (is_array($target_id)) {
         $info = entity_load($entity_type, $target_id);
         foreach ($info as $key => $value) {
-          $content[$key] = array (
+          $content[$key] = array(
             'label' => $value->name,
             'href' => 'user/' . $value->uid . '/edit',
           );
@@ -173,7 +174,7 @@ function entityconnect_edit($cache_id) {
       if (is_array($target_id)) {
         $info = entity_load($entity_type, $target_id);
         foreach ($info as $key => $value) {
-          $content[$key] = array (
+          $content[$key] = array(
             'label' => $value->name,
             'href' => 'taxonomy/term/' . $value->tid . '/edit',
           );
@@ -194,7 +195,7 @@ function entityconnect_edit($cache_id) {
       if (is_array($target_id)) {
         $info = entity_load($entity_type, $target_id);
         foreach ($info as $key => $value) {
-          $content[$key] = array (
+          $content[$key] = array(
             'label' => $value->name,
             'href' => 'admin/structure/taxonomy/' . $value->name . '/edit',
           );
@@ -210,10 +211,10 @@ function entityconnect_edit($cache_id) {
         drupal_goto("admin/structure/taxonomy/" . $info->name . "/edit", array(
             'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
       }
-        break;
+      break;
 
     default:
       break;
-  }// switch()
+  }
   return $output;
 }

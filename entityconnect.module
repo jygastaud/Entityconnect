@@ -91,8 +91,8 @@ function entityconnect_theme() {
   $items = array();
 
   $items['entityconnect_taxonomy_term_add_list'] = array(
-      'arguments' => array('items' => NULL),
-      'file' => 'includes/entityconnect.pages.inc',
+    'arguments' => array('items' => NULL),
+    'file' => 'includes/entityconnect.pages.inc',
   );
 
   $items['entityconnect_entity_add_list'] = array(
@@ -137,12 +137,13 @@ function entityconnect_form_alter(&$form, &$form_state, $form_id) {
     entityconnect_include_form();
     if ($child) {
       $form_state['#entityconnect_child_form'] = $cache;
-    }// if()
+    }
     if (isset($_REQUEST['return'])) {
       unset($_REQUEST['build_cache_id']);
       entityconnect_return_form_alter($form, $form_state, $form_id, $cid, $cache);
-    }// if()
-  }// if()
+    }
+  }
+
   // If this for is a child form lets add alter for that purpose
   // Note that we are doing this here becuase when we retrun to a form it gets
   // rebuild so this will get caught in the rebuild.
@@ -162,9 +163,9 @@ function entityconnect_form_alter(&$form, &$form_state, $form_id) {
       $additions = module_invoke('entityconnect', 'field_instance_settings_form', $field, $instance);
       if (is_array($additions)) {
         $form['instance'] += $additions;
-      }// if()
-    }// if()
-  }// if()
+      }
+    }
+  }
 }
 
 /**
@@ -192,35 +193,36 @@ function _entityconnect_get_ref_fields() {
             if ((user_access('create ' . array_pop($target_bundle) . ' content') || user_access('administer nodes'))
                     && (user_access('entityconnect add button') || user_access('entityconnect edit button'))) {
               $ref_fields[$id] = $field;
-            }// if()
+            }
           }
           elseif (user_access('entityconnect add button') || user_access('entityconnect edit button')) {
             $ref_fields[$id] = $field;
-          }// elseif()
+          }
           break;
 
         case 'taxonomy_term':
           if (user_access('entityconnect add button') || user_access('entityconnect edit button')) {
             $ref_fields[$id] = $field;
-          }// if()
+          }
           break;
 
         case 'taxonomy_vocabulary':
           if (user_access('entityconnect add button') || user_access('entityconnect edit button')) {
             $ref_fields[$id] = $field;
-          }// if()
+          }
           break;
 
         default:
           break;
-      }// switch()
-    }// if()
+      }
+    }
+
     // Add support for Reference module.
     if (($field['type'] == 'node_reference' && $field['module'] == 'node_reference')
           || ($field['type'] == 'user_reference' && $field['module'] == 'user_reference')) {
       $ref_fields[$id] = $field;
-    }// if()
-  }// foreach()
+    }
+  }
   return $ref_fields;
 }
 

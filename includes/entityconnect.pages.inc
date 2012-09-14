@@ -57,7 +57,7 @@ function theme_entityconnect_entity_add_list($variables) {
     $output .= '</ul>';
   }
   else {
-    $output = '<p>' . t('You have not selected any entities.') .'</p>';
+    $output = '<p>' . t('You have not selected any entities.') . '</p>';
   }
   return $output;
 }

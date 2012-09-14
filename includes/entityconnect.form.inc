@@ -45,6 +45,7 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
 
   $field = field_info_field($field_name);
   $acceptable_types = NULL;
+
   // We get bundles referenced.
   if ($field['module'] == 'entityreference') {
     $entity_reference_info = entityreference_get_selection_handler($field, $instance);
@@ -301,8 +302,8 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
   else {
     if ($data['target_id']) {
       $form_state['redirect'] = "admin/entityconnect/edit/$cache_id";
-    }// if()
-  }// else()
+    }
+  }
 }
 
 /**
@@ -338,10 +339,11 @@ function entityconnect_child_form_submit(&$form, &$form_state) {
 
       default:
         break;
-    }// switch()
+    }
+
     entityconnect_cache_set($cache_id, $data);
     $form_state['redirect'] = "admin/entityconnect/return/$cache_id";
-  }// if()
+  }
 }
 
 /**
@@ -351,7 +353,7 @@ function entityconnect_child_form_cancel(&$form, &$form_state) {
   $cache_id = $form_state['clicked_button']['#parent_build_cache_id'];
   if ($cache_id && ($cache = cache_get($cache_id))) {
     $form_state['redirect'] = "admin/entityconnect/return/$cache_id";
-  }// if()
+  }
 }
 
 /**
@@ -579,12 +581,12 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
 
         default:
           break;
-      }// switch()
+      }
       _entityconnect_alter_form_state_input($form_state, $field_info['module'], $widget_container_type, $parents, $language, $element['#default_value']);
-    }// if()
+    }
     $form_state['#entityconnect_processed'] = TRUE;
     $form = drupal_rebuild_form($form_id, $form_state, $form);
-  }// if()
+  }
 }
 
 /**
@@ -636,7 +638,7 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
 
     default:
       break;
-  }// switch()
+  }
   $form['actions']['submit']['#submit'][] = 'entityconnect_include_form';
   $form['actions']['submit']['#submit'][] = 'entityconnect_child_form_submit';
 }
@@ -660,7 +662,6 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
  *   The language of the field.
  * @param array $element
  *   The value we need to insert.
- *
  */
 function _entityconnect_alter_form_state_input(&$form_state, $module, $widget_type, $parents, $language, $element) {
   switch ($widget_type) {
