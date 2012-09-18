@@ -216,7 +216,7 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
 
     // TODO : Find the original problem of the entity connect use with
     // Field Collection.
-    if (!empty($target_id) && !intval($target_id)) {
+    if (!empty($target_id)) {
       // Take "label (entity id)', match the id from parenthesis.
       if (preg_match("/.+\((\d+)\)/", $target_id, $matches)) {
         $target_id = $matches[1];
@@ -244,7 +244,7 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
 
     // TODO : Find the original problem of the entity connect use with
     // Field Collection.
-    if (!empty($target_id) && !intval($target_id)) {
+    if (!empty($target_id)) {
       // Take "label (entity id)', match the id from parenthesis.
       if (preg_match("/.+\[nid:(\d+)\]/", $target_id, $matches)) {
         $target_id = $matches[1];
@@ -272,7 +272,7 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
 
     // TODO : Find the original problem of the entity connect use with
     // Field Collection.
-    if (!empty($target_id) && !intval($target_id)) {
+    if (!empty($target_id)) {
       // Take "label (entity id)', match the id from parenthesis.
       if (preg_match("/.+\[uid:(\d+)\]/", $target_id, $matches)) {
         $target_id = $matches[1];
@@ -645,7 +645,7 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
 
 /**
  * Used to update the form state value.
- * 
+ *
  * Form state value is updated for entityreference,
  * node_reference or user_reference field after adding a new entity.
  *
