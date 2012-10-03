@@ -388,7 +388,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
 
     $field_info = field_info_field($data['field']);
 
-    if (isset($data['target_id']) && $data['target_id'] != 0 && $form_state['rebuild'] === TRUE) {
+    if (isset($data['target_id']) && $form_state['rebuild'] === TRUE) {
       switch ($data['target_entity_type']) {
         case 'node':
           if ($data['target_id'] != 0 && $node = node_load($data['target_id'])) {
@@ -443,7 +443,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
           break;
 
         case 'user':
-          if (($data['target_id'] != NULL || $data['target_id'] != 0) && $user = user_load_by_name($data['target_id'])) {
+          if (isset($data['target_id']) && $user = user_load_by_name($data['target_id'])) {
             switch ($widget_container_type) {
               // Autocomplete tags style.
               case 'textfield':
