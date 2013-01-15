@@ -24,7 +24,7 @@ function entityconnect_requirements($phase) {
         $requirements['entityconnect']['severity'] = REQUIREMENT_OK;
       }
       else {
-        $requirements['entityconnect']['severity'] = REQUIREMENT_ERROR;
+        $requirements['entityconnect']['severity'] = REQUIREMENT_WARNING;
         $requirements['entityconnect']['description'] = $t(
           'Neither Entityreference nor References modules is installed or activated.
           Entityconnect need at least one of those modules to work.'
