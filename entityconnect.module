@@ -213,11 +213,6 @@ function _entityconnect_get_ref_fields() {
           break;
 
         default:
-          $entity_info = entity_get_info($entity_type);
-          if ($entity_info['module'] == 'eck') {
-            $ref_fields[$id] = $field;            
-          }
-          
           break;
       }
     }
