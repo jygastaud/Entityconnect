@@ -600,7 +600,9 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
         default:
           break;
       }
-      _entityconnect_alter_form_state_input($form_state, $field_info['module'], $widget_container_type, $parents, $language, $element['#default_value']);
+      if (isset($element)) {
+        _entityconnect_alter_form_state_input($form_state, $field_info['module'], $widget_container_type, $parents, $language, $element['#default_value']);
+      }
     }
     $form_state['#entityconnect_processed'] = TRUE;
     $form = drupal_rebuild_form($form_id, $form_state, $form);
