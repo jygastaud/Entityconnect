@@ -33,11 +33,11 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
   }
 
   if (!isset($instance['entityconnect_unload_add'])) {
-    $instance['entityconnect_unload_add'] = 0;
+    $instance['entityconnect_unload_add'] = variable_get('entityconnect_unload_add_default', 1);
   }
 
   if (!isset($instance['entityconnect_unload_edit'])) {
-    $instance['entityconnect_unload_edit'] = 0;
+    $instance['entityconnect_unload_edit'] = variable_get('entityconnect_unload_edit_default', 1);
   }
 
   $addbuttonallowed = $instance['entityconnect_unload_add'];
