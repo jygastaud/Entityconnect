@@ -71,7 +71,7 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
            // $acceptable_types was already set to NULL before
           break;
 
-        case 'taxonomy_vocabulary':
+        case 'taxonomy_term':
           if (isset($views_display[$display]->display_options['filters']['machine_name']['table'])
                 && $views_display[$display]->display_options['filters']['machine_name']['table'] == 'taxonomy_vocabulary' ) {
             $acceptable_types = $views_display[$display]->display_options['filters']['machine_name']['value'];
