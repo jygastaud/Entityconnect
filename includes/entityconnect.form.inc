@@ -298,6 +298,16 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
     }
   }
 
+  // If no entity has been chosen, redirect to the original node.
+  if ($target_id == '_none') {
+    drupal_set_message(
+      t('You have to select at less one entity to update'),
+      'error'
+    );
+    $form_state['redirect'] = $_GET['q'];
+    return;
+  }
+
   $data = array(
     'form'       => $form,
     'form_state' => $form_state,
