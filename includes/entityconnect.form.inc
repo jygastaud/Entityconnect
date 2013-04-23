@@ -213,10 +213,14 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
   $key_exists = NULL;
   $field_container = entityconnect_array_get_nested_value($form_state['input'], $parents, $key_exists);
 
+  // Initialize target_id.
+  $target_id = '';
   if ($field_info['module'] == 'entityreference') {
     if ($key_exists) {
-      $target_id = isset($field_container['target_id']) ? $field_container['target_id'] : '';
-      if ($target_id == '' && is_array($field_container)) {
+      if (isset($field_container['_weight'])) {
+        $target_id = isset($field_container['target_id']) ? $field_container['target_id'] : '';
+      }
+      elseif (is_array($field_container)) {
         foreach ($field_container as $key => $value) {
           if (is_array($value)) {
             foreach ($value as $key2 => $value2) {
@@ -230,6 +234,11 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
           }
         }
       }
+    }
+
+    // If there is further value selected, only get the first.
+    if (is_array($target_id)) {
+        $target_id = array_shift($target_id);
     }
 
     // TODO : Find the original problem of the entity connect use with
