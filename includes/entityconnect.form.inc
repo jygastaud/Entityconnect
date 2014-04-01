@@ -307,10 +307,10 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
     }
   }
 
-  // If no entity has been chosen, redirect to the original node.
-  if ($target_id == '_none') {
+  // If no entity has been chosen to edit, redirect to the original node.
+  if (!$form_state['clicked_button']['#add_child'] && $target_id == '_none') {
     drupal_set_message(
-      t('You have to select at less one entity to update'),
+      t('You must select at least one entity to update.'),
       'error'
     );
     $form_state['redirect'] = $_GET['q'];
