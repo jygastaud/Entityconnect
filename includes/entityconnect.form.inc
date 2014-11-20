@@ -317,10 +317,19 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
     return;
   }
 
+  $params = array();
+  foreach ($_GET as $key => $value) {
+    if($key == 'q') {
+      continue;
+    }
+    $params[$key] = $value;
+  }
+  
   $data = array(
     'form'       => $form,
     'form_state' => $form_state,
     'dest'       => $_GET['q'],
+    'params'     => $params,
     'field'      => $field,
     'field_info' => $field_info,
     'key'        => $key,
