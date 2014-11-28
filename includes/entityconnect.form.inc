@@ -362,7 +362,7 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
 function entityconnect_child_form_submit(&$form, &$form_state) {
   $cache_id = $form_state['values']['parent_build_cache_id'];
 
-  if ($cache_id && ($cache = cache_get($cache_id))) {
+  if ($cache_id && ($cache = entityconnect_cache_get($cache_id))) {
     $data = $cache->data;
     $entity_type = $cache->data['target_entity_type'];
 
@@ -397,7 +397,7 @@ function entityconnect_child_form_submit(&$form, &$form_state) {
  */
 function entityconnect_child_form_cancel(&$form, &$form_state) {
   $cache_id = $form_state['clicked_button']['#parent_build_cache_id'];
-  if ($cache_id && ($cache = cache_get($cache_id))) {
+  if ($cache_id && ($cache = entityconnect_cache_get($cache_id))) {
     $form_state['redirect'] = "admin/entityconnect/return/$cache_id";
   }
 }
@@ -635,15 +635,6 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
     $form_state['#entityconnect_processed'] = TRUE;
     $form = drupal_rebuild_form($form_id, $form_state, $form);
   }
-}
-
-/**
- * Wraps cache set.
- *
- * We can set the expire easily if needed.
- */
-function entityconnect_cache_set($cid, $data) {
-  return cache_set($cid, $data, 'cache', CACHE_PERMANENT);
 }
 
 /**

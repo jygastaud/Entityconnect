@@ -66,3 +66,23 @@ function entityconnect_requirements($phase) {
 
   return $requirements;
 }
+
+
+/**
+ * Implements hook_schema().
+ */
+function entityconnect_schema() {
+  $schema = array();
+  $schema['cache_entityconnect'] = drupal_get_schema_unprocessed('system', 'cache');
+  return $schema;
+}
+
+/**
+ * Add cache table.
+ */
+function entityconnect_update_7000() {
+  if (!db_table_exists('cache_entityconnect')) {
+    $schema = entityconnect_schema();
+    db_create_table('cache_entityconnect', $schema ['cache_entityconnect']);
+  }
+}
