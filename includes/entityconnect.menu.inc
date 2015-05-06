@@ -18,6 +18,9 @@ function entityconnect_return($cache_id) {
             'fragment' => $css_id);
   //Collect additional request parameters, skip 'q', since this is the destination
   foreach ($cache->data['params'] as $key => $value) {
+    if ('build_cache_id' == $key) {
+      continue;
+    }
     $options['query'][$key] = $value;
   }
 
