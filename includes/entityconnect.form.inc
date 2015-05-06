@@ -105,6 +105,10 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
     isset($parents) ? $parents : $parents = '';
     $extra_class = isset($widget_container['#type']) ? $widget_container['#type'] : 'autocomplete';
     $extra_class .= (!isset($widget_container['#cardinality']) || $widget_container['#cardinality'] == 1) ? ' single-value' : ' multiple-values';
+    $extra_class .= (isset($widget_container['#multiple']) && $widget_container['#multiple'] == TRUE) ? ' multiple-selection' : ' single-selection';
+    if ((isset($widget_container['#multiple']) && $widget_container['#multiple'] == TRUE) || $widget_container['#type'] == 'radios' || $widget_container['#type'] == 'checkboxes'){
+      $field_container['#attributes']['class'][] = 'inline-label';
+    }
     if (user_access('entityconnect add button') && $addbuttonallowed == 0) {
       entityconnect_add_form_element_new($field_container, $language, $field_name, $parents, 'all', $extra_class, $instance, $entity_type, $acceptable_types);
     }
@@ -118,6 +122,12 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
     // a class to let the js know.
     $extra_class = isset($widget_container['#type']) ? $widget_container['#type'] : 'autocomplete';
     $extra_class .= (!isset($widget_container['#cardinality']) || $widget_container['#cardinality'] == 1) ? ' single-value' : ' multiple-values';
+    $extra_class .= (isset($widget_container['#multiple']) && $widget_container['#multiple'] == TRUE) ? ' multiple-selection' : ' single-selection';
+    if (isset($widget_container['#type'])) {
+      if ((isset($widget_container['#multiple']) && $widget_container['#multiple'] == TRUE) || $widget_container['#type'] == 'radios' || $widget_container['#type'] == 'checkboxes'){
+        $field_container['#attributes']['class'][] = 'inline-label';
+     }
+    }
     foreach ($widget_container as $key => &$widget_element) {
       if (is_numeric($key)) {
         if (user_access('entityconnect add button') && $addbuttonallowed == 0) {
