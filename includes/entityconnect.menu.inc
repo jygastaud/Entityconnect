@@ -119,6 +119,44 @@ function entityconnect_add($cache_id) {
       break;
 
     default:
+      // Entity construction kit support.
+      if (module_exists('eck')) {
+        $entity_info = entity_get_info($entity_type);
+
+        if (!empty($entity_info['module']) && $entity_info['module'] == 'eck') {
+          // Only one allowed, no need for the intermediate step.
+          if (count($acceptable_types) === 1) {
+            $bundle_name = array_pop($acceptable_types);
+            $bundle = $entity_info['bundles'][$bundle_name];
+            drupal_goto($bundle['crud']['add']['path'] . "/$cache_id");
+          }
+          // All bundles allowed.
+          elseif (count($acceptable_types) === 0) {
+            foreach ($entity_info['bundles'] as $key => $bundle) {
+              $content[$key]['href'] = $bundle['crud']['add']['path'] . "/$cache_id";
+              $content[$key]['label'] = $bundle['label'];
+            }
+            $output = theme('entityconnect_entity_add_list', array(
+              'cache id' => $cache_id,
+              'items' => $content,
+            ));
+            $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
+          }
+          // Only certain bundles allowed.
+          else {
+            foreach ($acceptable_types as $bundle_name) {
+              $bundle = $entity_info['bundles'][$bundle_name];
+              $content[$bundle_name]['href'] = $bundle['crud']['add']['path'] . "/$cache_id";
+              $content[$bundle_name]['label'] = $bundle['label'];
+            }
+            $output = theme('entityconnect_entity_add_list', array(
+              'cache id' => $cache_id,
+              'items' => $content,
+            ));
+            $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
+          }
+        }
+      }
       break;
   }
   return $output;
@@ -222,6 +260,36 @@ function entityconnect_edit($cache_id) {
       break;
 
     default:
+      // Support for entity construction kit.
+      if (module_exists('eck')) {
+        $entity_info = entity_get_info($entity_type);
+        if ($entity_info['module'] == 'eck') {
+
+          // @todo Do we need this part? Because of entityconnect.form.inc:241
+          // we always get only one target_id. Or am I missing something?
+          if (is_array($target_id)) {
+            $eck_entities = entity_load($entity_type, $target_id);
+            foreach ($eck_entities as $key => $eck_entity) {
+              $crud_edit_path = preg_replace('/\%/', $key, $entity_info['bundles'][$eck_entity->type]['crud']['edit']['path']);
+              $content[$key] = array(
+                'label' => $eck_entity->title,
+                'href' => $crud_edit_path,
+              );
+            }
+            $output = theme('entityconnect_entity_add_list', array(
+                'items' => $content,
+                'cache id' => $cache_id)
+            );
+            $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
+          }
+          else {
+            $eck_entity = entity_load_single($entity_type, $target_id);
+            $crud_edit_path = preg_replace('/\%/', $target_id, $entity_info['bundles'][$eck_entity->type]['crud']['edit']['path']);
+            drupal_goto($crud_edit_path, array(
+              'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
+          }
+        }
+      }
       break;
   }
   return $output;

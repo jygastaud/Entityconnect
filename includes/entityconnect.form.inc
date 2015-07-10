@@ -80,7 +80,7 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
             $acceptable_types = $views_display['default']->display_options['filters']['machine_name']['value'];
           }
           break;
-        
+
         default:
           break;
       }
@@ -334,7 +334,7 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
     }
     $params[$key] = $value;
   }
-  
+
   $data = array(
     'form'       => $form,
     'form_state' => $form_state,
@@ -394,6 +394,13 @@ function entityconnect_child_form_submit(&$form, &$form_state) {
         break;
 
       default:
+        // Enitity construction kit support.
+        if (module_exists('eck')) {
+          $entity_info = entity_get_info($entity_type);
+          if ($entity_info['module'] == 'eck') {
+            $data['target_id'] = $form_state['values']['entity']->id;
+          }
+        }
         break;
     }
 
@@ -636,6 +643,53 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
           break;
 
         default:
+          // Entity construction kit support.
+          if (module_exists('eck')) {
+            $entiy_info = entity_get_info($data['target_entity_type']);
+            if ($entiy_info['module'] = 'eck') {
+              if (($data['target_id'] != NULL || $data['target_id'] != 0) && $eck_entity = entity_load_single($data['target_entity_type'], array($data['target_id']))) {
+                switch ($widget_container_type) {
+                  // Autocomplete tags style.
+                  case 'textfield':
+                    $element['#default_value'] = !empty($eck_entity->title) ? $eck_entity->title : t('Entity has no title');
+                    $element['#default_value'] .= ' (' . $eck_entityerm->id . ')';
+                    if (!empty ($widget_container['#value'])) {
+                      $element['#default_value'] .= ', ' . $widget_container['#value'];
+                    }
+                    break;
+
+                  // Select list.
+                  case 'select':
+                    if ($widget_container['#multiple'] == FALSE) {
+                      $element['#default_value'] = $eck_entity->id;
+                    }
+                    else {
+                      $element['#default_value'] = $eck_entity->id;
+                      $element['#default_value'] = $widget_container['#value'] + array($element['#default_value'] => $element['#default_value']);
+                    }
+                    break;
+
+                  // Radios widget.
+                  case 'radios':
+                    $element['#default_value'] = $eck_entity->id;
+                    break;
+
+                  // Checkboxes widget.
+                  case 'checkboxes':
+                    $element['#default_value'] = $eck_entity->id;
+                    $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
+                    break;
+
+                  default:
+                    if ($field_info['module'] == 'entityreference') {
+                      $element['#default_value'] = !empty($eck_entity->title) ? $eck_entity->title : t('Entity has no title');
+                      $element['#default_value'] .= ' (' . $eck_entity->id . ')';
+                    }
+                    break;
+                }
+              }
+            }
+          }
           break;
       }
       if (isset($element)) {
@@ -683,6 +737,15 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
 
     case 'taxonomy_form_vocabulary':
       $form['actions']['submit']['#submit'][] = 'taxonomy_form_vocabulary_submit';
+      break;
+
+    case 'eck__entity__form_add_' . $form['#entity_type'] . '_' . $form['#bundle']:
+    case 'eck__entity__form_edit_' . $form['#entity_type'] . '_' . $form['#bundle']:
+      $form['actions']['cancel']['#weight'] = 10001;
+      $form['actions']['submit']['#submit'][] = 'eck__entity__form_submit';
+
+      // @todo I think we don't need #submit any more..?
+      $form['#submit'] = array();
       break;
 
     default:
