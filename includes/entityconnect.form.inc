@@ -246,14 +246,9 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
       }
     }
 
-    // If there is further value selected, only get the first.
-    if (is_array($target_id)) {
-        $target_id = array_shift($target_id);
-    }
-
     // TODO : Find the original problem of the entity connect use with
     // Field Collection.
-    if (!empty($target_id)) {
+    if (!empty($target_id) && !is_array($target_id)) {
       // Take "label (entity id)', match the id from parenthesis.
       if (preg_match("/.+\((\d+)\)/", $target_id, $matches)) {
         $target_id = $matches[1];
