@@ -10,14 +10,12 @@
 function _entityconnect_admin_form($form, &$form_state) {
   $form = array();
 
-  $form['title'] = array(
-    '#prefix' => '<h1>',
-    '#markup' => t('Entity Connect'),
-    '#suffix' => '</h1>',
-    '#weight' => -1,
+  $form['entityconnect'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('EntityConnect default Parameters'),
   );
 
-  $form['add'] = array(
+  $form['entityconnect']['add'] = array(
     '#required' => '1',
     '#key_type_toggled' => '1',
     '#default_value' => variable_get('entityconnect_unload_add_default', 1),
@@ -33,7 +31,7 @@ function _entityconnect_admin_form($form, &$form_state) {
     '#title' => t('Default Entity Connect "add" button display'),
   );
 
-  $form['edit'] = array(
+  $form['entityconnect']['edit'] = array(
     '#required' => '1',
     '#key_type_toggled' => '1',
     '#default_value' => variable_get('entityconnect_unload_edit_default', 1),
@@ -54,7 +52,7 @@ function _entityconnect_admin_form($form, &$form_state) {
     '#value' => 'Save',
     '#weight' => '2',
   );
-  
+
   $form['reset'] = array(
     '#type' => 'submit',
     '#value' => 'Reset to default',
