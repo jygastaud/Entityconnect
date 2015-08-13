@@ -170,6 +170,10 @@ function entityconnect_add_form_element_new(&$widget_element, $language, $field_
         drupal_get_path('module', 'entityconnect') . "/theme/css/entityconnect.css",
       ),
     ),
+    '#attributes' => array(
+      // Support Clientside Validation.
+      'class' => array('cancel')
+    ),
   );
 }
 
@@ -198,6 +202,10 @@ function entityconnect_add_form_element_edit(&$widget_element, $language, $field
       'css' => array(
         drupal_get_path('module', 'entityconnect') . "/theme/css/entityconnect.css",
       ),
+    ),
+    '#attributes' => array(
+      // Support Clientside Validation.
+      'class' => array('cancel')
     ),
   );
 }
