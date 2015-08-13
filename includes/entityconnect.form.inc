@@ -171,6 +171,7 @@ function entityconnect_add_form_element_new(&$widget_element, $language, $field_
       ),
     ),
     '#attributes' => array(
+      'title' => t('Add'),
       // Support Clientside Validation.
       'class' => array('cancel')
     ),
@@ -204,6 +205,7 @@ function entityconnect_add_form_element_edit(&$widget_element, $language, $field
       ),
     ),
     '#attributes' => array(
+      'title' => t('Edit'),
       // Support Clientside Validation.
       'class' => array('cancel')
     ),
