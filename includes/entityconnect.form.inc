@@ -657,7 +657,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
                   // Autocomplete tags style.
                   case 'textfield':
                     $element['#default_value'] = !empty($eck_entity->title) ? $eck_entity->title : t('Entity has no title');
-                    $element['#default_value'] .= ' (' . $eck_entityerm->id . ')';
+                    $element['#default_value'] .= ' (' . $eck_entity->id . ')';
                     if (!empty ($widget_container['#value'])) {
                       $element['#default_value'] .= ', ' . $widget_container['#value'];
                     }
