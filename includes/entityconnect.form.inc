@@ -744,16 +744,18 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
       $form['actions']['submit']['#submit'][] = 'taxonomy_form_vocabulary_submit';
       break;
 
-    case 'eck__entity__form_add_' . $form['#entity_type'] . '_' . $form['#bundle']:
-    case 'eck__entity__form_edit_' . $form['#entity_type'] . '_' . $form['#bundle']:
-      $form['actions']['cancel']['#weight'] = 10001;
-      $form['actions']['submit']['#submit'][] = 'eck__entity__form_submit';
-
-      // @todo I think we don't need #submit any more..?
-      $form['#submit'] = array();
-      break;
-
     default:
+      if (isset($form['#entity_type']) && isset($form['#bundle'])) {
+        // Add support for ECK.
+        if ('eck__entity__form_add_' . $form['#entity_type'] . '_' . $form['#bundle'] == $form_id
+            || 'eck__entity__form_edit_' . $form['#entity_type'] . '_' . $form['#bundle'] == $form_id) {
+          $form['actions']['cancel']['#weight'] = 10001;
+          $form['actions']['submit']['#submit'][] = 'eck__entity__form_submit';
+
+          // @todo I think we don't need #submit any more..?
+          $form['#submit'] = array();
+        }
+      }
       break;
   }
   $form['actions']['submit']['#submit'][] = 'entityconnect_include_form';
