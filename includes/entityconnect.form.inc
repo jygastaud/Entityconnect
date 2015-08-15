@@ -256,6 +256,10 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
       }
     }
 
+    if (is_array($target_id) && count($target_id) == 1) {
+      $target_id = array_shift($target_id);
+    }
+
     // TODO : Find the original problem of the entity connect use with
     // Field Collection.
     if (!empty($target_id) && !is_array($target_id)) {

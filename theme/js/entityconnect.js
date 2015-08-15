@@ -71,13 +71,13 @@
           text = $(wrapper).siblings().find("[type='text']");
         }
         if(radio.length == 0) {
-          radio = $(wrapper).siblings().find("[type='radio']");
+          radio = $(wrapper).siblings().find("[type='radio']:checked");
         }
         if(checkbox.length == 0) {
-          checkbox = $(wrapper).siblings().find("[type='checkbox']");
+          checkbox = $(wrapper).siblings().find("[type='checkbox']:checked");
         }
         if(select.length == 0) {
-          select = $(wrapper).siblings().find("select > option:selected");
+          select = $(wrapper).siblings().find("[type='select']:checked");
         }
 
         if($.trim($(text).val()) == ''
