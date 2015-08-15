@@ -7,9 +7,11 @@
       // Autocomplete widget.
       $(".entityconnect-add.autocomplete", context).each(function() {
         $(this).insertAfter($(this).siblings('.form-type-textfield').children("input").first());
+        $(this).insertAfter($(this).siblings('.form-type-select').children("select").first());
       });
       $(".entityconnect-edit.autocomplete", context).each(function() {
         $(this).insertAfter($(this).siblings('.form-type-textfield').children("input").first());
+        $(this).insertAfter($(this).siblings('.form-type-select').children("select").first());
       });
 
       // Autocomplete tags style widget.
@@ -81,7 +83,7 @@
 
         if($.trim($(text).val()) == ''
             && $.trim($(radio).val()) == ''
-            && $.trim($(select).val()) == ''
+            && ($.trim($(select).val()) == '' || $.trim($(select).val()) == '_none')
             && $.trim($(checkbox).val()) == '') {
           return false;
         }
