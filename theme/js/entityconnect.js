@@ -60,12 +60,11 @@
       // Edit button control.
       $(".entityconnect-edit input").click(function() {
 
-        var wrapper = $(this).parents(".entityconnect-edit");
-
-        text = $(wrapper).siblings("[type='text']");
-        radio = $(wrapper).siblings("[type='radio']");
-        checkbox = $(wrapper).siblings("[type='checkbox']");
-        select = $(wrapper).siblings("select");
+        var wrapper = $(this).parents(".entityconnect-edit"),
+            text = $(wrapper).siblings("[type='text']"),
+            radio = $(wrapper).siblings("[type='radio']"),
+            checkbox = $(wrapper).siblings("[type='checkbox']"),
+            select = $(wrapper).siblings("select");
 
         if(text.length == 0) {
           text = $(wrapper).siblings().find("[type='text']");
@@ -77,7 +76,7 @@
           checkbox = $(wrapper).siblings().find("[type='checkbox']:checked");
         }
         if(select.length == 0) {
-          select = $(wrapper).siblings().find("[type='select']:checked");
+          select = $(wrapper).siblings().find("select:checked");
         }
 
         if($.trim($(text).val()) == ''
