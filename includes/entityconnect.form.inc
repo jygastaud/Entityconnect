@@ -455,10 +455,15 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
       $language = isset($field_container['#language']) ? $field_container['#language'] : LANGUAGE_NONE;
     }
 
-    isset($language) ? $widget_container = &$field_container[$language] : $widget_container = $field_container;
+    // If no language or language element is empty, use the full container.
+    isset($language) && ! empty($field_container[$language]) ? $widget_container = &$field_container[$language] : $widget_container = $field_container;
     isset($widget_container['#type']) ? $widget_container_type = $widget_container['#type'] : $widget_container_type = 'autocomplete';
 
     $field_info = field_info_field($data['field']);
+
+    if ( $widget_container_type == 'autocomplete' && $widget_container['target_id']['#type'] == 'select' ) {
+      $widget_container_type = 'multiple_selects';
+    }
 
     if (isset($data['target_id']) && $form_state['rebuild'] === TRUE) {
       switch ($data['target_entity_type']) {
@@ -496,6 +501,10 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
               case 'checkboxes':
                 $element['#default_value'] = $node->nid;
                 $element['#default_value'] = $widget_container['#value'] + array($element['#default_value'] => $element['#default_value']);
+                break;
+
+              case 'multiple_selects':
+                $element['#default_value'] = $node->nid;
                 break;
 
               default:
@@ -548,6 +557,11 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
                 $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
                 break;
 
+              // Multiple selects widget
+              case 'multiple_selects':
+                $element['#default_value'] = $user->uid;
+                break;
+
               default:
                 if ($field_info['module'] == 'entityreference') {
                   $element['#default_value'] = $user->name;
@@ -597,6 +611,11 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
                 $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
                 break;
 
+              // Multiple selects widget
+              case 'multiple_selects':
+                $element['#default_value'] = $term->tid;
+                break;
+
               default:
                 if ($field_info['module'] == 'entityreference') {
                   $element['#default_value'] = $term->name;
@@ -639,6 +658,11 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
               case 'checkboxes':
                 $element['#default_value'] = $vocabulary->vid;
                 $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
+                break;
+
+              // Multiple selects widget
+              case 'multiple_selects':
+                $element['#default_value'] = $vocabulary->vid;
                 break;
 
               default:
@@ -790,6 +814,7 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
 function _entityconnect_alter_form_state_input(&$form_state, $module, $widget_type, $parents, $language, $element) {
   switch ($widget_type) {
     case 'autocomplete':
+    case 'multiple_selects':
       switch ($module) {
         case 'entityreference':
           array_push($parents, "target_id");
