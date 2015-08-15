@@ -786,8 +786,15 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
       }
       break;
   }
-  $form['actions']['submit']['#submit'][] = 'entityconnect_include_form';
-  $form['actions']['submit']['#submit'][] = 'entityconnect_child_form_submit';
+
+  if (isset($form['submit']['#submit'])) {
+    $form['submit']['#submit'][] = 'entityconnect_include_form';
+    $form['submit']['#submit'][] = 'entityconnect_child_form_submit';
+  }
+  else {
+    $form['actions']['submit']['#submit'][] = 'entityconnect_include_form';
+    $form['actions']['submit']['#submit'][] = 'entityconnect_child_form_submit';
+  }
 }
 
 /**
