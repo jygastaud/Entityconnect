@@ -742,6 +742,18 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
  * and a new submit button.
  */
 function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_id, $cache) {
+
+  // Exclude some forms to be processed.
+  $exclude_forms = array(
+    'search_block_form'
+  );
+  // Allow other modules to alter exclude forms list.
+  drupal_alter('entityconnect_exclude_forms', $exclude_forms);
+
+  if (in_array($form_id, $exclude_forms)) {
+    return;
+  }
+
   $form['parent_build_cache_id'] = array(
     '#type' => 'value',
     '#value' => $cache_id,
