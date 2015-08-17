@@ -61,14 +61,16 @@ function _entityconnect_admin_form($form, &$form_state) {
     '#required' => '1',
     '#key_type_toggled' => '1',
     '#default_value' => variable_get('entityconnect_show_add_icon', 0),
-    '#description' => t('Default: "on"<br />
-                          Choose "off" if you don\'t want to see the add (+) icon displayed by default.<br />
-                          Each field can override this value.'),
+    '#description' => t('Default: "Icon only"<br />
+                         Choose "Icon + Text" if you want to see the edit (pencil) icon + the text displayed by default.<br />
+                         Choose "Text only" if you don\'t want to see the edit (pencil) icon displayed by default.<br />
+                         Each field can override this value.'),
     '#weight' => '2',
     '#type' => 'radios',
     '#options' => array(
-      '0' => t('on'),
-      '1' => t('off'),
+      '0' => t('Icon only'),
+      '1' => t('Icon + Text'),
+      '2' => t('Text only')
     ),
     '#title' => t('Default Entity Connect "add (+) icon" display'),
   );
@@ -77,14 +79,16 @@ function _entityconnect_admin_form($form, &$form_state) {
     '#required' => '1',
     '#key_type_toggled' => '1',
     '#default_value' => variable_get('entityconnect_show_edit_icon', 0),
-    '#description' => t('Default: "on"<br />
-                          Choose "off" if you don\'t want to see the edit (pencil) icon displayed by default.<br />
-                          Each field can override this value.'),
+    '#description' => t('Default: "Icon only"<br />
+                         Choose "Icon + Text" if you want to see the edit (pencil) icon + the text displayed by default.<br />
+                         Choose "Text only" if you don\'t want to see the edit (pencil) icon displayed by default.<br />
+                         Each field can override this value.'),
     '#weight' => '3',
     '#type' => 'radios',
     '#options' => array(
-      '0' => t('on'),
-      '1' => t('off'),
+      '0' => t('Icon only'),
+      '1' => t('Icon + Text'),
+      '2' => t('Text only')
     ),
     '#title' => t('Default Entity Connect "edit (pencil) icon" display'),
   );
