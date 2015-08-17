@@ -49,11 +49,11 @@ function entityconnect_add($cache_id) {
   switch ($entity_type) {
     case 'node':
       if (count($acceptable_types) > 0) {
-        foreach (system_admin_menu_block(menu_get_item("node/add")) as $key => $item) {
-          $type = str_replace("-", '_', str_replace("node/add/", "", $item['path']));
+        foreach (node_type_get_names() as $key => $item) {
+          $type = str_replace("_", '-', $key);
           if (isset($acceptable_types[$type]) && $acceptable_types[$type]) {
-            $item['href'] = $item['href'] . "/$cache_id";
-            $content[$key] = $item;
+            $content[$key]['href'] = "node/add/$type/$cache_id";
+            $content[$key]['label'] = $item;
           }
         }
 
@@ -65,13 +65,16 @@ function entityconnect_add($cache_id) {
         }
       }
       else {
-        foreach (system_admin_menu_block(menu_get_item("node/add")) as $key => $item) {
-          $type = str_replace("-", '_', str_replace("node/add/", "", $item['path']));
-          $item['href'] = $item['href'] . "/$cache_id";
-          $content[$key] = $item;
+        foreach (node_type_get_names() as $key => $item) {
+          $type = str_replace("_", '-', $key);
+          $content[$key]['href'] = "node/add/$type/$cache_id";
+          $content[$key]['label'] = $item;
         }
       }
-      $output = theme('node_add_list', array('content' => $content));
+      $output = theme('entityconnect_entity_add_list', array(
+        'cache id' => $cache_id,
+        'items' => $content,
+      ));
       $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
       break;
 
