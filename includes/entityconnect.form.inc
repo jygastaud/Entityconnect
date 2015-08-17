@@ -696,7 +696,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
           if (module_exists('eck')) {
             $entiy_info = entity_get_info($data['target_entity_type']);
             if ($entiy_info['module'] = 'eck') {
-              if (($data['target_id'] != NULL || $data['target_id'] != 0) && $eck_entity = entity_load_single($data['target_entity_type'], array($data['target_id']))) {
+              if (($data['target_id'] != NULL || $data['target_id'] != 0) && $eck_entity = entity_load_single($data['target_entity_type'], $data['target_id'])) {
                 switch ($widget_container_type) {
                   // Autocomplete tags style.
                   case 'textfield':

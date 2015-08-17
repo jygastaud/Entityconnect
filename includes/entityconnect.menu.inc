@@ -263,8 +263,6 @@ function entityconnect_edit($cache_id) {
         $entity_info = entity_get_info($entity_type);
         if ($entity_info['module'] == 'eck') {
 
-          // @todo Do we need this part? Because of entityconnect.form.inc:241
-          // we always get only one target_id. Or am I missing something?
           if (is_array($target_id)) {
             $eck_entities = entity_load($entity_type, $target_id);
             foreach ($eck_entities as $key => $eck_entity) {
