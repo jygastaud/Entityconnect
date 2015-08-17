@@ -43,6 +43,18 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
   $addbuttonallowed = $instance['entityconnect_unload_add'];
   $editbuttonallowed = $instance['entityconnect_unload_edit'];
 
+  if (!isset($instance['entityconnect_show_add_icon'])) {
+    $instance['entityconnect_show_add_icon'] = variable_get('entityconnect_show_add_icon', 0);
+  }
+
+  if (!isset($instance['entityconnect_show_edit_icon'])) {
+    $instance['entityconnect_show_edit_icon'] = variable_get('entityconnect_show_edit_icon', 0);
+  }
+
+  $add_icon = $instance['entityconnect_show_add_icon'];
+  $edit_icon = $instance['entityconnect_show_edit_icon'];
+
+
   $field = field_info_field($field_name);
   $acceptable_types = NULL;
 
@@ -110,10 +122,12 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
       $field_container['#attributes']['class'][] = 'inline-label';
     }
     if (user_access('entityconnect add button') && $addbuttonallowed == 0) {
-      entityconnect_add_form_element_new($field_container, $language, $field_name, $parents, 'all', $extra_class, $instance, $entity_type, $acceptable_types);
+      $classes = (isset($add_icon) && $add_icon == 0) ? $extra_class . ' add-icon' : $extra_class;
+      entityconnect_add_form_element_new($field_container, $language, $field_name, $parents, 'all', $classes, $instance, $entity_type, $acceptable_types);
     }
     if (user_access('entityconnect edit button') && $editbuttonallowed == 0) {
-      entityconnect_add_form_element_edit($field_container, $language, $field_name, $parents, 'all', $extra_class, $entity_type);
+      $classes = (isset($edit_icon) && $edit_icon == 0) ? $extra_class . ' edit-icon' : $extra_class;
+      entityconnect_add_form_element_edit($field_container, $language, $field_name, $parents, 'all', $classes, $entity_type);
     }
   }
   else {
@@ -132,11 +146,13 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
       if (is_numeric($key)) {
         if (user_access('entityconnect add button') && $addbuttonallowed == 0) {
           isset($parents) ? $parents : $parents = '';
-          entityconnect_add_form_element_new($widget_element, $language, $field_name, $parents, $key, $extra_class, $instance, $entity_type, $acceptable_types);
+          $classes = (isset($add_icon) && $add_icon == 0) ? $extra_class . ' add-icon' : $extra_class;
+          entityconnect_add_form_element_new($widget_element, $language, $field_name, $parents, $key, $classes, $instance, $entity_type, $acceptable_types);
         }
         if (user_access('entityconnect edit button') && $editbuttonallowed == 0) {
           isset($parents) ? $parents : $parents = '';
-          entityconnect_add_form_element_edit($widget_element, $language, $field_name, $parents, $key, $extra_class, $entity_type);
+          $classes = (isset($edit_icon) && $edit_icon == 0) ? $extra_class . ' edit-icon' : $extra_class;
+          entityconnect_add_form_element_edit($widget_element, $language, $field_name, $parents, $key, $classes, $entity_type);
         }
       }
     }
