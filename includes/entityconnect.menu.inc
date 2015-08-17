@@ -139,11 +139,6 @@ function entityconnect_add($cache_id) {
               $content[$key]['href'] = $bundle['crud']['add']['path'] . "/$cache_id";
               $content[$key]['label'] = $bundle['label'];
             }
-            $output = theme('entityconnect_entity_add_list', array(
-              'cache id' => $cache_id,
-              'items' => $content,
-            ));
-            $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
           }
           // Only certain bundles allowed.
           else {
@@ -152,12 +147,12 @@ function entityconnect_add($cache_id) {
               $content[$bundle_name]['href'] = $bundle['crud']['add']['path'] . "/$cache_id";
               $content[$bundle_name]['label'] = $bundle['label'];
             }
-            $output = theme('entityconnect_entity_add_list', array(
-              'cache id' => $cache_id,
-              'items' => $content,
-            ));
-            $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
           }
+          $output = theme('entityconnect_entity_add_list', array(
+            'cache id' => $cache_id,
+            'items' => $content,
+          ));
+          $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
         }
       }
       break;
