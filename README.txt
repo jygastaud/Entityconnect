@@ -42,8 +42,9 @@ A. You can change default parameters in admin/config/content/entityconnect page 
 That will activate buttons for all your fields.
 Of course, you can always override parameters on your field instance.
 
-Q. I don't want the default CSS icons to be display
-A. You can change default parameters in admin/config/content/entityconnect page and set icons visibility to "Off".
+Q. I don't want the default CSS icons to be display?
+I want to display the help text after the icon?
+A. You can change default parameters in admin/config/content/entityconnect page and set icons visibility to "Text only" or "Icons + Text".
 
 Next steps
 ----------
