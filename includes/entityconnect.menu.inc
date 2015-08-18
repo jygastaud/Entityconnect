@@ -49,11 +49,14 @@ function entityconnect_add($cache_id) {
   switch ($entity_type) {
     case 'node':
       if (count($acceptable_types) > 0) {
-        foreach (node_type_get_names() as $key => $item) {
-          $type = str_replace("_", '-', $key);
-          if (isset($acceptable_types[$type]) && $acceptable_types[$type]) {
-            $content[$key]['href'] = "node/add/$type/$cache_id";
-            $content[$key]['label'] = $item;
+        foreach (node_type_get_types() as $key => $item) {
+          if (isset($acceptable_types[$key]) && $acceptable_types[$key]) {
+            $type = str_replace("_", '-', $key);
+            $content[$key] = array(
+              'href' => "node/add/$type/$cache_id",
+              'label' => $item->name,
+              'description' => $item->description
+            );
           }
         }
 
@@ -65,10 +68,13 @@ function entityconnect_add($cache_id) {
         }
       }
       else {
-        foreach (node_type_get_names() as $key => $item) {
+        foreach (node_type_get_types() as $key => $item) {
           $type = str_replace("_", '-', $key);
-          $content[$key]['href'] = "node/add/$type/$cache_id";
-          $content[$key]['label'] = $item;
+          $content[$key] = array(
+            'href' => "node/add/$type/$cache_id",
+            'label' => $item->name,
+            'description' => $item->description
+          );
         }
       }
       $output = theme('entityconnect_entity_add_list', array(
@@ -144,8 +150,11 @@ function entityconnect_add($cache_id) {
           else {
             foreach ($acceptable_types as $bundle_name) {
               $bundle = $entity_info['bundles'][$bundle_name];
-              $content[$bundle_name]['href'] = $bundle['crud']['add']['path'] . "/$cache_id";
-              $content[$bundle_name]['label'] = $bundle['label'];
+              $content[$bundle_name] = array(
+                'href' => $bundle['crud']['add']['path'] . "/$cache_id",
+                'label' => $bundle['label'],
+                'description' => ''
+              );
             }
           }
           $output = theme('entityconnect_entity_add_list', array(
@@ -217,6 +226,7 @@ function entityconnect_edit($cache_id) {
           $content[$key] = array(
             'label' => $value->title,
             'href' => 'node/' . $value->nid . '/edit',
+            'description' =>  ''
           );
         }
         $output = theme('entityconnect_entity_add_list', array(
@@ -238,6 +248,7 @@ function entityconnect_edit($cache_id) {
           $content[$key] = array(
             'label' => $value->name,
             'href' => 'user/' . $value->uid . '/edit',
+            'description' => ''
           );
         }
         $output = theme('entityconnect_entity_add_list', array(
@@ -259,6 +270,7 @@ function entityconnect_edit($cache_id) {
           $content[$key] = array(
             'label' => $value->name,
             'href' => 'taxonomy/term/' . $value->tid . '/edit',
+            'description' => ''
           );
         }
         $output = theme('entityconnect_entity_add_list', array(
@@ -280,6 +292,7 @@ function entityconnect_edit($cache_id) {
           $content[$key] = array(
             'label' => $value->name,
             'href' => 'admin/structure/taxonomy/' . $value->name . '/edit',
+            'description' => ''
           );
         }
         $output = theme('entityconnect_entity_add_list', array(
@@ -308,6 +321,7 @@ function entityconnect_edit($cache_id) {
               $content[$key] = array(
                 'label' => $eck_entity->title,
                 'href' => $crud_edit_path,
+                'description' => ''
               );
             }
             $output = theme('entityconnect_entity_add_list', array(

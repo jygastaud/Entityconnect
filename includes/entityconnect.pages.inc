@@ -49,7 +49,7 @@ function theme_entityconnect_entity_add_list($variables) {
     foreach ($entities as $item) {
       $output .= '<li class="clearfix"><span class="label">' . l($item['label'], $item['href'], array(
           'query' => array("build_cache_id" => $cache_id, "child" => TRUE))) . '</span>';
-      $output .= '<div class="description"></div></li>';
+      $output .= '<div class="description">' . $item['description'] . '</div></li>';
     }
     $output .= '</ul>';
   }
