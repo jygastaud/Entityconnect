@@ -466,6 +466,14 @@ function entityconnect_child_form_submit(&$form, &$form_state) {
             $data['target_id'] = $form_state['values']['entity']->id;
           }
         }
+
+        // Bean support.
+        if (module_exists('bean_admin_ui')) {
+          $entity_info = entity_get_info($entity_type);
+          if ($entity_info['module'] == 'bean') {
+            $data['target_id'] = $form_state['values']['bean']->bid;
+          }
+        }
         break;
     }
 
@@ -779,6 +787,55 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
               }
             }
           }
+
+          // Bean support.
+          if (module_exists('bean')) {
+            $entiy_info = entity_get_info($data['target_entity_type']);
+            if ($entiy_info['module'] = 'bean') {
+              if (($data['target_id'] != NULL || $data['target_id'] != 0) && $bean_entity = entity_load_single($data['target_entity_type'], $data['target_id'])) {
+                switch ($widget_container_type) {
+                  // Autocomplete tags style.
+                  case 'textfield':
+                    $element['#default_value'] = !empty($bean_entity->title) ? $bean_entity->title : t('Entity has no title');
+                    $element['#default_value'] .= ' (' . $bean_entity->bid . ')';
+                    if (!empty ($widget_container['#value'])) {
+                      $element['#default_value'] .= ', ' . $widget_container['#value'];
+                    }
+                    break;
+
+                  // Select list.
+                  case 'select':
+                    if ($widget_container['#multiple'] == FALSE) {
+                      $element['#default_value'] = $bean_entity->bid;
+                    }
+                    else {
+                      $element['#default_value'] = $bean_entity->bid;
+                      $element['#default_value'] = $widget_container['#value'] + array($element['#default_value'] => $element['#default_value']);
+                    }
+                    break;
+
+                  // Radios widget.
+                  case 'radios':
+                    $element['#default_value'] = $bean_entity->bid;
+                    break;
+
+                  // Checkboxes widget.
+                  case 'checkboxes':
+                    $element['#default_value'] = $bean_entity->bid;
+                    $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
+                    break;
+
+                  default:
+                    if ($field_info['module'] == 'entityreference') {
+                      $element['#default_value'] = !empty($bean_entity->title) ? $bean_entity->title : t('Entity has no title');
+                      $element['#default_value'] .= ' (' . $bean_entity->bid . ')';
+                    }
+                    break;
+                }
+              }
+            }
+          }
+
           break;
       }
       if (isset($element)) {
@@ -820,7 +877,7 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
     '#submit' => array('entityconnect_include_form', 'entityconnect_child_form_cancel'),
     '#parent_build_cache_id' => $cache_id,
     '#limit_validation_errors' => array(),
-    '#weight' => 20,
+    '#weight' => 1000,
   );
 
   switch ($form_id) {

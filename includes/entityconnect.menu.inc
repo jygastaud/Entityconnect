@@ -155,6 +155,44 @@ function entityconnect_add($cache_id) {
           $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
         }
       }
+
+      // Bean support.
+      if (module_exists('bean_admin_ui')) {
+        if (count($acceptable_types) > 0) {
+          foreach (bean_admin_ui_get_types() as $key => $item) {
+            if (isset($acceptable_types[$key]) && $acceptable_types[$key]) {
+              $type = str_replace("_", '-', $key);
+              $content[$key] = array(
+                'href' => "block/add/$type/$cache_id",
+                'label' => $item->label,
+                'description' => $item->description
+              );
+            }
+          }
+
+          // If we have only one content-type defined,
+          // go directly to the node form.
+          if (sizeof($content) == 1) {
+            $item = array_pop($content);
+            drupal_goto($item['href']);
+          }
+        }
+        else {
+          foreach (bean_admin_ui_get_types() as $key => $item) {
+            $type = str_replace("_", '-', $key);
+            $content[$key] = array(
+              'href' => "block/add/$type/$cache_id",
+              'label' => $item->label,
+              'description' => $item->description
+            );
+          }
+        }
+        $output = theme('entityconnect_entity_add_list', array(
+          'cache id' => $cache_id,
+          'items' => $content,
+        ));
+        $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
+      }
       break;
   }
   return $output;
@@ -282,6 +320,33 @@ function entityconnect_edit($cache_id) {
             $eck_entity = entity_load_single($entity_type, $target_id);
             $crud_edit_path = preg_replace('/\%/', $target_id, $entity_info['bundles'][$eck_entity->type]['crud']['edit']['path']);
             drupal_goto($crud_edit_path, array(
+              'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
+          }
+        }
+      }
+
+      // Support for Bean module..
+      if (module_exists('bean_admin_ui')) {
+        $entity_info = entity_get_info($entity_type);
+        if ($entity_info['module'] == 'bean') {
+          if (is_array($target_id)) {
+            $info = entity_load($entity_type, $target_id);
+            foreach ($info as $key => $value) {
+              $content[$key] = array(
+                'label' => $value->label,
+                'href' => 'block/' . $value->label . '/edit',
+                'description' =>  ''
+              );
+            }
+            $output = theme('entityconnect_entity_add_list', array(
+                'items' => $content,
+                'cache id' => $cache_id)
+            );
+            $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
+          }
+          else {
+            $bean_entity = entity_load_single($entity_type, $target_id);
+            drupal_goto("block/" . $bean_entity->label . "/edit", array(
               'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
           }
         }
