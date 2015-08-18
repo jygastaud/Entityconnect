@@ -459,7 +459,7 @@ function entityconnect_child_form_submit(&$form, &$form_state) {
         break;
 
       default:
-        // Enitity construction kit support.
+        // Entity construction kit support.
         if (module_exists('eck')) {
           $entity_info = entity_get_info($entity_type);
           if ($entity_info['module'] == 'eck') {
@@ -743,7 +743,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
           // Entity construction kit support.
           if (module_exists('eck')) {
             $entiy_info = entity_get_info($data['target_entity_type']);
-            if ($entiy_info['module'] = 'eck') {
+            if ($entiy_info['module'] == 'eck') {
               if (($data['target_id'] != NULL || $data['target_id'] != 0) && $eck_entity = entity_load_single($data['target_entity_type'], $data['target_id'])) {
                 switch ($widget_container_type) {
                   // Autocomplete tags style.
