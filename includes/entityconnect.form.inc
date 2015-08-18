@@ -44,11 +44,11 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
   $editbuttonallowed = $instance['entityconnect_unload_edit'];
 
   if (!isset($instance['entityconnect_show_add_icon'])) {
-    $instance['entityconnect_show_add_icon'] = variable_get('entityconnect_show_add_icon', 0);
+    $instance['entityconnect_show_add_icon'] = variable_get('entityconnect_show_add_icon_default', 0);
   }
 
   if (!isset($instance['entityconnect_show_edit_icon'])) {
-    $instance['entityconnect_show_edit_icon'] = variable_get('entityconnect_show_edit_icon', 0);
+    $instance['entityconnect_show_edit_icon'] = variable_get('entityconnect_show_edit_icon_default', 0);
   }
 
   $add_icon = $instance['entityconnect_show_add_icon'];

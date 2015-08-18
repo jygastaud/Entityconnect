@@ -60,7 +60,7 @@ function _entityconnect_admin_form($form, &$form_state) {
   $form['entityconnect']['icon']['icon_add'] = array(
     '#required' => '1',
     '#key_type_toggled' => '1',
-    '#default_value' => variable_get('entityconnect_show_add_icon', 0),
+    '#default_value' => variable_get('entityconnect_show_add_icon_default', 0),
     '#description' => t('Default: "Icon only"<br />
                          Choose "Icon + Text" if you want to see the edit (pencil) icon + the text displayed by default.<br />
                          Choose "Text only" if you don\'t want to see the edit (pencil) icon displayed by default.<br />
@@ -78,7 +78,7 @@ function _entityconnect_admin_form($form, &$form_state) {
   $form['entityconnect']['icon']['icon_edit'] = array(
     '#required' => '1',
     '#key_type_toggled' => '1',
-    '#default_value' => variable_get('entityconnect_show_edit_icon', 0),
+    '#default_value' => variable_get('entityconnect_show_edit_icon_default', 0),
     '#description' => t('Default: "Icon only"<br />
                          Choose "Icon + Text" if you want to see the edit (pencil) icon + the text displayed by default.<br />
                          Choose "Text only" if you don\'t want to see the edit (pencil) icon displayed by default.<br />
