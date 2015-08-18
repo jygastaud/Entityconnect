@@ -161,13 +161,14 @@ function entityconnect_form_alter(&$form, &$form_state, $form_id) {
   // first we try the $_REQUEST param.  if we do not getting it from there we
   // try the arg(3) if we are on a add form.  Also if we are on an add form we
   // know that we are a child page.
-  if ((isset($_REQUEST['build_cache_id'])
-          && ($cid = $_REQUEST['build_cache_id']))
-          || ((arg(1) == 'add') && ($cid = arg(3)) && $child = TRUE)
-          || ((arg(1) == 'people') && (arg(2) == 'create') && ($cid = arg(3)) && $child = TRUE)
-          || ((arg(2) == 'taxonomy') && (arg(4) == 'add') && ($cid = arg(5)) && $child = TRUE)
-          || ((arg(2) == 'taxonomy') && (arg(3) == 'add') && ($cid = arg(4)) && $child = TRUE)
-          || ((arg(2) == 'entity-type') && (arg(5) == 'add') && ($cid = arg(6)) && $child = TRUE)) {
+
+  if ((isset($_REQUEST['build_cache_id']) && ($cid = $_REQUEST['build_cache_id']))
+      || (((arg(1) == 'add') && ($cid = arg(3)))
+      || ((arg(1) == 'people') && (arg(2) == 'create') && ($cid = arg(3)))
+      || ((arg(2) == 'taxonomy') && (arg(4) == 'add') && ($cid = arg(5)))
+      || ((arg(2) == 'taxonomy') && (arg(3) == 'add') && ($cid = arg(4)))
+      || ((arg(2) == 'entity-type') && (arg(5) == 'add') && ($cid = arg(6)))
+        && $child = TRUE)) {
     $cache = entityconnect_cache_get($cid);
     entityconnect_include_form();
     if ($child) {
