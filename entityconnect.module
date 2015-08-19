@@ -188,20 +188,6 @@ function entityconnect_form_alter(&$form, &$form_state, $form_id) {
     module_load_include('inc', 'entityconnect', 'includes/entityconnect.form');
     entityconnect_child_form_alter($form, $form_state, $form_id, $cache->cid, $cache);
   }
-
-  if ($form_id == 'field_ui_field_edit_form') {
-    // Use to add choice field.
-    if ($form['#field']['type'] == 'entityreference'
-          || $form['#field']['type'] == 'node_reference'
-          || $form['#field']['type'] == 'user_reference') {
-      $instance = $form['#instance'];
-      $field = $form['#field'];
-      $additions = module_invoke('entityconnect', 'field_instance_settings_form', $field, $instance);
-      if (is_array($additions) && isset($form['instance'])) {
-        $form['instance'] += $additions;
-      }
-    }
-  }
 }
 
 /**

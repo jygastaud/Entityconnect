@@ -79,3 +79,29 @@ function entityconnect_field_instance_settings_form($field, $instance) {
 
   return $form;
 }
+
+/**
+ * Implements hook_FORM_ID_form_alter().
+ *
+ * @param $form
+ * @param $form_state
+ * @param $form_id
+ */
+function wysiwyg_exclude_field_form_field_ui_field_edit_form_alter(&$form, &$form_state, $form_id) {
+
+  $modules_list = array(
+    'entityreference',
+    'node_reference',
+    'user_reference'
+  );
+
+  // Use to add choice field.
+  if (in_array($form['#field']['type'], $modules_list)) {
+    $instance = $form['#instance'];
+    $field = $form['#field'];
+    $additions = module_invoke('entityconnect', 'field_instance_settings_form', $field, $instance);
+    if (is_array($additions) && isset($form['instance'])) {
+      $form['instance'] += $additions;
+    }
+  }
+}
