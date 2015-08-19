@@ -529,7 +529,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
       $widget_container_type = 'multiple_selects';
     }
 
-    if (isset($data['target_id']) && $form_state['rebuild'] === TRUE) {
+    if (isset($data['target_id']) && !is_array($data['target_id']) && $form_state['rebuild'] === TRUE) {
       switch ($data['target_entity_type']) {
         case 'node':
           if ($data['target_id'] != 0 && $node = node_load($data['target_id'])) {
