@@ -86,3 +86,10 @@ function hook_entityconnect_return_form_alter(&$datas) {
  * @param $datas
  */
 function hook_entityconnect_child_form_alter(&$datas) {}
+
+/**
+ * hook_entityconnect_reference_modules_list_alter().
+ *
+ * @param $datas
+ */
+function hook_entityconnect_reference_modules_list_alter(&$datas) {}

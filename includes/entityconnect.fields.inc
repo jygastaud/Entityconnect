@@ -89,14 +89,10 @@ function entityconnect_field_instance_settings_form($field, $instance) {
  */
 function entityconnect_form_field_ui_field_edit_form_alter(&$form, &$form_state, $form_id) {
 
-  $modules_list = array(
-    'entityreference',
-    'node_reference',
-    'user_reference'
-  );
+  $modules = _entityconnect_get_references_modules_list();
 
   // Use to add choice field.
-  if (in_array($form['#field']['type'], $modules_list)) {
+  if (in_array($form['#field']['type'], $modules)) {
     $instance = $form['#instance'];
     $field = $form['#field'];
     $additions = module_invoke('entityconnect', 'field_instance_settings_form', $field, $instance);

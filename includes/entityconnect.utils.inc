@@ -60,3 +60,15 @@ function _entityconnect_get_ref_fields() {
 
   return $ref_fields;
 }
+
+function _entityconnect_get_references_modules_list() {
+
+  $modules_list = array(
+    'entityreference',
+    'node_reference',
+    'user_reference'
+  );
+  drupal_alter('entityconnect_reference_modules_list', $modules_list);
+
+  return $modules_list;
+}
