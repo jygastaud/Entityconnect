@@ -87,7 +87,7 @@ function entityconnect_field_instance_settings_form($field, $instance) {
  * @param $form_state
  * @param $form_id
  */
-function wysiwyg_exclude_field_form_field_ui_field_edit_form_alter(&$form, &$form_state, $form_id) {
+function entityconnect_form_field_ui_field_edit_form_alter(&$form, &$form_state, $form_id) {
 
   $modules_list = array(
     'entityreference',
