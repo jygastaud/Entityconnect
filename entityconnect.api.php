@@ -53,3 +53,36 @@ function hook_entityconnect_ref_fields_alter(&$ref_fields) {
     }
   }
 }
+
+/**
+ * hook_entityconnect_return_form_alter().
+ *
+ * Allow modules to specify returned values by widget.
+ *
+ * @param $datas
+ *
+ *  $datas = array(
+ *    'data' => $data,
+ *    'widget_containter' => $widget_container,
+ *    'widget_container_type' => $widget_container_type,
+ *    'field_info' => $field_info,
+ *    'language' => $language,
+ *    'element_value' => NULL
+ *    );
+ *
+ * @return mixed $datas['element_value'] need to be set.
+ *
+ */
+function hook_entityconnect_return_form_alter(&$datas) {
+  /**
+   * $datas['data'] : The cached datas.
+   * $datas['element_value'] : Defaut value to apply on field.
+   */
+}
+
+/**
+ * hook_entityconnect_child_form_alter().
+ *
+ * @param $datas
+ */
+function hook_entityconnect_child_form_alter(&$datas) {}

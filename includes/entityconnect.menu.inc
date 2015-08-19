@@ -128,6 +128,7 @@ function entityconnect_add($cache_id) {
       break;
 
     default:
+      // @todo: to split
       // Entity construction kit support.
       if (module_exists('eck')) {
         $entity_info = entity_get_info($entity_type);
@@ -165,6 +166,7 @@ function entityconnect_add($cache_id) {
         }
       }
 
+      // @todo: to split
       // Bean support.
       if (module_exists('bean_admin_ui')) {
         if (count($acceptable_types) > 0) {
@@ -309,6 +311,7 @@ function entityconnect_edit($cache_id) {
       break;
 
     default:
+      // @todo: to split
       // Support for entity construction kit.
       if (module_exists('eck')) {
         $entity_info = entity_get_info($entity_type);
@@ -339,6 +342,7 @@ function entityconnect_edit($cache_id) {
         }
       }
 
+      // @todo: to split
       // Support for Bean module..
       if (module_exists('bean_admin_ui')) {
         $entity_info = entity_get_info($entity_type);

@@ -45,16 +45,6 @@ function _entityconnect_get_ref_fields() {
           break;
 
         default:
-          // Entity construction kit support.
-          if (module_exists('eck')) {
-            $entity_info = entity_get_info($entity_type);
-            if (!empty($entity_info['module']) && $entity_info['module'] == 'eck') {
-              if (user_access('entityconnect add button') || user_access('entityconnect edit button')) {
-                $ref_fields[$id] = $field;
-              }
-            }
-          }
-
           break;
       }
     }

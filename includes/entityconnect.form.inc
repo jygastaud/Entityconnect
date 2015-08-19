@@ -459,6 +459,16 @@ function entityconnect_child_form_submit(&$form, &$form_state) {
         break;
 
       default:
+
+//        $datas = array(
+//          'form' => &$form,
+//          'form_state' => &$form_state,
+//          'entity_type' => $entity_type,
+//          'data' => &$data
+//        );
+//        drupal_alter('entityconnect_child_form_submit', $datas);
+
+        // @todo: to split
         // Entity construction kit support.
         if (module_exists('eck')) {
           $entity_info = entity_get_info($entity_type);
@@ -467,6 +477,7 @@ function entityconnect_child_form_submit(&$form, &$form_state) {
           }
         }
 
+        // @todo: to split
         // Bean support.
         if (module_exists('bean_admin_ui')) {
           $entity_info = entity_get_info($entity_type);
@@ -740,106 +751,22 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
           break;
 
         default:
-          // Entity construction kit support.
-          if (module_exists('eck')) {
-            $entiy_info = entity_get_info($data['target_entity_type']);
-            if ($entiy_info['module'] == 'eck') {
-              if (($data['target_id'] != NULL || $data['target_id'] != 0) && $eck_entity = entity_load_single($data['target_entity_type'], $data['target_id'])) {
-                switch ($widget_container_type) {
-                  // Autocomplete tags style.
-                  case 'textfield':
-                    $element['#default_value'] = !empty($eck_entity->title) ? $eck_entity->title : t('Entity has no title');
-                    $element['#default_value'] .= ' (' . $eck_entity->id . ')';
-                    if (!empty ($widget_container['#value'])) {
-                      $element['#default_value'] .= ', ' . $widget_container['#value'];
-                    }
-                    break;
-
-                  // Select list.
-                  case 'select':
-                    if ($widget_container['#multiple'] == FALSE) {
-                      $element['#default_value'] = $eck_entity->id;
-                    }
-                    else {
-                      $element['#default_value'] = $eck_entity->id;
-                      $element['#default_value'] = $widget_container['#value'] + array($element['#default_value'] => $element['#default_value']);
-                    }
-                    break;
-
-                  // Radios widget.
-                  case 'radios':
-                    $element['#default_value'] = $eck_entity->id;
-                    break;
-
-                  // Checkboxes widget.
-                  case 'checkboxes':
-                    $element['#default_value'] = $eck_entity->id;
-                    $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
-                    break;
-
-                  default:
-                    if ($field_info['module'] == 'entityreference') {
-                      $element['#default_value'] = !empty($eck_entity->title) ? $eck_entity->title : t('Entity has no title');
-                      $element['#default_value'] .= ' (' . $eck_entity->id . ')';
-                    }
-                    break;
-                }
-              }
-            }
-          }
-
-          // Bean support.
-          if (module_exists('bean')) {
-            $entiy_info = entity_get_info($data['target_entity_type']);
-            if ($entiy_info['module'] = 'bean') {
-              if (($data['target_id'] != NULL || $data['target_id'] != 0) && $bean_entity = entity_load_single($data['target_entity_type'], $data['target_id'])) {
-                switch ($widget_container_type) {
-                  // Autocomplete tags style.
-                  case 'textfield':
-                    $element['#default_value'] = !empty($bean_entity->title) ? $bean_entity->title : t('Entity has no title');
-                    $element['#default_value'] .= ' (' . $bean_entity->bid . ')';
-                    if (!empty ($widget_container['#value'])) {
-                      $element['#default_value'] .= ', ' . $widget_container['#value'];
-                    }
-                    break;
-
-                  // Select list.
-                  case 'select':
-                    if ($widget_container['#multiple'] == FALSE) {
-                      $element['#default_value'] = $bean_entity->bid;
-                    }
-                    else {
-                      $element['#default_value'] = $bean_entity->bid;
-                      $element['#default_value'] = $widget_container['#value'] + array($element['#default_value'] => $element['#default_value']);
-                    }
-                    break;
-
-                  // Radios widget.
-                  case 'radios':
-                    $element['#default_value'] = $bean_entity->bid;
-                    break;
-
-                  // Checkboxes widget.
-                  case 'checkboxes':
-                    $element['#default_value'] = $bean_entity->bid;
-                    $element['#default_value'] = $form[$data['field']][$language]['#value'] + array($element['#default_value'] => $element['#default_value']);
-                    break;
-
-                  default:
-                    if ($field_info['module'] == 'entityreference') {
-                      $element['#default_value'] = !empty($bean_entity->title) ? $bean_entity->title : t('Entity has no title');
-                      $element['#default_value'] .= ' (' . $bean_entity->bid . ')';
-                    }
-                    break;
-                }
-              }
-            }
-          }
-
+          $datas = array(
+            'data' => &$data,
+            'widget_container' => $widget_container,
+            'widget_container_type' => $widget_container_type,
+            'field_info' => $field_info,
+            'language' => $language,
+            'element_value' => NULL
+          );
+          drupal_alter('entityconnect_return_form', $datas);
           break;
       }
       if (isset($element)) {
         _entityconnect_alter_form_state_input($form_state, $field_info['module'], $widget_container_type, $parents, $language, $element['#default_value']);
+      }
+      elseif (!empty($datas['element_value'])) {
+        _entityconnect_alter_form_state_input($form_state, $field_info['module'], $widget_container_type, $parents, $language, $datas['element_value']);
       }
     }
     $form_state['#entityconnect_processed'] = TRUE;
@@ -898,17 +825,12 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
       break;
 
     default:
-      if (isset($form['#entity_type']) && isset($form['#bundle'])) {
-        // Add support for ECK.
-        if ('eck__entity__form_add_' . $form['#entity_type'] . '_' . $form['#bundle'] == $form_id
-            || 'eck__entity__form_edit_' . $form['#entity_type'] . '_' . $form['#bundle'] == $form_id) {
-          $form['actions']['cancel']['#weight'] = 10001;
-          $form['actions']['submit']['#submit'][] = 'eck__entity__form_submit';
-
-          // @todo I think we don't need #submit any more..?
-          $form['#submit'] = array();
-        }
-      }
+      $datas = array(
+        'form' => &$form,
+        'form_state' => &$form_state,
+        'form_id' => $form_id
+      );
+      drupal_alter('entityconnect_child_form', $datas);
       break;
   }
 
