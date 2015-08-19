@@ -825,12 +825,6 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
       break;
 
     default:
-      $datas = array(
-        'form' => &$form,
-        'form_state' => &$form_state,
-        'form_id' => $form_id
-      );
-      drupal_alter('entityconnect_child_form', $datas);
       break;
   }
 
@@ -842,6 +836,14 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
     $form['actions']['submit']['#submit'][] = 'entityconnect_include_form';
     $form['actions']['submit']['#submit'][] = 'entityconnect_child_form_submit';
   }
+
+  $datas = array(
+    'form' => &$form,
+    'form_state' => &$form_state,
+    'form_id' => $form_id
+  );
+  drupal_alter('entityconnect_child_form', $datas);
+
 }
 
 /**
