@@ -459,32 +459,13 @@ function entityconnect_child_form_submit(&$form, &$form_state) {
         break;
 
       default:
-
-//        $datas = array(
-//          'form' => &$form,
-//          'form_state' => &$form_state,
-//          'entity_type' => $entity_type,
-//          'data' => &$data
-//        );
-//        drupal_alter('entityconnect_child_form_submit', $datas);
-
-        // @todo: to split
-        // Entity construction kit support.
-        if (module_exists('eck')) {
-          $entity_info = entity_get_info($entity_type);
-          if ($entity_info['module'] == 'eck') {
-            $data['target_id'] = $form_state['values']['entity']->id;
-          }
-        }
-
-        // @todo: to split
-        // Bean support.
-        if (module_exists('bean_admin_ui')) {
-          $entity_info = entity_get_info($entity_type);
-          if ($entity_info['module'] == 'bean') {
-            $data['target_id'] = $form_state['values']['bean']->bid;
-          }
-        }
+        $datas = array(
+          'form' => &$form,
+          'form_state' => &$form_state,
+          'entity_type' => $entity_type,
+          'data' => &$data
+        );
+        drupal_alter('entityconnect_child_form_submit', $datas);
         break;
     }
 

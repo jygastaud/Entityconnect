@@ -88,8 +88,29 @@ function hook_entityconnect_return_form_alter(&$datas) {
 function hook_entityconnect_child_form_alter(&$datas) {}
 
 /**
+ * hook_entityconnect_child_form_submit().
+ *
+ * @param $datas
+ */
+function hook_entityconnect_child_form_submit(&$datas) {}
+
+/**
  * hook_entityconnect_reference_modules_list_alter().
  *
  * @param $datas
  */
 function hook_entityconnect_reference_modules_list_alter(&$datas) {}
+
+/**
+ * hook_entityconnect_add_alter().
+ *
+ * @param $output
+ */
+function hook_entityconnect_add_alter(&$output) {}
+
+/**
+ * hook_entityconnect_edit_alter().
+ *
+ * @param $output
+ */
+function hook_entityconnect_edit_alter(&$output) {}
