@@ -791,7 +791,7 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
           // Bean support.
           if (module_exists('bean')) {
             $entiy_info = entity_get_info($data['target_entity_type']);
-            if ($entiy_info['module'] = 'bean') {
+            if ($entiy_info['module'] == 'bean') {
               if (($data['target_id'] != NULL || $data['target_id'] != 0) && $bean_entity = entity_load_single($data['target_entity_type'], $data['target_id'])) {
                 switch ($widget_container_type) {
                   // Autocomplete tags style.
