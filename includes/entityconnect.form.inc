@@ -284,14 +284,10 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
 
   $field_info = field_info_field($field);
 
-  $key_exists = NULL;
   // Get the list of all parents element for the clicked button.
   $parents = isset($form_state['clicked_button']['#parents']) ? $form_state['clicked_button']['#parents'] : NULL;
-  // Entityconnect button adds a new level in parents array,
-  // named "add_entityconnect" and "edit_entityconnect" and we need to remove
-  // them into our array building.
-  array_pop($parents);
-  $field_container = drupal_array_get_nested_value($form_state['input'], $parents, $key_exists);
+  $key_exists = NULL;
+  $field_container = entityconnect_array_get_nested_value($form_state['input'], $parents, $key_exists);
 
   // Initialize target_id.
   $target_id = '';
@@ -504,19 +500,13 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
     $form_state['submitted'] = FALSE;
     $form_state['rebuild'] = TRUE;
     $data = $cache->data;
+    $parents = isset($form_state['clicked_button']['#parents']) ? $form_state['clicked_button']['#parents'] : NULL;
 
     unset($form_state['clicked_button']);
     unset($form_state['submit_handlers']);
 
     $key_exists = NULL;
-    // Get the list of all parents element for the clicked button.
-    $parents = isset($form_state['clicked_button']['#parents']) ? $form_state['clicked_button']['#parents'] : NULL;
-    // Entityconnect button adds a new level in parents array,
-    // named "add_entityconnect" and "edit_entityconnect" and we need to remove
-    // them into our array building.
-    array_pop($parents);
-    $field_container = drupal_array_get_nested_value($form_state['input'], $parents, $key_exists);
-
+    $field_container = entityconnect_array_get_nested_value($form, $parents, $key_exists);
     if ($key_exists) {
       $language = isset($field_container['#language']) ? $field_container['#language'] : LANGUAGE_NONE;
     }
@@ -887,5 +877,61 @@ function _entityconnect_alter_form_state_input(&$form_state, $module, $widget_ty
     default:
       break;
   }
-  drupal_array_set_nested_value($form_state['input'], $parents, $element);
+  entityconnect_array_set_nested_value($form_state['input'], $parents, $element);
+}
+
+/**
+ * Reimplements drupal_array_get_nested_value() to answer specific needs of the module.
+ *
+ * Entityconnect button adds a new level in parents array,
+ * named "add_entityconnect" and "edit_entityconnect" and we need to remove
+ * them into our array building. So we need to rewrite
+ * drupal_array_set_nested_value() to include these remove.
+ *
+ * @see drupal_array_get_nested_value()
+ */
+function &entityconnect_array_get_nested_value(array &$array, array $parents, &$key_exists = NULL) {
+  $ref = &$array;
+
+  foreach ($parents as $parent) {
+    if (stripos($parent, 'add_entityconnect') === FALSE
+            && stripos($parent, 'edit_entityconnect') === FALSE) {
+      if (is_array($ref) && array_key_exists($parent, $ref)) {
+        $ref = &$ref[$parent];
+      }
+      else {
+        $key_exists = FALSE;
+        $null = NULL;
+        return $null;
+      }
+    }
+  }
+  $key_exists = TRUE;
+  return $ref;
+}
+
+/**
+ * Reimplements drupal_array_set_nested_value() to ansewer specific needs of the module.
+ *
+ * Entityconnect button adds a new level in parents array,
+ * named "add_entityconnect" and "edit_entityconnect" and we need to remove
+ * them into our array building. So we need to rewrite
+ * drupal_array_set_nested_value() to include these remove.
+ *
+ * @see drupal_array_set_nested_value()
+ */
+function entityconnect_array_set_nested_value(array &$array, array $parents, $value, $force = FALSE) {
+  $ref = &$array;
+  foreach ($parents as $parent) {
+    if (stripos($parent, 'add_entityconnect') === FALSE
+        && stripos($parent, 'edit_entityconnect') === FALSE) {
+      // PHP auto-creates container arrays and NULL entries without error
+      // if $ref is NULL, but throws an error if $ref is set, but not an array.
+      if ($force && isset($ref) && !is_array($ref)) {
+        $ref = array();
+      }
+      $ref = &$ref[$parent];
+    }
+  }
+  $ref = $value;
 }
