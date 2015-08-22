@@ -174,7 +174,7 @@ function entityconnect_form_alter(&$form, &$form_state, $form_id) {
     if ($child) {
       $form_state['#entityconnect_child_form'] = $cache;
     }
-    if (isset($_REQUEST['return']) && ($cache->data['form']['#form_id'] == $form_id)) {
+    if (isset($_REQUEST['return']) && isset($cache->data) && $cache->data['form']['#form_id'] == $form_id) {
       unset($_REQUEST['build_cache_id']);
       entityconnect_return_form_alter($form, $form_state, $form_id, $cid, $cache);
     }
