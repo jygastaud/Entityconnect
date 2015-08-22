@@ -39,7 +39,11 @@ function entityconnect_return($cache_id) {
  * This page is directed to from the entityconnect_add_button_submit.
  */
 function entityconnect_add($cache_id) {
-  $add_info = module_invoke_all('entityconnect_add_info', $cache_id);
+  $cache = entityconnect_cache_get($cache_id);
+  $entity_type = $cache->data['target_entity_type'];
+  $acceptable_types = $cache->data['acceptable_types'];
+
+  $add_info = module_invoke_all('entityconnect_add_info', $cache_id, $entity_type, $acceptable_types);
 
   // Merge in default values.
   foreach ($add_info as $name => $data) {
@@ -52,11 +56,25 @@ function entityconnect_add($cache_id) {
       'theme_callback' => 'entityconnect_entity_add_list',
     );
   }
-  drupal_alter('entityconnect_add_info', $add_info, $cache_id);
+
+  $context = array(
+    'cache_id' => $cache_id,
+    'entity_type' => $entity_type,
+    'acceptable_tpes' => $acceptable_types
+  );
+  drupal_alter('entityconnect_add_info', $add_info, $context);
 
   if (isset($add_info)) {
     $content = $add_info['content'];
     $theme = $add_info['theme_callback'];
+  }
+
+  // If we have only one content-type defined,
+  // go directly to the node form.
+  // @todo: Need to be retest with taxonomy term.
+  if (sizeof($content) == 1) {
+    $item = array_pop($content);
+    drupal_goto($item['href']);
   }
 
   $output = theme($theme, array(
@@ -71,10 +89,10 @@ function entityconnect_add($cache_id) {
 /**
  * Implements hook_entityconnect_add_info().
  */
-function entityconnect_entityconnect_add_info($cache_id) {
-  $cache = entityconnect_cache_get($cache_id);
-  $entity_type = $cache->data['target_entity_type'];
-  $acceptable_types = $cache->data['acceptable_types'];
+function entityconnect_entityconnect_add_info($cache_id, $entity_type, $acceptable_types) {
+  if (!isset($entity_type)) {
+    throw new \Exception(t('Entity type can not be empty'));
+  }
 
   switch ($entity_type) {
     case 'node':
@@ -88,13 +106,6 @@ function entityconnect_entityconnect_add_info($cache_id) {
               'description' => $item->description
             );
           }
-        }
-
-        // If we have only one content-type defined,
-        // go directly to the node form.
-        if (sizeof($content) == 1) {
-          $item = array_pop($content);
-          drupal_goto($item['href']);
         }
       }
       else {
@@ -110,8 +121,7 @@ function entityconnect_entityconnect_add_info($cache_id) {
       break;
 
     case 'user':
-      $item['href'] = "admin/people/create/$cache_id";
-      drupal_goto($item['href']);
+      $content[$entity_type]['href'] = "admin/people/create/$cache_id";
       break;
 
     case 'taxonomy_term':
@@ -125,13 +135,6 @@ function entityconnect_entityconnect_add_info($cache_id) {
             $content[$key] = $item;
             $voc_list[] = l($item->name, $item->href);
           }
-        }
-
-        // If we have only one vocabulary defined,
-        // go directly to the term add form.
-        if (sizeof($content) == 1) {
-          $item = array_pop($content);
-          drupal_goto($item->href);
         }
       }
       else {
@@ -147,8 +150,7 @@ function entityconnect_entityconnect_add_info($cache_id) {
       break;
 
     case 'taxonomy_vocabulary':
-      $item['href'] = "admin/structure/taxonomy/add/$cache_id";
-      drupal_goto($item['href']);
+      $content[$entity_type]['href'] = "admin/structure/taxonomy/add/$cache_id";
       break;
 
     default:
@@ -159,19 +161,15 @@ function entityconnect_entityconnect_add_info($cache_id) {
 
         if (!empty($entity_info['module']) && $entity_info['module'] == 'eck') {
           // Only one allowed, no need for the intermediate step.
-          if (count($acceptable_types) === 1) {
-            $bundle_name = array_pop($acceptable_types);
-            $bundle = $entity_info['bundles'][$bundle_name];
-            drupal_goto($bundle['crud']['add']['path'] . "/$cache_id");
-          }
-          // All bundles allowed.
-          elseif (count($acceptable_types) === 0) {
+          if (count($acceptable_types) > 0) {
             foreach ($entity_info['bundles'] as $key => $bundle) {
-              $content[$key]['href'] = $bundle['crud']['add']['path'] . "/$cache_id";
-              $content[$key]['label'] = $bundle['label'];
+              $content[$key] = array(
+                'href' => $bundle['crud']['add']['path'] . "/$cache_id",
+                'label' => $bundle['label'],
+                'description' => '',
+              );
             }
           }
-          // Only certain bundles allowed.
           else {
             foreach ($acceptable_types as $bundle_name) {
               $bundle = $entity_info['bundles'][$bundle_name];
@@ -198,13 +196,6 @@ function entityconnect_entityconnect_add_info($cache_id) {
               );
             }
           }
-
-          // If we have only one content-type defined,
-          // go directly to the node form.
-          if (sizeof($content) == 1) {
-            $item = array_pop($content);
-            drupal_goto($item['href']);
-          }
         }
         else {
           foreach (bean_admin_ui_get_types() as $key => $item) {
@@ -217,7 +208,6 @@ function entityconnect_entityconnect_add_info($cache_id) {
           }
         }
       }
-
       break;
   }
 
@@ -243,7 +233,54 @@ function entityconnect_edit($cache_id) {
   $cache = entityconnect_cache_get($cache_id);
   $entity_type = $cache->data['target_entity_type'];
   $target_id = $cache->data['target_id'];
-  $output = '';
+
+  $edit_info = module_invoke_all('entityconnect_edit_info', $cache_id, $entity_type, $target_id);
+
+  // Merge in default values.
+  foreach ($edit_info as $name => $data) {
+    $edit_info += array(
+      'content' => array(
+        'href' => '',
+        'label' => '',
+        'description' => ''
+      ),
+      'theme_callback' => 'entityconnect_entity_add_list',
+    );
+  }
+
+  $context = array(
+    'cache_id' => $cache_id,
+    'entity_type' => $entity_type,
+    'target_id' => $target_id
+  );
+  drupal_alter('entityconnect_edit_info', $edit_info, $context);
+
+  if (isset($edit_info)) {
+    $content = $edit_info['content'];
+    $theme = $edit_info['theme_callback'];
+  }
+
+  $output = theme($theme, array(
+    'cache id' => $cache_id,
+    'items' => $content,
+  ));
+  $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
+
+  return $output;
+}
+
+/**
+ * Implements hook_entityconnect_edit_info().
+ */
+function entityconnect_entityconnect_edit_info($cache_id, $entity_type, $target_id) {
+
+  if (!isset($entity_type)) {
+    throw new \Exception(t('Entity type can not be empty'));
+  }
+
+  if (!isset($target_id)) {
+    throw new \Exception(t('Target_id can not be empty'));
+  }
 
   switch ($entity_type) {
     case 'node':
@@ -256,15 +293,10 @@ function entityconnect_edit($cache_id) {
             'description' =>  ''
           );
         }
-        $output = theme('entityconnect_entity_add_list', array(
-          'items' => $content,
-          'cache id' => $cache_id)
-        );
-        $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
       }
       else {
-        drupal_goto("node/" . $cache->data['target_id'] . "/edit", array(
-            'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
+        drupal_goto("node/" . $target_id . "/edit", array(
+          'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
       }
       break;
 
@@ -278,15 +310,10 @@ function entityconnect_edit($cache_id) {
             'description' => ''
           );
         }
-        $output = theme('entityconnect_entity_add_list', array(
-          'items' => $content,
-          'cache id' => $cache_id)
-        );
-        $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
       }
       else {
-        drupal_goto("user/" . $cache->data['target_id'] . "/edit", array(
-            'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
+        drupal_goto("user/" . $target_id . "/edit", array(
+          'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
       }
       break;
 
@@ -300,15 +327,10 @@ function entityconnect_edit($cache_id) {
             'description' => ''
           );
         }
-        $output = theme('entityconnect_entity_add_list', array(
-          'items' => $content,
-          'cache id' => $cache_id)
-        );
-        $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
       }
       else {
-        drupal_goto("taxonomy/term/" . $cache->data['target_id'] . "/edit", array(
-            'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
+        drupal_goto("taxonomy/term/" . $target_id . "/edit", array(
+          'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
       }
       break;
 
@@ -322,16 +344,11 @@ function entityconnect_edit($cache_id) {
             'description' => ''
           );
         }
-        $output = theme('entityconnect_entity_add_list', array(
-          'items' => $content,
-          'cache id' => $cache_id)
-        );
-        $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
       }
       else {
         $info = entity_load_single($entity_type, $target_id);
         drupal_goto("admin/structure/taxonomy/" . $info->name . "/edit", array(
-            'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
+          'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
       }
       break;
 
@@ -352,11 +369,6 @@ function entityconnect_edit($cache_id) {
                 'description' => ''
               );
             }
-            $output = theme('entityconnect_entity_add_list', array(
-                'items' => $content,
-                'cache id' => $cache_id)
-            );
-            $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
           }
           else {
             $eck_entity = entity_load_single($entity_type, $target_id);
@@ -380,11 +392,6 @@ function entityconnect_edit($cache_id) {
                 'description' =>  ''
               );
             }
-            $output = theme('entityconnect_entity_add_list', array(
-                'items' => $content,
-                'cache id' => $cache_id)
-            );
-            $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
           }
           else {
             $bean_entity = entity_load_single($entity_type, $target_id);
@@ -396,7 +403,16 @@ function entityconnect_edit($cache_id) {
       break;
   }
 
-  drupal_alter('entityconnect_edit', $output);
 
-  return $output;
+  if (isset($theme_callback)) {
+    return array(
+      'content' => $content,
+      'theme_callback' => $theme_callback,
+    );
+  }
+  else {
+    return array(
+      'content' => $content,
+    );
+  }
 }

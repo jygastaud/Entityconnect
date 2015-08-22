@@ -120,7 +120,7 @@ function hook_entityconnect_edit_alter(&$output) {}
  *
  * @param $cache_id
  */
-function hook_entityconnect_add_info($cache_id) {}
+function hook_entityconnect_add_info($cache_id, $entity_type, $acceptable_types) {}
 
 /**
  * hook_entityconnect_add_info_alter().
@@ -128,4 +128,19 @@ function hook_entityconnect_add_info($cache_id) {}
  * @param $add_info
  * @param $cache_id
  */
-function hook_entityconnect_add_info_alter(&$add_info, &$cache_id) {}
+function hook_entityconnect_add_info_alter(&$info, &$context) {}
+
+/**
+ * hook_entityconnect_edit_info().
+ *
+ * @param $cache_id
+ */
+function hook_entityconnect_edit_info($cache_id, $entity_type, $target_id) {}
+
+/**
+ * hook_entityconnect_edit_info_alter().
+ *
+ * @param $add_info
+ * @param $cache_id
+ */
+function hook_entityconnect_edit_info_alter(&$add_info, &$cache_id, &$entity_type, &$target_id) {}
