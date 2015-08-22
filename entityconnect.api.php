@@ -114,3 +114,18 @@ function hook_entityconnect_add_alter(&$output) {}
  * @param $output
  */
 function hook_entityconnect_edit_alter(&$output) {}
+
+/**
+ * hook_entityconnect_add_info().
+ *
+ * @param $cache_id
+ */
+function hook_entityconnect_add_info($cache_id) {}
+
+/**
+ * hook_entityconnect_add_info_alter().
+ *
+ * @param $add_info
+ * @param $cache_id
+ */
+function hook_entityconnect_add_info_alter(&$add_info, &$cache_id) {}

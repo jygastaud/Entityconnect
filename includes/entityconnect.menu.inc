@@ -39,10 +39,40 @@ function entityconnect_return($cache_id) {
  * This page is directed to from the entityconnect_add_button_submit.
  */
 function entityconnect_add($cache_id) {
-  $content = array();
-  $cache = entityconnect_cache_get($cache_id);
-  $field = field_info_field($cache->data['field']);
+  $add_info = module_invoke_all('entityconnect_add_info', $cache_id);
 
+  // Merge in default values.
+  foreach ($add_info as $name => $data) {
+    $add_info += array(
+      'content' => array(
+        'href' => '',
+        'label' => '',
+        'description' => ''
+      ),
+      'theme_callback' => 'entityconnect_entity_add_list',
+    );
+  }
+  drupal_alter('entityconnect_add_info', $add_info, $cache_id);
+
+  if (isset($add_info)) {
+    $content = $add_info['content'];
+    $theme = $add_info['theme_callback'];
+  }
+
+  $output = theme($theme, array(
+    'cache id' => $cache_id,
+    'items' => $content,
+  ));
+  $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
+
+  return $output;
+}
+
+/**
+ * Implements hook_entityconnect_add_info().
+ */
+function entityconnect_entityconnect_add_info($cache_id) {
+  $cache = entityconnect_cache_get($cache_id);
   $entity_type = $cache->data['target_entity_type'];
   $acceptable_types = $cache->data['acceptable_types'];
 
@@ -77,11 +107,6 @@ function entityconnect_add($cache_id) {
           );
         }
       }
-      $output = theme('entityconnect_entity_add_list', array(
-        'cache id' => $cache_id,
-        'items' => $content,
-      ));
-      $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
       break;
 
     case 'user':
@@ -118,8 +143,7 @@ function entityconnect_add($cache_id) {
           $voc_list[] = l($item->name, $item->href);
         }
       }
-      $output = theme('entityconnect_taxonomy_term_add_list', array('items' => $content));
-      $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
+      $theme_callback = 'entityconnect_taxonomy_term_add_list';
       break;
 
     case 'taxonomy_vocabulary':
@@ -158,11 +182,6 @@ function entityconnect_add($cache_id) {
               );
             }
           }
-          $output = theme('entityconnect_entity_add_list', array(
-            'cache id' => $cache_id,
-            'items' => $content,
-          ));
-          $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
         }
       }
 
@@ -197,19 +216,22 @@ function entityconnect_add($cache_id) {
             );
           }
         }
-        $output = theme('entityconnect_entity_add_list', array(
-          'cache id' => $cache_id,
-          'items' => $content,
-        ));
-        $output .= l(t('Cancel'), "admin/entityconnect/return/$cache_id");
       }
 
       break;
   }
 
-  drupal_alter('entityconnect_add', $output);
-
-  return $output;
+  if (isset($theme_callback)) {
+    return array(
+      'content' => $content,
+      'theme_callback' => $theme_callback,
+    );
+  }
+  else {
+    return array(
+      'content' => $content,
+    );
+  }
 }
 
 /**
