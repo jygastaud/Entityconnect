@@ -125,15 +125,12 @@ function entityconnect_entityconnect_add_info($cache_id, $entity_type, $acceptab
       break;
 
     case 'taxonomy_term':
-      $voc_list = array();
-
       if (count($acceptable_types) > 0) {
         foreach (taxonomy_get_vocabularies() as $key => $item) {
           $type = $item->machine_name;
           if (isset($acceptable_types[$type]) && $acceptable_types[$type]) {
             $item->href = "admin/structure/taxonomy/$type/add/$cache_id";
             $content[$key] = $item;
-            $voc_list[] = l($item->name, $item->href);
           }
         }
       }
@@ -143,7 +140,6 @@ function entityconnect_entityconnect_add_info($cache_id, $entity_type, $acceptab
           $type = $item->machine_name;
           $item->href = "admin/structure/taxonomy/$type/add/$cache_id";
           $content[$key] = $item;
-          $voc_list[] = l($item->name, $item->href);
         }
       }
       $theme_callback = 'entityconnect_taxonomy_term_add_list';
