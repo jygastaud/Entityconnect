@@ -204,6 +204,18 @@ function entityconnect_edit($cache_id) {
     $theme = $edit_info['theme_callback'];
   }
 
+  if (count($content) == 1) {
+    $item = array_pop($content);
+    if (is_array($item['href'])) {
+      $href= array_shift($item['href']);
+    }
+    else {
+      $href = $item['href'];
+    }
+    drupal_goto($href, array(
+      'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
+  }
+
   $output = theme($theme, array(
     'cache id' => $cache_id,
     'items' => $content,
@@ -239,8 +251,7 @@ function entityconnect_entityconnect_edit_info($cache_id, $entity_type, $target_
         }
       }
       else {
-        drupal_goto("node/" . $target_id . "/edit", array(
-          'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
+        $content[$entity_type]['href'] = "node/$target_id/edit";
       }
       break;
 
@@ -256,8 +267,7 @@ function entityconnect_entityconnect_edit_info($cache_id, $entity_type, $target_
         }
       }
       else {
-        drupal_goto("user/" . $target_id . "/edit", array(
-          'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
+        $content[$entity_type]['href'] = "user/$target_id/edit";
       }
       break;
 
@@ -273,8 +283,7 @@ function entityconnect_entityconnect_edit_info($cache_id, $entity_type, $target_
         }
       }
       else {
-        drupal_goto("taxonomy/term/" . $target_id . "/edit", array(
-          'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
+        $content[$entity_type]['href'] = "taxonomy/term/$target_id/edit";
       }
       break;
 
@@ -291,8 +300,7 @@ function entityconnect_entityconnect_edit_info($cache_id, $entity_type, $target_
       }
       else {
         $info = entity_load_single($entity_type, $target_id);
-        drupal_goto("admin/structure/taxonomy/" . $info->name . "/edit", array(
-          'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
+        $content[$entity_type]['href'] = "admin/structure/taxonomy/$info->name/edit";
       }
       break;
 
