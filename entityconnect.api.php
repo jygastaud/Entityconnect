@@ -144,3 +144,10 @@ function hook_entityconnect_edit_info($cache_id, $entity_type, $target_id) {}
  * @param $cache_id
  */
 function hook_entityconnect_edit_info_alter(&$add_info, &$cache_id, &$entity_type, &$target_id) {}
+
+/**
+ * hook_entityconnect_field_attach_form_alter().
+ *
+ * @param $data
+ */
+function hook_entityconnect_field_attach_form_alter(&$data) {}

@@ -107,6 +107,13 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
     $acceptable_types = $field['settings']['referenceable_roles'];
   }
 
+  $datas = array(
+    'entity_type' => &$entity_type,
+    'acceptable_types' => &$acceptable_types,
+    'field' => $field
+  );
+  drupal_alter('entityconnect_field_attach_form', $datas);
+
   // We currently should separate Autocomplete widget from others default widget
   // because "Edit" button will not react well on multiple selected items.
   // Autocomplete widget has not #type value, so we are testing it
