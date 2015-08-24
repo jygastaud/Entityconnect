@@ -99,7 +99,7 @@ function hook_entityconnect_child_form_submit(&$datas) {}
  *
  * @param $datas
  */
-function hook_entityconnect_reference_modules_list_alter(&$datas) {}
+function hook_entityconnect_field_type_list_alter(&$datas) {}
 
 /**
  * hook_entityconnect_add_alter().
