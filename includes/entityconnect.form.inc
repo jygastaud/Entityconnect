@@ -419,7 +419,11 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
     'target_id'  => $target_id,
     'target_entity_type' => $entity_type,
     'acceptable_types' => $acceptable_types,
+    'field_container' => $field_container,
+    'field_container_key_exists' => $key_exists,
   );
+
+  drupal_alter('entityconnect_add_edit_button_submit', $data);
 
   entityconnect_cache_set($cache_id, $data);
 
