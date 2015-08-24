@@ -150,73 +150,21 @@ function entityconnect_entityconnect_add_info($cache_id, $entity_type, $acceptab
       break;
 
     default:
-      // @todo: to split
-      // Entity construction kit support.
-      if (module_exists('eck')) {
-        $entity_info = entity_get_info($entity_type);
-
-        if (!empty($entity_info['module']) && $entity_info['module'] == 'eck') {
-          // Only one allowed, no need for the intermediate step.
-          if (count($acceptable_types) > 0) {
-            foreach ($entity_info['bundles'] as $key => $bundle) {
-              $content[$key] = array(
-                'href' => $bundle['crud']['add']['path'] . "/$cache_id",
-                'label' => $bundle['label'],
-                'description' => '',
-              );
-            }
-          }
-          else {
-            foreach ($acceptable_types as $bundle_name) {
-              $bundle = $entity_info['bundles'][$bundle_name];
-              $content[$bundle_name] = array(
-                'href' => $bundle['crud']['add']['path'] . "/$cache_id",
-                'label' => $bundle['label'],
-                'description' => ''
-              );
-            }
-          }
-        }
-      }
-
-      // Bean support.
-      if (module_exists('bean_admin_ui')) {
-        if (count($acceptable_types) > 0) {
-          foreach (bean_admin_ui_get_types() as $key => $item) {
-            if (isset($acceptable_types[$key]) && $acceptable_types[$key]) {
-              $type = str_replace("_", '-', $key);
-              $content[$key] = array(
-                'href' => "block/add/$type/$cache_id",
-                'label' => $item->label,
-                'description' => $item->description
-              );
-            }
-          }
-        }
-        else {
-          foreach (bean_admin_ui_get_types() as $key => $item) {
-            $type = str_replace("_", '-', $key);
-            $content[$key] = array(
-              'href' => "block/add/$type/$cache_id",
-              'label' => $item->label,
-              'description' => $item->description
-            );
-          }
-        }
-      }
       break;
   }
 
-  if (isset($theme_callback)) {
-    return array(
-      'content' => $content,
-      'theme_callback' => $theme_callback,
-    );
-  }
-  else {
-    return array(
-      'content' => $content,
-    );
+  if (isset($content)) {
+    if (isset($theme_callback)) {
+      return array(
+        'content' => $content,
+        'theme_callback' => $theme_callback,
+      );
+    }
+    else {
+      return array(
+        'content' => $content,
+      );
+    }
   }
 }
 
@@ -349,56 +297,8 @@ function entityconnect_entityconnect_edit_info($cache_id, $entity_type, $target_
       break;
 
     default:
-      // @todo: to split
-      // Support for entity construction kit.
-      if (module_exists('eck')) {
-        $entity_info = entity_get_info($entity_type);
-        if ($entity_info['module'] == 'eck') {
-
-          if (is_array($target_id)) {
-            $eck_entities = entity_load($entity_type, $target_id);
-            foreach ($eck_entities as $key => $eck_entity) {
-              $crud_edit_path = preg_replace('/\%/', $key, $entity_info['bundles'][$eck_entity->type]['crud']['edit']['path']);
-              $content[$key] = array(
-                'label' => $eck_entity->title,
-                'href' => $crud_edit_path,
-                'description' => ''
-              );
-            }
-          }
-          else {
-            $eck_entity = entity_load_single($entity_type, $target_id);
-            $crud_edit_path = preg_replace('/\%/', $target_id, $entity_info['bundles'][$eck_entity->type]['crud']['edit']['path']);
-            drupal_goto($crud_edit_path, array(
-              'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
-          }
-        }
-      }
-
-      // Support for Bean module..
-      if (module_exists('bean_admin_ui')) {
-        $entity_info = entity_get_info($entity_type);
-        if ($entity_info['module'] == 'bean') {
-          if (is_array($target_id)) {
-            $info = entity_load($entity_type, $target_id);
-            foreach ($info as $key => $value) {
-              $content[$key] = array(
-                'label' => $value->label,
-                'href' => 'block/' . $value->delta . '/edit',
-                'description' =>  ''
-              );
-            }
-          }
-          else {
-            $bean_entity = entity_load_single($entity_type, $target_id);
-            drupal_goto("block/" . $bean_entity->delta . "/edit", array(
-              'query' => array("build_cache_id" => $cache_id, "child" => TRUE)));
-          }
-        }
-      }
       break;
   }
-
 
   if (isset($theme_callback)) {
     return array(
