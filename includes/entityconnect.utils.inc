@@ -52,7 +52,9 @@ function _entityconnect_get_ref_fields() {
     // Add support for Reference module.
     if (($field['type'] == 'node_reference' && $field['module'] == 'node_reference')
       || ($field['type'] == 'user_reference' && $field['module'] == 'user_reference')) {
-      $ref_fields[$id] = $field;
+      if (user_access('entityconnect add button') || user_access('entityconnect edit button')) {
+        $ref_fields[$id] = $field;
+      }
     }
   }
 
