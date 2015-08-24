@@ -32,27 +32,27 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
     $instance = field_info_instance($form['#entity_type'], $field_name, $bundle);
   }
 
-  if (!isset($instance['entityconnect_unload_add'])) {
-    $instance['entityconnect_unload_add'] = variable_get('entityconnect_unload_add_default', 1);
+  if (!isset($instance['entityconnect']['button']['unload_add_button'])) {
+    $instance['entityconnect']['button']['unload_add_button'] = variable_get('entityconnect_unload_add_default', 1);
   }
 
-  if (!isset($instance['entityconnect_unload_edit'])) {
-    $instance['entityconnect_unload_edit'] = variable_get('entityconnect_unload_edit_default', 1);
+  if (!isset($instance['entityconnect']['button']['unload_edit_button'])) {
+    $instance['entityconnect']['button']['unload_edit_button'] = variable_get('entityconnect_unload_edit_default', 1);
   }
 
-  $addbuttonallowed = $instance['entityconnect_unload_add'];
-  $editbuttonallowed = $instance['entityconnect_unload_edit'];
+  $addbuttonallowed = $instance['entityconnect']['button']['unload_add_button'];
+  $editbuttonallowed = $instance['entityconnect']['button']['unload_edit_button'];
 
-  if (!isset($instance['entityconnect_show_add_icon'])) {
-    $instance['entityconnect_show_add_icon'] = variable_get('entityconnect_show_add_icon_default', 0);
+  if (!isset($instance['entityconnect']['icon']['show_add_icon'])) {
+    $instance['entityconnect']['icon']['show_add_icon'] = variable_get('entityconnect_show_add_icon_default', 0);
   }
 
-  if (!isset($instance['entityconnect_show_edit_icon'])) {
-    $instance['entityconnect_show_edit_icon'] = variable_get('entityconnect_show_edit_icon_default', 0);
+  if (!isset($instance['entityconnect']['icon']['show_edit_icon'])) {
+    $instance['entityconnect']['icon']['show_edit_icon'] = variable_get('entityconnect_show_edit_icon_default', 0);
   }
 
-  $add_icon = $instance['entityconnect_show_add_icon'];
-  $edit_icon = $instance['entityconnect_show_edit_icon'];
+  $add_icon = $instance['entityconnect']['icon']['show_add_icon'];
+  $edit_icon = $instance['entityconnect']['icon']['show_edit_icon'];
 
 
   $field = field_info_field($field_name);

@@ -12,12 +12,22 @@
 function entityconnect_field_instance_settings_form($field, $instance) {
   $settings = $instance;
 
+  $form['entityconnect'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('EntityConnect default Parameters'),
+  );
+
+  $form['entityconnect']['button'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Buttons display Parameters'),
+  );
+
   // Add choice for user to not load entity connect "add" button
   // on the field.
-  $form['entityconnect_unload_add'] = array(
+  $form['entityconnect']['button']['unload_add_button'] = array(
     '#type' => 'radios',
     '#title' => t('Display Entity Connect "add" button.'),
-    '#default_value' => !isset($settings['entityconnect_unload_add']) ? variable_get('entityconnect_unload_add_default', 1) : $settings['entityconnect_unload_add'],
+    '#default_value' => !isset($settings['entityconnect']['button']['unload_add_button']) ? variable_get('entityconnect_unload_add_default', 1) : $settings['entityconnect']['button']['unload_add_button'],
     '#description' => t('Choose "No" if you want to unload "add" button for the field'),
     '#options' => array(
       '0' => t('Yes'),
@@ -28,10 +38,10 @@ function entityconnect_field_instance_settings_form($field, $instance) {
 
   // Add choice for user to not load entity connect "edit" button
   // on the field.
-  $form['entityconnect_unload_edit'] = array(
+  $form['entityconnect']['button']['unload_edit_button'] = array(
     '#type' => 'radios',
     '#title' => t('Display Entity Connect "edit" button.'),
-    '#default_value' => !isset($settings['entityconnect_unload_edit']) ? variable_get('entityconnect_unload_edit_default', 1) : $settings['entityconnect_unload_edit'],
+    '#default_value' => !isset($settings['entityconnect']['button']['unload_edit_button']) ? variable_get('entityconnect_unload_edit_default', 1) : $settings['entityconnect']['button']['unload_edit_button'],
     '#description' => t('Choose "No" if you want to unload "edit" button for the field'),
     '#options' => array(
       '0' => t('Yes'),
@@ -40,10 +50,15 @@ function entityconnect_field_instance_settings_form($field, $instance) {
     '#weight' => 1,
   );
 
-  $form['entityconnect_icon_add'] = array(
+  $form['entityconnect']['icon'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Icons display Parameters'),
+  );
+
+  $form['entityconnect']['icon']['show_add_icon'] = array(
     '#required' => '1',
     '#key_type_toggled' => '1',
-    '#default_value' => !isset($settings['entityconnect_show_add_icon']) ? variable_get('entityconnect_show_add_icon_default', 0) : $settings['entityconnect_show_add_icon'],
+    '#default_value' => !isset($settings['entityconnect']['icon']['show_add_icon']) ? variable_get('entityconnect_show_add_icon_default', 0) : $settings['entityconnect']['icon']['show_add_icon'],
     '#description' => t('Default: "Icon only"<br />
                          Choose "Icon + Text" if you want to see the edit (pencil) icon + the text displayed by default.<br />
                          Choose "Text only" if you don\'t want to see the edit (pencil) icon displayed by default.<br />
@@ -58,10 +73,10 @@ function entityconnect_field_instance_settings_form($field, $instance) {
     '#title' => t('Default Entity Connect "add (+) icon" display'),
   );
 
-  $form['entityconnect_icon_edit'] = array(
+  $form['entityconnect']['icon']['show_edit_icon'] = array(
     '#required' => '1',
     '#key_type_toggled' => '1',
-    '#default_value' => !isset($settings['entityconnect_show_edit_icon']) ? variable_get('entityconnect_show_edit_icon_default', 0) : $settings['entityconnect_show_edit_icon'],
+    '#default_value' => !isset($settings['entityconnect']['icon']['show_edit_icon']) ? variable_get('entityconnect_show_edit_icon_default', 0) : $settings['entityconnect']['icon']['show_edit_icon'],
     '#description' => t('Default: "Icon only"<br />
                          Choose "Icon + Text" if you want to see the edit (pencil) icon + the text displayed by default.<br />
                          Choose "Text only" if you don\'t want to see the edit (pencil) icon displayed by default.<br />
