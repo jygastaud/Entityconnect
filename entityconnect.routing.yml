@@ -1,0 +1,9 @@
+
+entityconnect.administration_form:
+  path: '/admin/config/entityconnect/default'
+  defaults:
+    _form: '\Drupal\entityconnect\Form\AdministrationForm'
+    _title: 'Entity Connect Administration'
+  requirements:
+    _permission: 'access administration pages'
+
