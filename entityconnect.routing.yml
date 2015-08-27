@@ -6,3 +6,24 @@ entityconnect.administration_form:
   requirements:
     _permission: 'access administration pages'
 
+entityconnect.entityconnect_controller_return:
+  path: '/admin/entityconnect/return/{param_1}'
+  defaults:
+    _controller: '\Drupal\entityconnect\Controller\EntityconnectController::return_to'
+    _title: 'Return to original entity.'
+  requirements:
+    _entityconnect_access_check: 'TRUE'
+entityconnect.entityconnect_controller_edit:
+  path: '/admin/entityconnect/edit/{param_1}'
+  defaults:
+    _controller: '\Drupal\entityconnect\Controller\EntityconnectController::edit'
+    _title: 'Edit item for entity referenced.'
+  requirements:
+    _permission: 'entityconnect edit button'
+entityconnect.entityconnect_controller_add:
+  path: '/admin/entityconnect/add/{param_1}'
+  defaults:
+    _controller: '\Drupal\entityconnect\Controller\EntityconnectController::add'
+    _title: 'Choose type to create and add'
+  requirements:
+    _permission: 'entityconnect add button'
