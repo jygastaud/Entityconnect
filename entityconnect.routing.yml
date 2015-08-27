@@ -1,6 +1,5 @@
-
 entityconnect.administration_form:
-  path: '/admin/config/entityconnect/default'
+  path: '/admin/config/content/entityconnect'
   defaults:
     _form: '\Drupal\entityconnect\Form\AdministrationForm'
     _title: 'Entity Connect Administration'
