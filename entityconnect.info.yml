@@ -1,8 +1,9 @@
-name: entityconnect
+name: Entity Connect
 type: module
-description: Entity Connect
+description: Allows for referenced entity to be created and edited from the entity reference field
 core: 8.x
-package: Other
+package: Entity Connect
+configure: entityconnect.administration_form
 dependencies:
   - entity_reference
 
