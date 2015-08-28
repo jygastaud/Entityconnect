@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains Drupal\entityconnect\Form\DefaultForm.
+ * Contains Drupal\entityconnect\Form\AdministrationForm.
  */
 
 namespace Drupal\entityconnect\Form;
