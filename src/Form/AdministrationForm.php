@@ -40,8 +40,10 @@ class AdministrationForm extends ConfigFormBase {
     $config = $this->config('entityconnect.administration_config');
 
     $form['entityconnect'] = array(
-      '#type' => 'fieldset',
+      '#type' => 'details',
       '#title' => $this->t('EntityConnect default Parameters'),
+      '#open' => TRUE,
+      '#tree' => TRUE,
     );
 
     $form['entityconnect']['button'] = array(
