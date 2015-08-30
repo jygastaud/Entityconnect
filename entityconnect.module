@@ -38,14 +38,5 @@ function entityconnect_theme() {
  * Implements hook_field_info_alter().
  */
 function entityconnect_field_info_alter(&$info) {
-  var_dump('tata');
-  // Make the entity reference field configurable.
-  $info['entity_reference']['no_ui'] = FALSE;
-//  $info['entity_reference']['class'] = '\Drupal\entity_reference\ConfigurableEntityReferenceItem';
   $info['entity_reference']['class'] = '\Drupal\entityconnect\ConfigurableEntityconnectItem';
-  $info['entity_reference']['list_class'] = '\Drupal\Core\Field\EntityReferenceFieldItemList';
-  $info['entity_reference']['default_widget'] = 'entity_reference_autocomplete';
-  $info['entity_reference']['default_formatter'] = 'entity_reference_label';
-  $info['entity_reference']['provider'] = 'entity_reference';
-
 }
