@@ -30,7 +30,7 @@ class AdministrationForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'administration_form';
+    return 'entityconnect_administration_form';
   }
 
   /**
