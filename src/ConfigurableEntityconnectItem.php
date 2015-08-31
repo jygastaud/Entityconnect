@@ -2,7 +2,7 @@
 
 namespace Drupal\entityconnect;
 
-
+use Drupal\Core\Config\Config;
 use Drupal\entity_reference\ConfigurableEntityReferenceItem;
 use Drupal\Core\Form\FormStateInterface;
 
@@ -12,17 +12,11 @@ class ConfigurableEntityconnectItem extends ConfigurableEntityReferenceItem {
    * {@inheritdoc}
    */
   public static function defaultFieldSettings() {
+
+    $config = \Drupal::config('entityconnect.administration_config');
+    $data = $config->getRawData();
     return array(
-      'entityconnect' => array(
-        'buttons' => array(
-          'button_add' => 1,
-          'button_edit' => 1,
-        ),
-        'icons' => array(
-          'icon_add' => 0,
-          'icon_edit' => 0,
-        ),
-      ),
+      'entityconnect' => $data
     ) + parent::defaultFieldSettings();
   }
 
