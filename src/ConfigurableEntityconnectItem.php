@@ -2,7 +2,6 @@
 
 namespace Drupal\entityconnect;
 
-use Drupal\Core\Config\Config;
 use Drupal\entity_reference\ConfigurableEntityReferenceItem;
 use Drupal\Core\Form\FormStateInterface;
 
@@ -15,6 +14,7 @@ class ConfigurableEntityconnectItem extends ConfigurableEntityReferenceItem {
 
     $config = \Drupal::config('entityconnect.administration_config');
     $data = $config->getRawData();
+
     return array(
       'entityconnect' => $data
     ) + parent::defaultFieldSettings();
@@ -114,10 +114,5 @@ class ConfigurableEntityconnectItem extends ConfigurableEntityReferenceItem {
 
     return $form;
   }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {}
 
 }
