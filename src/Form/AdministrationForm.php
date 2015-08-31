@@ -46,14 +46,14 @@ class AdministrationForm extends ConfigFormBase {
       '#tree' => TRUE,
     );
 
-    $form['entityconnect']['button'] = array(
+    $form['entityconnect']['buttons'] = array(
       '#type' => 'fieldset',
       '#title' => $this->t('Buttons display Parameters'),
     );
 
-    $form['entityconnect']['button']['button_add'] = array(
+    $form['entityconnect']['buttons']['button_add'] = array(
       '#required' => '1',
-      '#default_value' => $config->get('button_add'),
+      '#default_value' => $config->get('buttons.button_add'),
       '#description' => $this->t('Default: "off"<br />
                             Choose "on" if you want the "add" buttons displayed by default.<br />
                             Each field can override this value.'),
@@ -66,9 +66,9 @@ class AdministrationForm extends ConfigFormBase {
       '#title' => $this->t('Default Entity Connect "add" button display'),
     );
 
-    $form['entityconnect']['button']['button_edit'] = array(
+    $form['entityconnect']['buttons']['button_edit'] = array(
       '#required' => '1',
-      '#default_value' => $config->get('button_edit'),
+      '#default_value' => $config->get('buttons.button_edit'),
       '#description' => $this->t('Default: "off"<br />
                             Choose "on" if you want the "edit" buttons displayed by default.<br />
                             Each field can override this value.'),
@@ -81,15 +81,15 @@ class AdministrationForm extends ConfigFormBase {
       '#title' => $this->t('Default Entity Connect "edit" button display'),
     );
 
-    $form['entityconnect']['icon'] = array(
+    $form['entityconnect']['icons'] = array(
       '#type' => 'fieldset',
       '#title' => $this->t('Icons display Parameters'),
     );
 
-    $form['entityconnect']['icon']['icon_add'] = array(
+    $form['entityconnect']['icons']['icon_add'] = array(
       '#required' => '1',
       '#key_type_toggled' => '1',
-      '#default_value' => $config->get('icon_add'),
+      '#default_value' => $config->get('icons.icon_add'),
       '#description' => $this->t('Default: "Icon only"<br />
                            Choose "Icon + Text" if you want to see the edit (pencil) icon + the text displayed by default.<br />
                            Choose "Text only" if you don\'t want to see the edit (pencil) icon displayed by default.<br />
@@ -104,9 +104,9 @@ class AdministrationForm extends ConfigFormBase {
       '#title' => $this->t('Default Entity Connect "add (+) icon" display'),
     );
 
-    $form['entityconnect']['icon']['icon_edit'] = array(
+    $form['entityconnect']['icons']['icon_edit'] = array(
       '#required' => '1',
-      '#default_value' => $config->get('icon_edit'),
+      '#default_value' => $config->get('icons.icon_edit'),
       '#description' => $this->t('Default: "Icon only"<br />
                            Choose "Icon + Text" if you want to see the edit (pencil) icon + the text displayed by default.<br />
                            Choose "Text only" if you don\'t want to see the edit (pencil) icon displayed by default.<br />
@@ -138,10 +138,10 @@ class AdministrationForm extends ConfigFormBase {
     parent::submitForm($form, $form_state);
 
     $this->config('entityconnect.administration_config')
-      ->set('icon_add', $form_state->getValue('icon_add'))
-      ->set('icon_edit', $form_state->getValue('icon_edit'))
-      ->set('button_add', $form_state->getValue('button_add'))
-      ->set('button_edit', $form_state->getValue('button_edit'))
+      ->set('icons.icon_add', $form_state->getValue('icon_add'))
+      ->set('icons.icon_edit', $form_state->getValue('icon_edit'))
+      ->set('buttons.button_add', $form_state->getValue('button_add'))
+      ->set('buttons.button_edit', $form_state->getValue('button_edit'))
       ->save();
   }
 
