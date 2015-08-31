@@ -138,10 +138,10 @@ class AdministrationForm extends ConfigFormBase {
     parent::submitForm($form, $form_state);
 
     $this->config('entityconnect.administration_config')
-      ->set('icons.icon_add', $form_state->getValue('icon_add'))
-      ->set('icons.icon_edit', $form_state->getValue('icon_edit'))
-      ->set('buttons.button_add', $form_state->getValue('button_add'))
-      ->set('buttons.button_edit', $form_state->getValue('button_edit'))
+      ->set('icons.icon_add', $form_state->getValue(array('entityconnect', 'icons', 'icon_add')))
+      ->set('icons.icon_edit', $form_state->getValue(array('entityconnect', 'icons', 'icon_edit')))
+      ->set('buttons.button_add', $form_state->getValue(array('entityconnect', 'buttons', 'button_add')))
+      ->set('buttons.button_edit', $form_state->getValue(array('entityconnect', 'buttons', 'button_edit')))
       ->save();
   }
 
