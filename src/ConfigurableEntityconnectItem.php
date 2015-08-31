@@ -2,21 +2,40 @@
 
 namespace Drupal\entityconnect;
 
-use Drupal\Core\Config\Config;
+
 use Drupal\entity_reference\ConfigurableEntityReferenceItem;
 use Drupal\Core\Form\FormStateInterface;
-
 
 class ConfigurableEntityconnectItem extends ConfigurableEntityReferenceItem {
 
   /**
    * {@inheritdoc}
    */
+  public static function defaultFieldSettings() {
+    return array(
+      'entityconnect' => array(
+        'buttons' => array(
+          'button_add' => 1,
+          'button_edit' => 1,
+        ),
+        'icons' => array(
+          'icon_add' => 0,
+          'icon_edit' => 0,
+        ),
+      ),
+    ) + parent::defaultFieldSettings();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function fieldSettingsForm(array $form, FormStateInterface $form_state) {
-    $field = $form_state->getFormObject()->getEntity();
+    $settings = $this->getSettings();
 
     $form = parent::fieldSettingsForm($form, $form_state);
 
+    // @todo: Externalise form because it's most of duplication with administration_form.
+    // We should be able to refactor that.
     $form['entityconnect'] = array(
       '#type' => 'details',
       '#title' => $this->t('EntityConnect default Parameters'),
@@ -24,14 +43,14 @@ class ConfigurableEntityconnectItem extends ConfigurableEntityReferenceItem {
       '#tree' => TRUE,
     );
 
-    $form['entityconnect']['button'] = array(
+    $form['entityconnect']['buttons'] = array(
       '#type' => 'fieldset',
       '#title' => $this->t('Buttons display Parameters'),
     );
 
-    $form['entityconnect']['button']['button_add'] = array(
+    $form['entityconnect']['buttons']['button_add'] = array(
       '#required' => '1',
-      '#default_value' => $this->getSetting('button_add'),
+      '#default_value' => $settings['entityconnect']['buttons']['button_add'],
       '#description' => $this->t('Default: "off"<br />
                             Choose "on" if you want the "add" buttons displayed by default.<br />
                             Each field can override this value.'),
@@ -44,9 +63,9 @@ class ConfigurableEntityconnectItem extends ConfigurableEntityReferenceItem {
       '#title' => $this->t('Default Entity Connect "add" button display'),
     );
 
-    $form['entityconnect']['button']['button_edit'] = array(
+    $form['entityconnect']['buttons']['button_edit'] = array(
       '#required' => '1',
-      '#default_value' => $this->getSetting('button_edit'),
+      '#default_value' => $settings['entityconnect']['buttons']['button_edit'],
       '#description' => $this->t('Default: "off"<br />
                             Choose "on" if you want the "edit" buttons displayed by default.<br />
                             Each field can override this value.'),
@@ -59,15 +78,15 @@ class ConfigurableEntityconnectItem extends ConfigurableEntityReferenceItem {
       '#title' => $this->t('Default Entity Connect "edit" button display'),
     );
 
-    $form['entityconnect']['icon'] = array(
+    $form['entityconnect']['icons'] = array(
       '#type' => 'fieldset',
       '#title' => $this->t('Icons display Parameters'),
     );
 
-    $form['entityconnect']['icon']['icon_add'] = array(
+    $form['entityconnect']['icons']['icon_add'] = array(
       '#required' => '1',
       '#key_type_toggled' => '1',
-      '#default_value' => $this->getSetting('icon_add'),
+      '#default_value' => $settings['entityconnect']['icons']['icon_add'],
       '#description' => $this->t('Default: "Icon only"<br />
                            Choose "Icon + Text" if you want to see the edit (pencil) icon + the text displayed by default.<br />
                            Choose "Text only" if you don\'t want to see the edit (pencil) icon displayed by default.<br />
@@ -82,9 +101,9 @@ class ConfigurableEntityconnectItem extends ConfigurableEntityReferenceItem {
       '#title' => $this->t('Default Entity Connect "add (+) icon" display'),
     );
 
-    $form['entityconnect']['icon']['icon_edit'] = array(
+    $form['entityconnect']['icons']['icon_edit'] = array(
       '#required' => '1',
-      '#default_value' => $this->getSetting('icon_edit'),
+      '#default_value' => $settings['entityconnect']['icons']['icon_edit'],
       '#description' => $this->t('Default: "Icon only"<br />
                            Choose "Icon + Text" if you want to see the edit (pencil) icon + the text displayed by default.<br />
                            Choose "Text only" if you don\'t want to see the edit (pencil) icon displayed by default.<br />
@@ -102,8 +121,9 @@ class ConfigurableEntityconnectItem extends ConfigurableEntityReferenceItem {
     return $form;
   }
 
-  public function setSettings() {
-
-  }
+  /**
+   * {@inheritdoc}
+   */
+  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {}
 
 }
