@@ -191,18 +191,19 @@ function entityconnect_form_alter(&$form, &$form_state, $form_id) {
 }
 
 /**
-* Implements hook_module_implements_alter().
-*
-* Ensure entityconnect gets called after workbench_moderation when altering the node form
-*
-* @param array $module_list
-* @param string $context
-*/
+ * Implements hook_module_implements_alter().
+ *
+ * Ensure entityconnect gets called after workbench_moderation when altering the node form
+ *
+ * @param array $module_list
+ * @param string $context
+ */
 function entityconnect_module_implements_alter(&$module_list, $context) {
-  // need to override both to get correct sort order see http://api.drupal.org/api/drupal/modules%21system%21system.api.php/funct...
+  // Need to override both to get correct sort order.
+  // @see: https://api.drupal.org/api/drupal/modules%21system%21system.api.php/function/hook_module_implements_alter/7
   if($context == 'form_node_form_alter' || $context == 'form_alter') {
-    // move entityconnect implementation to the end of the list to ensure it gets called last
-    $group = isset($module_list['entityconnect'])? $module_list['entityconnect']: FALSE;
+    // Move entityconnect implementation to the end of the list to ensure it gets called last.
+    $group = isset($module_list['entityconnect']) ? $module_list['entityconnect'] : FALSE;
     unset($module_list['entityconnect']);
     $module_list['entityconnect'] = $group;
   }
