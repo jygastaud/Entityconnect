@@ -50,7 +50,7 @@ function theme_entityconnect_entity_add_list($variables) {
       $output .= '<li class="clearfix"><span class="label">' . l($item['label'], $item['href'], array(
           'query' => array("build_cache_id" => $cache_id, "child" => TRUE))) . '</span>';
       if (array_key_exists('description', $item)) {
-        $output .= '<div class="description">' . $item['description'] . '</div>';
+        $output .= '<div class="description">' . filter_xss_admin($item['description']) . '</div>';
       }
       $output .= '</li>';
     }
