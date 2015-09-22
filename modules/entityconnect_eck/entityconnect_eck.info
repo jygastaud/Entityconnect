@@ -1,0 +1,9 @@
+name = "Entity Connect and ECK bridge."
+description = "Allows for referenced entity to be created and edited from the entity reference field"
+core = "7.x"
+package = Entity Connect
+
+dependencies[] = "eck"
+;dependencies[] = "entityconnect_entityreference"
+dependencies[] = "entityreference"
+dependencies[] = "entityconnect"

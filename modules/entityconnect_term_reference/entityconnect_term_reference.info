@@ -1,0 +1,7 @@
+name = "Entity Connect and Term Reference field."
+description = "Allows for referenced entity to be created and edited from the term reference field (from core)."
+core = "7.x"
+package = Entity Connect
+
+dependencies[] = "taxonomy"
+dependencies[] = "entityconnect"
