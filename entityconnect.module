@@ -142,6 +142,13 @@ function entityconnect_cache_get($cid) {
 }
 
 /**
+ * Implements hook_flush_caches().
+ */
+function entityconnect_flush_caches() {
+  return array('cache_entityconnect');
+}
+
+/**
  * Implements hook_form_alter().
  *
  * If we are adding a new entity we pass of to entityconnect_add_form_alter
