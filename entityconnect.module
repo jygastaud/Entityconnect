@@ -137,7 +137,14 @@ function entityconnect_include_form() {
  * We can set the expire easily if needed.
  */
 function entityconnect_cache_set($cid, $data) {
-  return cache_set($cid, $data, ENTITYCONNECT_CACHE_TABLE, CACHE_PERMANENT);
+  // Get cache_lifetime variable.
+  $cache_lifetime = variable_get('entityconnect_cache_lifetime', CACHE_PERMANENT);
+
+  if ($cache_lifetime !== CACHE_PERMANENT) {
+    $cache_lifetime = REQUEST_TIME + $cache_lifetime;
+  }
+
+  return cache_set($cid, $data, ENTITYCONNECT_CACHE_TABLE, $cache_lifetime);
 }
 
 /**
