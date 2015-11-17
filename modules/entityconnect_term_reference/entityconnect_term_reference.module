@@ -93,14 +93,14 @@ function entityconnect_term_reference_entityconnect_add_edit_button_submit_alter
       }
     }
 
-//    // TODO : Find the original problem of the entity connect use with
-//    // Field Collection.
-//    if (!empty($target_id)) {
-//      // Take "label (entity id)', match the id from parenthesis.
-//      if (preg_match("/.+\[nid:(\d+)\]/", $target_id, $matches)) {
-//        $target_id = $matches[1];
-//      }
-//    }
+    // TODO : Find the original problem of the entity connect use with
+    // Field Collection.
+    if (!empty($target_id) && !is_array($target_id)) {
+      // Take "label (entity id)', match the id from parenthesis.
+      if (preg_match("/.+\((\d+)\)/", $target_id, $matches)) {
+        $target_id = $matches[1];
+      }
+    }
   }
 
   if (isset($target_id) && $target_id != '_none') {
