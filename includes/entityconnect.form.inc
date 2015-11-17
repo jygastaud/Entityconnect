@@ -430,9 +430,9 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
 /**
  * Sets submit button on child create form.
  *
- * On submiting of a child form we set:
+ * On submission of a child form we set:
  * the target_id in the cache entry
- * the rediect to our redirect page.
+ * the redirect to our redirect page.
  */
 function entityconnect_child_form_submit(&$form, &$form_state) {
   $cache_id = $form_state['values']['parent_build_cache_id'];
@@ -479,6 +479,21 @@ function entityconnect_child_form_submit(&$form, &$form_state) {
 
     entityconnect_cache_set($cache_id, $data);
     $form_state['redirect'] = "admin/entityconnect/return/$cache_id";
+  }
+}
+
+/**
+ * Sets delete button on child create form.
+ *
+ * On deletion submission of a child form we set:
+ * the form_state redirect with build cache id.
+ */
+function entityconnect_child_form_delete_submit(&$form, &$form_state) {
+  if (isset($form_state['#entityconnect_child_form'])) {
+    $form_state['redirect'][1]['query'] = array(
+      'build_cache_id' => $form_state['#entityconnect_child_form']->cid,
+      'child' => 1,
+    );
   }
 }
 
@@ -855,7 +870,6 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
  * and a new submit button.
  */
 function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_id, $cache) {
-
   // Exclude some forms to be processed.
   $exclude_forms = array(
     'search_block_form'
@@ -897,6 +911,11 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
       $form['actions']['submit']['#submit'][] = 'taxonomy_form_vocabulary_submit';
       break;
 
+    case 'node_delete_confirm':
+      $form['actions']['submit']['#submit'] = $form['#submit'];
+      $form['#submit'] = array();
+      break;
+
     default:
       if (isset($form['#entity_type']) && isset($form['#bundle'])) {
         // Add support for ECK.
@@ -919,6 +938,10 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
   else {
     $form['actions']['submit']['#submit'][] = 'entityconnect_include_form';
     $form['actions']['submit']['#submit'][] = 'entityconnect_child_form_submit';
+  }
+  if (strpos($form_id, '_delete_confirm') === false) {
+    $form['actions']['delete']['#submit'][] = 'entityconnect_include_form';
+    $form['actions']['delete']['#submit'][] = 'entityconnect_child_form_delete_submit';
   }
 }
 
