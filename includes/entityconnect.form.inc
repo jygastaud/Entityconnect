@@ -553,10 +553,20 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
             switch ($widget_container_type) {
               // Autocomplete tags style.
               case 'textfield':
-                $element['#default_value'] = $node->title;
-                $element['#default_value'] .= ' (' . $node->nid . ')';
-                if (!empty ($widget_container['#value'])) {
-                  $element['#default_value'] .= ', ' . $widget_container['#value'];
+                $new_value = $node->title . ' (' . $node->nid . ')';
+
+                if (!empty($widget_container['#value'])) {
+                  // Take "label (entity id)', match the id from parenthesis.
+                  if (preg_match_all("/\((\d+)\)/", $widget_container['#value'], $matches)) {
+                    $referenced_ids = $matches[1];
+                  }
+                }
+
+                if (!in_array($node->nid, $referenced_ids)) {
+                  $element['#default_value'] = $new_value;
+                  if (!empty ($widget_container['#value'])) {
+                    $element['#default_value'] .= ', ' . $widget_container['#value'];
+                  }
                 }
                 break;
 
@@ -607,10 +617,20 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
             switch ($widget_container_type) {
               // Autocomplete tags style.
               case 'textfield':
-                $element['#default_value'] = $user->name;
-                $element['#default_value'] .= ' (' . $user->uid . ')';
-                if (!empty ($widget_container['#value'])) {
-                  $element['#default_value'] .= ', ' . $widget_container['#value'];
+                $new_value = $user->name . ' (' . $user->uid . ')';
+
+                if (!empty($widget_container['#value'])) {
+                  // Take "label (entity id)', match the id from parenthesis.
+                  if (preg_match_all("/\((\d+)\)/", $widget_container['#value'], $matches)) {
+                    $referenced_ids = $matches[1];
+                  }
+                }
+
+                if (!in_array($user->uid, $referenced_ids)) {
+                  $element['#default_value'] = $new_value;
+                  if (!empty ($widget_container['#value'])) {
+                    $element['#default_value'] .= ', ' . $widget_container['#value'];
+                  }
                 }
                 break;
 
@@ -661,10 +681,20 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
             switch ($widget_container_type) {
               // Autocomplete tags style.
               case 'textfield':
-                $element['#default_value'] = $term->name;
-                $element['#default_value'] .= ' (' . $term->tid . ')';
-                if (!empty ($widget_container['#value'])) {
-                  $element['#default_value'] .= ', ' . $widget_container['#value'];
+                $new_value = $term->name . ' (' . $term->tid . ')';
+
+                if (!empty($widget_container['#value'])) {
+                  // Take "label (entity id)', match the id from parenthesis.
+                  if (preg_match_all("/\((\d+)\)/", $widget_container['#value'], $matches)) {
+                    $referenced_ids = $matches[1];
+                  }
+                }
+
+                if (!in_array($term->tid, $referenced_ids)) {
+                  $element['#default_value'] = $new_value;
+                  if (!empty ($widget_container['#value'])) {
+                    $element['#default_value'] .= ', ' . $widget_container['#value'];
+                  }
                 }
                 break;
 
@@ -710,10 +740,20 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
             switch ($widget_container_type) {
               // Autocomplete tags style.
               case 'textfield':
-                $element['#default_value'] = $vocabulary->name;
-                $element['#default_value'] .= ' (' . $vocabulary->vid . ')';
-                if (!empty ($widget_container['#value'])) {
-                  $element['#default_value'] .= ', ' . $widget_container['#value'];
+                $new_value = $vocabulary->name . ' (' . $vocabulary->vid . ')';
+
+                if (!empty($widget_container['#value'])) {
+                  // Take "label (entity id)', match the id from parenthesis.
+                  if (preg_match_all("/\((\d+)\)/", $widget_container['#value'], $matches)) {
+                    $referenced_ids = $matches[1];
+                  }
+                }
+
+                if (!in_array($vocabulary->vid, $referenced_ids)) {
+                  $element['#default_value'] = $new_value;
+                  if (!empty ($widget_container['#value'])) {
+                    $element['#default_value'] .= ', ' . $widget_container['#value'];
+                  }
                 }
                 break;
 
