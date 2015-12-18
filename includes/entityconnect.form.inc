@@ -73,16 +73,6 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
       $views_display = $views->display;
 
       switch ($entity_type) {
-        case 'node':
-          if (isset($views_display[$display]->display_options['filters']['type'])) {
-            $acceptable_types = $views_display[$display]->display_options['filters']['type']['value'];
-          }
-          elseif (isset($views_display['default']->display_options['filters']['type']['value'])) {
-            $acceptable_types = $views_display['default']->display_options['filters']['type']['value'];
-          }
-           // $acceptable_types was already set to NULL before
-          break;
-
         case 'taxonomy_term':
           if (isset($views_display[$display]->display_options['filters']['machine_name']['table'])
                 && $views_display[$display]->display_options['filters']['machine_name']['table'] == 'taxonomy_vocabulary' ) {
@@ -94,6 +84,13 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
           break;
 
         default:
+          if (isset($views_display[$display]->display_options['filters']['type'])) {
+            $acceptable_types = $views_display[$display]->display_options['filters']['type']['value'];
+          }
+          elseif (isset($views_display['default']->display_options['filters']['type']['value'])) {
+            $acceptable_types = $views_display['default']->display_options['filters']['type']['value'];
+          }
+          // $acceptable_types was already set to NULL before
           break;
       }
     }
