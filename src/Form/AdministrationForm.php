@@ -40,7 +40,7 @@ class AdministrationForm extends ConfigFormBase {
     $config = $this->config('entityconnect.administration_config');
     $defaults = $config->get();
 
-    $form += self::_form($defaults);
+    self::attach($form, $defaults);
 
     return parent::buildForm($form, $form_state);
   }
@@ -67,13 +67,13 @@ class AdministrationForm extends ConfigFormBase {
   }
 
   /**
-   * Adds the common entityconnect settings form.
+   * Attach the common entityconnect settings to the given form.
    *
+   * @param array $form
    * @param array $defaults
    *
-   * @return array
    */
-  public static function _form(array $defaults) {
+  public static function attach(array &$form, array $defaults) {
 
     $form['entityconnect'] = array(
       '#type' => 'details',
@@ -156,7 +156,5 @@ class AdministrationForm extends ConfigFormBase {
       ),
       '#title' =>t('Default Entity Connect "edit (pencil) icon" display'),
     );
-
-    return $form;
   }
 }

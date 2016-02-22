@@ -44,14 +44,15 @@ function entityconnect_form_field_config_edit_form_alter(array &$form, FormState
   $field = $form_state->getFormObject()->getEntity();
   $type = $field->getType();
 
-  // Add entityconnect settings to the entity reference field config
+  // Add entityconnect settings as 3rd party settings to the entity reference
+  // field config.
   if ($type == 'entity_reference') {
     $defaults = $field->getThirdPartySettings('entityconnect');
     if (!$defaults) {
       $config = \Drupal::config('entityconnect.administration_config');
       $defaults = $config->get();
     }
-    $form['third_party_settings'] += AdministrationForm::_form($defaults);
+    AdministrationForm::attach($form['third_party_settings'], $defaults);
   }
 
 }
