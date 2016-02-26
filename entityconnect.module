@@ -5,8 +5,10 @@
  * Contains entityconnect.module.
  */
 
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\entityconnect\ConfigurableEntityconnectItem;
+use Drupal\entityconnect\Form\AdministrationForm;
 
 
 /**
@@ -35,8 +37,22 @@ function entityconnect_theme() {
 }
 
 /**
- * Implements hook_field_info_alter().
+ * Implements hook_form_FORM_ID_alter() for 'field_config_edit_form'.
  */
-function entityconnect_field_info_alter(&$info) {
-  $info['entity_reference']['class'] = '\Drupal\entityconnect\ConfigurableEntityconnectItem';
+function entityconnect_form_field_config_edit_form_alter(array &$form, FormStateInterface $form_state) {
+
+  $field = $form_state->getFormObject()->getEntity();
+  $type = $field->getType();
+
+  // Add entityconnect settings as 3rd party settings to the entity reference
+  // field config.
+  if ($type == 'entity_reference') {
+    $defaults = $field->getThirdPartySettings('entityconnect');
+    if (!$defaults) {
+      $config = \Drupal::config('entityconnect.administration_config');
+      $defaults = $config->get();
+    }
+    AdministrationForm::attach($form['third_party_settings'], $defaults);
+  }
+
 }
