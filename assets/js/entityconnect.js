@@ -1,3 +1,8 @@
+/**
+ * @file
+ * Scripting for entityconnect buttons..
+ */
+
 (function ($) {
   Drupal.behaviors.entityconnect = {
     'attach': function(context) {
@@ -69,20 +74,20 @@
             checkbox = $(wrapper).siblings("[type='checkbox']"),
             select = $(wrapper).siblings("select");
 
-        if(text.length == 0) {
+        if (text.length == 0) {
           text = $(wrapper).siblings().find("[type='text']");
         }
-        if(radio.length == 0) {
+        if (radio.length == 0) {
           radio = $(wrapper).siblings().find("[type='radio']:checked");
         }
-        if(checkbox.length == 0) {
+        if (checkbox.length == 0) {
           checkbox = $(wrapper).siblings().find("[type='checkbox']:checked");
         }
-        if(select.length == 0) {
+        if (select.length == 0) {
           select = $(wrapper).siblings().find("select:checked");
         }
 
-        if($.trim($(text).val()) == ''
+        if ($.trim($(text).val()) == ''
             && ($.trim($(radio).val()) == '' || $.trim($(radio).val()) == '_none')
             && ($.trim($(select).val()) == '' || $.trim($(select).val()) == '_none')
             && $.trim($(checkbox).val()) == '') {

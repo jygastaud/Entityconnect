@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Contains entityconnect.module.
@@ -37,7 +36,7 @@ function entityconnect_theme() {
 }
 
 /**
- * Implements hook_form_FORM_ID_alter() for 'field_config_edit_form'.
+ * Implements hook_form_FORM_ID_alter() for field_config_edit_form.
  */
 function entityconnect_form_field_config_edit_form_alter(array &$form, FormStateInterface $form_state) {
 
@@ -79,14 +78,16 @@ function entityconnect_form_alter(&$form, FormStateInterface $form_state, $form_
 
   // Attach a custom processor to the applicable entity reference elements.
   $field_defs = $entity->getFieldDefinitions();
-  foreach(Element::children($form) as $child) {
-    if (! isset($field_defs[$child])) continue;
-    $field_definition =$field_defs[$child];
+  foreach (Element::children($form) as $child) {
+    if (!isset($field_defs[$child])) {
+      continue;
+    }
+    $field_definition = $field_defs[$child];
     if ($field_definition->getType() == 'entity_reference') {
       if ($field_definition instanceof FieldConfig) {
         $form[$field_definition->getName()]['#process'][] = array(
           '\Drupal\entityconnect\EntityconnectWidgetProcessor',
-          'processWidget'
+          'processWidget',
         );
       }
     }

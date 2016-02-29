@@ -8,7 +8,6 @@
 
 namespace Drupal\entityconnect;
 
-use Drupal\Core\Entity\Entity;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\field\Entity\FieldConfig;
@@ -17,56 +16,57 @@ use Drupal\field\Entity\FieldConfig;
  * A reference field widget processing class for entityconnect module.
  */
 class EntityconnectWidgetProcessor {
-  
+
   /**
    * The entity reference field definition.
-   * 
+   *
    * @var \Drupal\field\Entity\FieldConfig
    */
   protected $fieldDefinition;
 
   /**
-   * The entity reference field widget element
+   * The entity reference field widget element.
    *
-   * @var  array
+   * @var array
    */
   protected $widget;
 
   /**
    * The entityconntect settings array.
-   * 
+   *
    * @var array
    */
   protected $entityconnectSettings;
 
   /**
    * The target entity type.
-   * 
-   * @var  string
+   *
+   * @var string
    */
   protected $entityType;
 
   /**
    * The target entity bundles.
-   * 
-   * @var  array
+   *
+   * @var array
    */
   protected $acceptableTypes;
-
 
   /**
    * Constructs a EntityconnectWidgetProcessor object.
    *
    * @param \Drupal\field\Entity\FieldConfig $field_definition
+   *   The entity reference field definition.
    * @param array $widget
+   *   The entity reference field widget form element.
    */
-  function __construct(FieldConfig $field_definition, array $widget) {
+  public function __construct(FieldConfig $field_definition, array $widget) {
     $this->fieldDefinition = $field_definition;
     $this->widget = $widget;
 
-    // Get entity connect settings on the field
+    // Get entity connect settings on the field.
     $this->entityconnectSettings = $this->fieldDefinition->getThirdPartySettings('entityconnect');
-    // Use global defaults if no settings on the field
+    // Use global defaults if no settings on the field.
     if (!$this->entityconnectSettings) {
       $this->entityconnectSettings = \Drupal::config('entityconnect.administration_config')->get();
     }
@@ -90,9 +90,14 @@ class EntityconnectWidgetProcessor {
    * entityconnect_form_alter() function.
    *
    * @param array $element
+   *   The widget container element to attach the buttons.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The parent entity form state.
    * @param array $form
+   *   The parent entity form.
+   *
    * @return array
+   *   The altered element.
    */
   public static function processWidget(array $element, FormStateInterface $form_state, array $form) {
 
@@ -124,7 +129,9 @@ class EntityconnectWidgetProcessor {
     }
     else {
       foreach (Element::children($element['widget']) as $key) {
-        if (!is_numeric($key)) continue;
+        if (!is_numeric($key)) {
+          continue;
+        }
         $widgetProcessor->attachButtons($element, $key);
       }
     }
@@ -135,7 +142,7 @@ class EntityconnectWidgetProcessor {
   /**
    * Attach the entity connect buttons to a single widget element.
    *
-   * @param $element
+   * @param array $element
    *   The widget element to attach the button to.
    * @param string $key
    *   The key of an autocomplete widget element.
@@ -181,7 +188,7 @@ class EntityconnectWidgetProcessor {
    *
    * @param array $element
    *   The widget container element.
-   * @param $entityconnect_classes
+   * @param string $entityconnect_classes
    *   Button CSS definition array:
    *   - 'extra_class': extra css class string
    *   - 'parents_class': parents class string
@@ -190,7 +197,7 @@ class EntityconnectWidgetProcessor {
    */
   protected function attachAddButton(&$element, $entityconnect_classes, $key = 'all') {
 
-    // Button values are opposite; 0=On, 1=Off
+    // Button values are opposite; 0=On, 1=Off.
     $addbuttonallowed = !$this->entityconnectSettings['buttons']['button_add'];
     $addIcon = $this->entityconnectSettings['icons']['icon_add'];
 
@@ -210,7 +217,7 @@ class EntityconnectWidgetProcessor {
           $classes = $entityconnect_classes['extra_class'] . ' add-icon';
         }
         elseif ($addIcon == '1') {
-          $classes =  $entityconnect_classes['extra_class'] . ' add-icon add-text';
+          $classes = $entityconnect_classes['extra_class'] . ' add-icon add-text';
         }
         else {
           $classes = $entityconnect_classes['extra_class'];
@@ -246,16 +253,16 @@ class EntityconnectWidgetProcessor {
    *
    * @param array $element
    *   The widget container element.
-   * @param $entityconnect_classes
+   * @param string $entityconnect_classes
    *   Button CSS definition array:
    *   - 'extra_class': extra css class string
    *   - 'parents_class': parents class string
    * @param int|string $key optional
-   *   Target entity id (Always 'all' for Add button.)
+   *   Target entity id (Always 'all' for Add button).
    */
   protected function attachEditButton(&$element, $entityconnect_classes, $key = 'all') {
 
-    // Button values are opposite; 0=On, 1=Off
+    // Button values are opposite; 0=On, 1=Off.
     $editbuttonallowed = !$this->entityconnectSettings['buttons']['button_edit'];
     $editIcon = $this->entityconnectSettings['icons']['icon_edit'];
 
@@ -267,7 +274,7 @@ class EntityconnectWidgetProcessor {
           $classes = $entityconnect_classes['extra_class'] . ' edit-icon';
         }
         elseif ($editIcon == '1') {
-          $classes =  $entityconnect_classes['extra_class'] . ' edit-icon edit-text';
+          $classes = $entityconnect_classes['extra_class'] . ' edit-icon edit-text';
         }
         else {
           $classes = $entityconnect_classes['extra_class'];
@@ -299,20 +306,26 @@ class EntityconnectWidgetProcessor {
   }
 
   /**
+   * Returns the array of acceptable target bundles.
+   *
    * @return array
    */
-  protected function getAcceptableTypes() {
+  public function getAcceptableTypes() {
     return $this->acceptableTypes;
   }
 
   /**
+   * Returns the target entity type.
+   *
    * @return string
    */
-  protected function getEntityType() {
+  public function getEntityType() {
     return $this->entityType;
   }
 
   /**
+   * Sets the target entity type.
+   *
    * @param string $entityType
    */
   public function setEntityType($entityType) {
@@ -320,6 +333,8 @@ class EntityconnectWidgetProcessor {
   }
 
   /**
+   * Sets the target bundles.
+   *
    * @param array $acceptableTypes
    */
   public function setAcceptableTypes($acceptableTypes) {

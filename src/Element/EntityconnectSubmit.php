@@ -8,7 +8,6 @@
 
 namespace Drupal\entityconnect\Element;
 
-
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element\Submit;
 
@@ -57,10 +56,10 @@ class EntityconnectSubmit extends Submit {
       '#add_child' => FALSE,
       '#language' => \Drupal\Core\Language\LanguageInterface::LANGCODE_DEFAULT,
       '#validate' => array(
-        array($class, 'validateSubmit')
+        array($class, 'validateSubmit'),
       ),
       '#submit' => array(
-          array($class, 'addEditButtonSubmit')
+          array($class, 'addEditButtonSubmit'),
       ),
       '#weight' => 1,
       '#limit_validation_errors' => array(),
@@ -78,13 +77,23 @@ class EntityconnectSubmit extends Submit {
 
     // Support Clientside Validation.
     $element['#attributes']['class'][] = 'cancel';
-    if (empty($element['#attributes'][ 'title'])) {
+    if (empty($element['#attributes']['title'])) {
       $element['#attributes']['title'] = $element['#add_child'] ? t('Add') : t('Edit');
     }
 
     return $element;
   }
 
+  /**
+   * Form #validate callback for the entityconnect_submit element.
+   *
+   * Used to bypass validation of the parent form.
+   *
+   * @param array $form
+   *   The parent form element.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current form state.
+   */
   public static function validateSubmit($form, FormStateInterface $form_state) {
     // Ignore all validation.
     // @todo: Probably should validate the fields that were entered.
