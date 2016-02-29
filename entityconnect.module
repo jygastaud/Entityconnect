@@ -6,10 +6,10 @@
  */
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Element;
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\entityconnect\ConfigurableEntityconnectItem;
 use Drupal\entityconnect\Form\AdministrationForm;
-
+use Drupal\field\Entity\FieldConfig;
 
 /**
  * Implements hook_help().
@@ -53,6 +53,43 @@ function entityconnect_form_field_config_edit_form_alter(array &$form, FormState
       $defaults = $config->get();
     }
     AdministrationForm::attach($form['third_party_settings'], $defaults);
+  }
+
+}
+
+/**
+ * Implements hook_form_alter().
+ *
+ * Add the entityconnect button(s) to the form here since we only have access
+ * to the actual widget element in hook_field_widget_form_alter().
+ */
+function entityconnect_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+
+  $entity = NULL;
+
+  // Get the entity if this is an entity form.
+  if (method_exists($form_state->getFormObject(), 'getEntity')) {
+    $entity = $form_state->getFormObject()->getEntity();
+  }
+
+  // Bail out if not a fieldable entity form.
+  if (empty($entity) || !$entity->getEntityType()->isSubclassOf('\Drupal\Core\Entity\FieldableEntityInterface')) {
+    return;
+  }
+
+  // Attach a custom processor to the applicable entity reference elements.
+  $field_defs = $entity->getFieldDefinitions();
+  foreach(Element::children($form) as $child) {
+    if (! isset($field_defs[$child])) continue;
+    $field_definition =$field_defs[$child];
+    if ($field_definition->getType() == 'entity_reference') {
+      if ($field_definition instanceof FieldConfig) {
+        $form[$field_definition->getName()]['#process'][] = array(
+          '\Drupal\entityconnect\EntityconnectWidgetProcessor',
+          'processWidget'
+        );
+      }
+    }
   }
 
 }

@@ -1,0 +1,329 @@
+<?php
+/**
+ * @file
+ * Contains \Drupal\entityconnect\EntityconnectWidgetProcessor.
+ *
+ * @author Agnes Chisholm <amaria@66428.no-reply.drupal.org>
+ */
+
+namespace Drupal\entityconnect;
+
+use Drupal\Core\Entity\Entity;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Element;
+use Drupal\field\Entity\FieldConfig;
+
+/**
+ * A reference field widget processing class for entityconnect module.
+ */
+class EntityconnectWidgetProcessor {
+  
+  /**
+   * The entity reference field definition.
+   * 
+   * @var \Drupal\field\Entity\FieldConfig
+   */
+  protected $fieldDefinition;
+
+  /**
+   * The entity reference field widget element
+   *
+   * @var  array
+   */
+  protected $widget;
+
+  /**
+   * The entityconntect settings array.
+   * 
+   * @var array
+   */
+  protected $entityconnectSettings;
+
+  /**
+   * The target entity type.
+   * 
+   * @var  string
+   */
+  protected $entityType;
+
+  /**
+   * The target entity bundles.
+   * 
+   * @var  array
+   */
+  protected $acceptableTypes;
+
+
+  /**
+   * Constructs a EntityconnectWidgetProcessor object.
+   *
+   * @param \Drupal\field\Entity\FieldConfig $field_definition
+   * @param array $widget
+   */
+  function __construct(FieldConfig $field_definition, array $widget) {
+    $this->fieldDefinition = $field_definition;
+    $this->widget = $widget;
+
+    // Get entity connect settings on the field
+    $this->entityconnectSettings = $this->fieldDefinition->getThirdPartySettings('entityconnect');
+    // Use global defaults if no settings on the field
+    if (!$this->entityconnectSettings) {
+      $this->entityconnectSettings = \Drupal::config('entityconnect.administration_config')->get();
+    }
+
+    // Get target entity type and bundles.
+    $targetSettings = $this->fieldDefinition->getSettings();
+    $this->entityType = $targetSettings['target_type'];
+    $this->acceptableTypes = array();
+    if (isset($targetSettings['handler_settings']['target_bundles'])) {
+      $this->acceptableTypes = $targetSettings['handler_settings']['target_bundles'];
+    }
+  }
+
+
+  /**
+   * Form API callback: Processes an entity_reference field element.
+   *
+   * Adds entityconnect buttons to the field.
+   *
+   * This method is assigned as a #process callback in
+   * entityconnect_form_alter() function.
+   *
+   * @param array $element
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   * @param array $form
+   * @return array
+   */
+  public static function processWidget(array $element, FormStateInterface $form_state, array $form) {
+
+    $entity = $form_state->getFormObject()->getEntity();
+    $fieldDefinition = $entity->getFieldDefinition($element['widget']['#field_name']);
+
+    // Instantiate this class so we don't have to pass variables around.
+    $widgetProcessor = new EntityconnectWidgetProcessor($fieldDefinition, $element['widget']);
+
+    // Give other contrib modules the chance to change the target.
+    $entityType = $widgetProcessor->getEntityType();
+    $acceptableTypes = $widgetProcessor->getAcceptableTypes();
+    $data = array(
+      'entity_type' => &$entityType,
+      'acceptable_types' => &$acceptableTypes,
+      'field' => $fieldDefinition,
+    );
+    \Drupal::moduleHandler()->alter('entityconnect_field_attach_form', $data);
+    $widgetProcessor->setEntityType($data['entity_type']);
+    $widgetProcessor->setAcceptableTypes($data['acceptable_types']);
+
+    // We currently should separate Autocomplete widget from others
+    // because "Edit" button will not react well on multiple selected items.
+    // Autocomplete widget has no #type value, so we are testing it
+    // via $element['widget']['#type']. This does not apply to
+    // Autocomplete Tags widget so we have to check for target_id too.
+    if (isset($element['widget']['#type']) || isset($element['widget']['target_id'])) {
+      $widgetProcessor->attachButtons($element);
+    }
+    else {
+      foreach (Element::children($element['widget']) as $key) {
+        if (!is_numeric($key)) continue;
+        $widgetProcessor->attachButtons($element, $key);
+      }
+    }
+
+    return $element;
+  }
+
+  /**
+   * Attach the entity connect buttons to a single widget element.
+   *
+   * @param $element
+   *   The widget element to attach the button to.
+   * @param string $key
+   *   The key of an autocomplete widget element.
+   */
+  protected function attachButtons(&$element, $key = 'all') {
+
+    // Get the parents.
+    if (isset($this->widget['#field_parents'])) {
+      foreach ($this->widget['#field_parents'] as $key1 => $parent) {
+        if (!isset($parents)) {
+          $parents = $parent;
+        }
+        else {
+          $parents .= "-" . $parent;
+        }
+      }
+    }
+    $parents = isset($parents) ? $parents : '';
+
+    $fieldStorage = $this->fieldDefinition->getFieldStorageDefinition();
+    $fieldStorage->getCardinality();
+    $extraClass = isset($this->widget['#type']) ? $this->widget['#type'] : 'autocomplete';
+    $extraClass .= $fieldStorage->getCardinality() == 1 ? ' single-value' : ' multiple-values';
+    $extraClass .= (isset($this->widget['#multiple']) && $this->widget['#multiple'] == TRUE) ? ' multiple-selection' : ' single-selection';
+    if (isset($this->widget['#type'])) {
+      if ((isset($this->widget['#multiple']) && $this->widget['#multiple'] == TRUE) || $this->widget['#type'] == 'radios' || $this->widget['#type'] == 'checkboxes'){
+        $element['#attributes']['class'][] = 'inline-label';
+      }
+    }
+
+    $butonClasses = array(
+      'extra_class' => $extraClass,
+      'parents_class' => $parents,
+    );
+
+    $this->attachAddButton($element, $butonClasses);
+    $this->attachEditButton($element, $butonClasses, $key);
+
+  }
+
+  /**
+   * Attach the Add button.
+   *
+   * @param array $element
+   *   The widget container element.
+   * @param $entityconnect_classes
+   *   Button CSS definition array:
+   *   - 'extra_class': extra css class string
+   *   - 'parents_class': parents class string
+   * @param string $key optional
+   *   Always 'all' for Add button.
+   */
+  protected function attachAddButton(&$element, $entityconnect_classes, $key = 'all') {
+
+    // Button values are opposite; 0=On, 1=Off
+    $addbuttonallowed = !$this->entityconnectSettings['buttons']['button_add'];
+    $addIcon = $this->entityconnectSettings['icons']['icon_add'];
+
+    // Get the subset of target bundles the user has permission to create.
+    $acceptableTypes = array();
+    foreach ($this->acceptableTypes as $bundle) {
+      if (\Drupal::entityTypeManager()->getAccessControlHandler($this->entityType)->createAccess($bundle)) {
+        $acceptableTypes[] = $bundle;
+      }
+    }
+
+    // Now we need to make sure the use should see this button.
+    if (\Drupal::currentUser()->hasPermission('entityconnect add button') && $addbuttonallowed && $acceptableTypes) {
+      // Determine how the button should be displayed.
+      if (isset($addIcon)) {
+        if ($addIcon == '0') {
+          $classes = $entityconnect_classes['extra_class'] . ' add-icon';
+        }
+        elseif ($addIcon == '1') {
+          $classes =  $entityconnect_classes['extra_class'] . ' add-icon add-text';
+        }
+        else {
+          $classes = $entityconnect_classes['extra_class'];
+        }
+      }
+
+      // Build the button name.
+      $button_name = "add_entityconnect__{$this->fieldDefinition->getName()}_{$key}_{$entityconnect_classes['parents_class']}";
+
+      // Build the button element.
+      $element[$button_name] = array(
+        '#type' => 'entityconnect_submit',
+        '#value' => t('New content'),
+        '#name' => $button_name,
+        '#prefix' => "<div class = 'entityconnect-add $classes'>",
+        '#suffix' => '</div>',
+        '#key' => $key,
+        '#field' => $this->fieldDefinition->getName(),
+        '#entity_type_target' => $this->entityType,
+        '#acceptable_types' => $acceptableTypes,
+        '#add_child' => TRUE,
+        '#language' => $this->fieldDefinition->language()->getId(),
+        '#weight' => 1,
+        // Button should be same form level as widget.
+        '#parents' => array_merge($this->widget['#parents'], array($button_name)),
+      );
+
+    }
+  }
+
+  /**
+   * Attach the edit button.
+   *
+   * @param array $element
+   *   The widget container element.
+   * @param $entityconnect_classes
+   *   Button CSS definition array:
+   *   - 'extra_class': extra css class string
+   *   - 'parents_class': parents class string
+   * @param int|string $key optional
+   *   Target entity id (Always 'all' for Add button.)
+   */
+  protected function attachEditButton(&$element, $entityconnect_classes, $key = 'all') {
+
+    // Button values are opposite; 0=On, 1=Off
+    $editbuttonallowed = !$this->entityconnectSettings['buttons']['button_edit'];
+    $editIcon = $this->entityconnectSettings['icons']['icon_edit'];
+
+    // Now we need to make sure the use should see this button.
+    if (\Drupal::currentUser()->hasPermission('entityconnect edit button') && $editbuttonallowed) {
+      // Determine how the button should be displayed.
+      if (isset($editIcon)) {
+        if ($editIcon == '0') {
+          $classes = $entityconnect_classes['extra_class'] . ' edit-icon';
+        }
+        elseif ($editIcon == '1') {
+          $classes =  $entityconnect_classes['extra_class'] . ' edit-icon edit-text';
+        }
+        else {
+          $classes = $entityconnect_classes['extra_class'];
+        }
+      }
+
+      // Build the button name.
+      $button_name = "edit_entityconnect__{$this->fieldDefinition->getName()}_{$key}_{$entityconnect_classes['parents_class']}";
+
+      // Build the button element.
+      $element[$button_name] = array(
+        '#type' => 'entityconnect_submit',
+        '#value' => t('Edit content'),
+        '#name' => $button_name,
+        '#prefix' => "<div class = 'entityconnect-edit $classes'>",
+        '#suffix' => '</div>',
+        '#key' => $key,
+        '#field' => $this->fieldDefinition->getName(),
+        '#entity_type_target' => $this->entityType,
+        '#acceptable_types' => $this->acceptableTypes,
+        '#add_child' => FALSE,
+        '#language' => $this->fieldDefinition->language()->getId(),
+        '#weight' => 1,
+        // Button should be same form level as widget.
+        '#parents' => array_merge($this->widget['#parents'], array($button_name)),
+      );
+
+    }
+  }
+
+  /**
+   * @return array
+   */
+  protected function getAcceptableTypes() {
+    return $this->acceptableTypes;
+  }
+
+  /**
+   * @return string
+   */
+  protected function getEntityType() {
+    return $this->entityType;
+  }
+
+  /**
+   * @param string $entityType
+   */
+  public function setEntityType($entityType) {
+    $this->entityType = $entityType;
+  }
+
+  /**
+   * @param array $acceptableTypes
+   */
+  public function setAcceptableTypes($acceptableTypes) {
+    $this->acceptableTypes = $acceptableTypes;
+  }
+
+}
