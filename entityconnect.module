@@ -64,6 +64,33 @@ function entityconnect_form_field_config_edit_form_alter(array &$form, FormState
  */
 function entityconnect_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 
+  // Get the applicable entity reference fields from the form.
+  $ref_fields = entityconnect_extract_ref_fields($form, $form_state);
+
+  // Attach a custom processor to each entity reference field element.
+  if ($ref_fields) {
+    foreach ($ref_fields as $field) {
+      // Add our #process callback
+      $form[$field]['#process'][] = array(
+        '\Drupal\entityconnect\EntityconnectWidgetProcessor',
+        'process',
+      );
+
+      // Add our #validate callback to the widget form.
+      // This prevents the exception on entityconnect elements caused by submitting
+      // the form without using the entityconnect buttons.
+      $form['#validate'] = !isset($form['#validate']) ? array() : $form['#validate'];
+      array_unshift($form['#validate'], array(
+        '\Drupal\entityconnect\EntityconnectWidgetProcessor',
+        'validateForm',
+      ));
+    }
+  }
+}
+
+function entityconnect_extract_ref_fields($form, $form_state) {
+
+  $ref_fields = array();
   $entity = NULL;
 
   // Get the entity if this is an entity form.
@@ -73,10 +100,10 @@ function entityconnect_form_alter(&$form, FormStateInterface $form_state, $form_
 
   // Bail out if not a fieldable entity form.
   if (empty($entity) || !$entity->getEntityType()->isSubclassOf('\Drupal\Core\Entity\FieldableEntityInterface')) {
-    return;
+    return $ref_fields;
   }
 
-  // Attach a custom processor to the applicable entity reference elements.
+  // Get the entity reference elements from this form.
   $field_defs = $entity->getFieldDefinitions();
   foreach (Element::children($form) as $child) {
     if (!isset($field_defs[$child])) {
@@ -86,12 +113,10 @@ function entityconnect_form_alter(&$form, FormStateInterface $form_state, $form_
     if ($field_definition->getType() == 'entity_reference') {
       // Fields must be configurable.
       if ($field_definition instanceof FieldConfig) {
-        $form[$field_definition->getName()]['#process'][] = array(
-          '\Drupal\entityconnect\EntityconnectWidgetProcessor',
-          'processWidget',
-        );
+        $ref_fields[] = $child;
       }
     }
   }
 
+  return $ref_fields;
 }

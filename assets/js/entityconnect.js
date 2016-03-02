@@ -6,21 +6,20 @@
 (function ($) {
   Drupal.behaviors.entityconnect = {
     'attach': function(context) {
-      ref_field_buttons = {};
 
       // Treatments for each widget type.
       // Autocomplete and Autocomplete tags style widget.
-      $(".entityconnect-add.autocomplete", context).each(function() {
+      $(".entityconnect-add.autocomplete", context).once("entityconnect").each(function() {
         $(this).insertAfter($(this).siblings('.form-type-entity-autocomplete').children("input").first());
         $(this).insertAfter($(this).siblings('.form-type-entity-autocomplete').children("select").first());
       });
-      $(".entityconnect-edit.autocomplete", context).each(function() {
+      $(".entityconnect-edit.autocomplete", context).once("entityconnect").each(function() {
         $(this).insertAfter($(this).siblings('.form-type-entity-autocomplete').children("input").first());
         $(this).insertAfter($(this).siblings('.form-type-entity-autocomplete').children("select").first());
       });
 
       // Select widget.
-      $(".entityconnect-add.select", context).each(function() {
+      $(".entityconnect-add.select", context).once("entityconnect").each(function() {
         var $form_type_select = $(this).siblings(".form-type-select");
         if ($(this).hasClass('multiple-selection')) {
           $(this).insertAfter($form_type_select.find("label").first());
@@ -30,7 +29,7 @@
           $(this).insertAfter($form_type_select.children("select"));
         }
       });
-      $(".entityconnect-edit.select.single-value", context).each(function() {
+      $(".entityconnect-edit.select.single-value", context).once("entityconnect").each(function() {
         var $form_type_select = $(this).siblings(".form-type-select");
         if ($(this).hasClass('multiple-selection')) {
           $(this).insertAfter($form_type_select.find("label").first());
@@ -41,23 +40,23 @@
       });
 
       // Radios widget.
-      $(".entityconnect-add.radios", context).each(function() {
+      $(".entityconnect-add.radios", context).once("entityconnect").each(function() {
         $(this).insertAfter($(this).siblings("fieldset.form-item").find(".fieldset-legend").first());
       });
-      $(".entityconnect-edit.radios", context).each(function() {
+      $(".entityconnect-edit.radios", context).once("entityconnect").each(function() {
         $(this).insertAfter($(this).siblings("fieldset.form-item").find(".fieldset-legend").first());
       });
 
       // Checkboxes widget.
-      $(".entityconnect-add.checkboxes", context).each(function() {
+      $(".entityconnect-add.checkboxes", context).once("entityconnect").each(function() {
         $(this).insertAfter($(this).siblings("fieldset.form-item").find(".fieldset-legend").first());
       });
-      $(".entityconnect-edit.checkboxes", context).each(function() {
+      $(".entityconnect-edit.checkboxes", context).once("entityconnect").each(function() {
         $(this).insertAfter($(this).siblings("fieldset.form-item").find(".fieldset-legend").first());
       });
 
       // Edit button control.
-      $(".entityconnect-edit input").click(function() {
+      $(".entityconnect-edit input").once("entityconnect").click(function() {
 
         var wrapper = $(this).parents(".entityconnect-edit"),
             text = $(wrapper).siblings("[type='text']"),

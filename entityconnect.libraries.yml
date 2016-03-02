@@ -7,6 +7,6 @@ entityconnect:
     assets/js/entityconnect.js: {}
   dependencies:
     - core/jquery
+    - core/jquery.once
     - core/drupal.form
     - core/drupalSettings
-    - core/jquery.once
