@@ -11,6 +11,7 @@ namespace Drupal\entityconnect;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\field\Entity\FieldConfig;
+use Drupal\views\Views;
 
 /**
  * A reference field widget processing class for entityconnect module.
@@ -32,7 +33,7 @@ class EntityconnectWidgetProcessor {
   protected $widget;
 
   /**
-   * The entityconntect settings array.
+   * The entityconnect settings array.
    *
    * @var array
    */
@@ -64,20 +65,15 @@ class EntityconnectWidgetProcessor {
     $this->fieldDefinition = $field_definition;
     $this->widget = $widget;
 
-    // Get entity connect settings on the field.
+    // Initialize entityconnect settings on the field.
     $this->entityconnectSettings = $this->fieldDefinition->getThirdPartySettings('entityconnect');
     // Use global defaults if no settings on the field.
     if (!$this->entityconnectSettings) {
       $this->entityconnectSettings = \Drupal::config('entityconnect.administration_config')->get();
     }
 
-    // Get target entity type and bundles.
-    $targetSettings = $this->fieldDefinition->getSettings();
-    $this->entityType = $targetSettings['target_type'];
-    $this->acceptableTypes = array();
-    if (isset($targetSettings['handler_settings']['target_bundles'])) {
-      $this->acceptableTypes = $targetSettings['handler_settings']['target_bundles'];
-    }
+    // Initialize the target entity type and bundles.
+    $this->initTargetInfo();
   }
 
 
@@ -163,9 +159,8 @@ class EntityconnectWidgetProcessor {
     $parents = isset($parents) ? $parents : '';
 
     $fieldStorage = $this->fieldDefinition->getFieldStorageDefinition();
-    $fieldStorage->getCardinality();
     $extraClass = isset($this->widget['#type']) ? $this->widget['#type'] : 'autocomplete';
-    $extraClass .= $fieldStorage->getCardinality() == 1 ? ' single-value' : ' multiple-values';
+    $extraClass .= $fieldStorage->getCardinality() > 1 ? ' multiple-values' : ' single-value';
     $extraClass .= (isset($this->widget['#multiple']) && $this->widget['#multiple'] == TRUE) ? ' multiple-selection' : ' single-selection';
     if (isset($this->widget['#type'])) {
       if ((isset($this->widget['#multiple']) && $this->widget['#multiple'] == TRUE) || $this->widget['#type'] == 'radios' || $this->widget['#type'] == 'checkboxes'){
@@ -173,13 +168,30 @@ class EntityconnectWidgetProcessor {
       }
     }
 
-    $butonClasses = array(
+    // Set the class strings for the button
+    $buttonClasses = array(
       'extra_class' => $extraClass,
       'parents_class' => $parents,
     );
 
-    $this->attachAddButton($element, $butonClasses);
-    $this->attachEditButton($element, $butonClasses, $key);
+    // Set the correct element to attach to.
+    if ($key === 'all') {
+      // Options widget.
+      if (isset($this->widget['#type'])) {
+        $widgetElement = &$element;
+      }
+      // Autocomplete Tags widget.
+      else {
+        $widgetElement = &$element['widget'];
+      }
+    }
+    // Autocomplete widget.
+    else {
+      $widgetElement = &$element['widget'][$key];
+    }
+
+    $this->attachAddButton($widgetElement, $buttonClasses);
+    $this->attachEditButton($widgetElement, $buttonClasses, $key);
 
   }
 
@@ -209,7 +221,7 @@ class EntityconnectWidgetProcessor {
       }
     }
 
-    // Now we need to make sure the use should see this button.
+    // Now we need to make sure the user should see this button.
     if (\Drupal::currentUser()->hasPermission('entityconnect add button') && $addbuttonallowed && $acceptableTypes) {
       // Determine how the button should be displayed.
       if (isset($addIcon)) {
@@ -266,7 +278,7 @@ class EntityconnectWidgetProcessor {
     $editbuttonallowed = !$this->entityconnectSettings['buttons']['button_edit'];
     $editIcon = $this->entityconnectSettings['icons']['icon_edit'];
 
-    // Now we need to make sure the use should see this button.
+    // Now we need to make sure the user should see this button.
     if (\Drupal::currentUser()->hasPermission('entityconnect edit button') && $editbuttonallowed) {
       // Determine how the button should be displayed.
       if (isset($editIcon)) {
@@ -339,6 +351,47 @@ class EntityconnectWidgetProcessor {
    */
   public function setAcceptableTypes($acceptableTypes) {
     $this->acceptableTypes = $acceptableTypes;
+  }
+
+  /**
+   * Initialize entityType and targetBundles from the handler settings.
+   */
+  protected function initTargetInfo() {
+    $targetSettings = $this->fieldDefinition->getSettings();
+    $this->entityType = $targetSettings['target_type'];
+    $this->acceptableTypes = array();
+
+    // If this is the default setting then just get the target bundles.
+    if (isset($targetSettings['handler_settings']['target_bundles'])) {
+      $this->acceptableTypes = $targetSettings['handler_settings']['target_bundles'];
+    }
+    // If this is an entity_reference view, then try getting the target bundles
+    // from the filter.
+    elseif ($targetSettings['handler'] == 'views') {
+      $view = Views::getView($targetSettings['handler_settings']['view']['view_name']);
+      // Get filters from the entity_reference display.
+      $viewDisplay = $view->storage->getDisplay($targetSettings['handler_settings']['view']['display_name']);
+      if (!isset($viewDisplay['display_options']['filters'])) {
+        // Get filters from the Master display.
+        $viewDisplay = $view->storage->getDisplay('default');
+      }
+
+      switch ($this->entityType) {
+        // Type(bundle) value is under vid key for taxonomy terms.
+        case 'taxonomy_term':
+          if (isset($viewDisplay['display_options']['filters']['vid'])) {
+            $this->acceptableTypes = $viewDisplay['display_options']['filters']['vid']['value'];
+          }
+          break;
+        // Otherwise, type(bundle) value is under type key.
+        default:
+          if (isset($viewDisplay['display_options']['filters']['type'])) {
+            $this->acceptableTypes = $viewDisplay['display_options']['filters']['type']['value'];
+          }
+          // $this->acceptableTypes was already set to empty array before
+          break;
+      }
+    }
   }
 
 }

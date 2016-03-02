@@ -39,7 +39,6 @@
   padding: 0 0 0 1.5em;
   width: auto;
 }
-.field-type-entityreference.inline-label label,
-.form-type-entity-autocomplete {
+.field--type-entity-reference.inline-label label {
   display: inline;
 }

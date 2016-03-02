@@ -84,6 +84,7 @@ function entityconnect_form_alter(&$form, FormStateInterface $form_state, $form_
     }
     $field_definition = $field_defs[$child];
     if ($field_definition->getType() == 'entity_reference') {
+      // Fields must be configurable.
       if ($field_definition instanceof FieldConfig) {
         $form[$field_definition->getName()]['#process'][] = array(
           '\Drupal\entityconnect\EntityconnectWidgetProcessor',

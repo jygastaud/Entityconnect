@@ -9,22 +9,14 @@
       ref_field_buttons = {};
 
       // Treatments for each widget type.
-      // Autocomplete widget.
+      // Autocomplete and Autocomplete tags style widget.
       $(".entityconnect-add.autocomplete", context).each(function() {
-        $(this).insertAfter($(this).siblings('.form-type-textfield').children("input").first());
-        $(this).insertAfter($(this).siblings('.form-type-select').children("select").first());
+        $(this).insertAfter($(this).siblings('.form-type-entity-autocomplete').children("input").first());
+        $(this).insertAfter($(this).siblings('.form-type-entity-autocomplete').children("select").first());
       });
       $(".entityconnect-edit.autocomplete", context).each(function() {
-        $(this).insertAfter($(this).siblings('.form-type-textfield').children("input").first());
-        $(this).insertAfter($(this).siblings('.form-type-select').children("select").first());
-      });
-
-      // Autocomplete tags style widget.
-      $(".entityconnect-add.textfield", context).each(function() {
-        $(this).insertAfter($(this).siblings('.form-type-textfield').children("input").first());
-      });
-      $(".entityconnect-edit.textfield", context).each(function() {
-        $(this).insertAfter($(this).siblings('.form-type-textfield').children("input").first());
+        $(this).insertAfter($(this).siblings('.form-type-entity-autocomplete').children("input").first());
+        $(this).insertAfter($(this).siblings('.form-type-entity-autocomplete').children("select").first());
       });
 
       // Select widget.
@@ -42,7 +34,6 @@
         var $form_type_select = $(this).siblings(".form-type-select");
         if ($(this).hasClass('multiple-selection')) {
           $(this).insertAfter($form_type_select.find("label").first());
-          $('<div class="clearfix"></div>').insertAfter(this);
         }
         else {
           $(this).insertAfter($form_type_select.children("select"));
@@ -51,18 +42,18 @@
 
       // Radios widget.
       $(".entityconnect-add.radios", context).each(function() {
-        $(this).insertAfter($(this).siblings("div.form-type-radios").find("label").first());
+        $(this).insertAfter($(this).siblings("fieldset.form-item").find(".fieldset-legend").first());
       });
       $(".entityconnect-edit.radios", context).each(function() {
-        $(this).insertAfter($(this).siblings("div.form-type-radios").find("label").first());
+        $(this).insertAfter($(this).siblings("fieldset.form-item").find(".fieldset-legend").first());
       });
 
       // Checkboxes widget.
       $(".entityconnect-add.checkboxes", context).each(function() {
-        $(this).insertAfter($(this).siblings("div.form-type-checkboxes").find("label").first());
+        $(this).insertAfter($(this).siblings("fieldset.form-item").find(".fieldset-legend").first());
       });
       $(".entityconnect-edit.checkboxes", context).each(function() {
-        $(this).insertAfter($(this).siblings("div.form-type-checkboxes").find("label").first());
+        $(this).insertAfter($(this).siblings("fieldset.form-item").find(".fieldset-legend").first());
       });
 
       // Edit button control.
