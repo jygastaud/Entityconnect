@@ -8,7 +8,6 @@
 
 namespace Drupal\entityconnect;
 
-use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\field\Entity\FieldConfig;
@@ -164,7 +163,7 @@ class EntityconnectWidgetProcessor {
     $extraClass .= $fieldStorage->getCardinality() > 1 ? ' multiple-values' : ' single-value';
     $extraClass .= (isset($this->widget['#multiple']) && $this->widget['#multiple'] == TRUE) ? ' multiple-selection' : ' single-selection';
     if (isset($this->widget['#type'])) {
-      if ((isset($this->widget['#multiple']) && $this->widget['#multiple'] == TRUE) || $this->widget['#type'] == 'radios' || $this->widget['#type'] == 'checkboxes'){
+      if ((isset($this->widget['#multiple']) && $this->widget['#multiple'] == TRUE) || $this->widget['#type'] == 'radios' || $this->widget['#type'] == 'checkboxes') {
         $element['#attributes']['class'][] = 'inline-label';
       }
     }
@@ -217,7 +216,10 @@ class EntityconnectWidgetProcessor {
     // Get the subset of target bundles the user has permission to create.
     $acceptableTypes = array();
     foreach ($this->acceptableTypes as $bundle) {
-      if (\Drupal::entityTypeManager()->getAccessControlHandler($this->entityType)->createAccess($bundle)) {
+      if (\Drupal::entityTypeManager()
+        ->getAccessControlHandler($this->entityType)
+        ->createAccess($bundle)
+      ) {
         $acceptableTypes[] = $bundle;
       }
     }
@@ -392,35 +394,6 @@ class EntityconnectWidgetProcessor {
           // $this->acceptableTypes was already set to empty array before
           break;
       }
-    }
-  }
-
-  /**
-   * Form API #validate callback for a form with entity_reference fields.
-   *
-   * Removes the entityconnect button values from form_state to prevent
-   * exceptions.
-   *
-   * @param array $form
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   */
-  public static function validateForm(array &$form, FormStateInterface $form_state) {
-    $ref_fields = entityconnect_extract_ref_fields($form, $form_state);
-
-    foreach ($ref_fields as $field) {
-      // Extract the values for this field from $form_state->getValues().
-      $path = array_merge($form['#parents'], array($field));
-      $key_exists = NULL;
-      $ref_values = NestedArray::getValue($form_state->getValues(), $path, $key_exists);
-
-      if ($key_exists) {
-        foreach ($ref_values as $key => $value) {
-          if (strpos($key, '_entityconnect') !== FALSE) {
-            $form_state->unsetValue(array_merge($path, [$key]));
-          }
-        }
-      }
-
     }
   }
 }

@@ -7,8 +7,7 @@
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\entityconnect\Form\AdministrationForm;
-use Drupal\field\Entity\FieldConfig;
+use Drupal\entityconnect\EntityconnectFormUtils;
 
 /**
  * Implements hook_help().
@@ -39,84 +38,12 @@ function entityconnect_theme() {
  * Implements hook_form_FORM_ID_alter() for field_config_edit_form.
  */
 function entityconnect_form_field_config_edit_form_alter(array &$form, FormStateInterface $form_state) {
-
-  $field = $form_state->getFormObject()->getEntity();
-  $type = $field->getType();
-
-  // Add entityconnect settings as 3rd party settings to the entity reference
-  // field config.
-  if ($type == 'entity_reference') {
-    $defaults = $field->getThirdPartySettings('entityconnect');
-    if (!$defaults) {
-      $config = \Drupal::config('entityconnect.administration_config');
-      $defaults = $config->get();
-    }
-    AdministrationForm::attach($form['third_party_settings'], $defaults);
-  }
-
+  EntityconnectFormUtils::fieldConfigEditFormAlter($form, $form_state);
 }
 
 /**
  * Implements hook_form_alter().
- *
- * Add the entityconnect button(s) to the form here since we only have access
- * to the actual widget element in hook_field_widget_form_alter().
  */
 function entityconnect_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-
-  // Get the applicable entity reference fields from the form.
-  $ref_fields = entityconnect_extract_ref_fields($form, $form_state);
-
-  // Attach a custom processor to each entity reference field element.
-  if ($ref_fields) {
-    foreach ($ref_fields as $field) {
-      // Add our #process callback
-      $form[$field]['#process'][] = array(
-        '\Drupal\entityconnect\EntityconnectWidgetProcessor',
-        'process',
-      );
-
-      // Add our #validate callback to the widget form.
-      // This prevents the exception on entityconnect elements caused by submitting
-      // the form without using the entityconnect buttons.
-      $form['#validate'] = !isset($form['#validate']) ? array() : $form['#validate'];
-      array_unshift($form['#validate'], array(
-        '\Drupal\entityconnect\EntityconnectWidgetProcessor',
-        'validateForm',
-      ));
-    }
-  }
-}
-
-function entityconnect_extract_ref_fields($form, $form_state) {
-
-  $ref_fields = array();
-  $entity = NULL;
-
-  // Get the entity if this is an entity form.
-  if (method_exists($form_state->getFormObject(), 'getEntity')) {
-    $entity = $form_state->getFormObject()->getEntity();
-  }
-
-  // Bail out if not a fieldable entity form.
-  if (empty($entity) || !$entity->getEntityType()->isSubclassOf('\Drupal\Core\Entity\FieldableEntityInterface')) {
-    return $ref_fields;
-  }
-
-  // Get the entity reference elements from this form.
-  $field_defs = $entity->getFieldDefinitions();
-  foreach (Element::children($form) as $child) {
-    if (!isset($field_defs[$child])) {
-      continue;
-    }
-    $field_definition = $field_defs[$child];
-    if ($field_definition->getType() == 'entity_reference') {
-      // Fields must be configurable.
-      if ($field_definition instanceof FieldConfig) {
-        $ref_fields[] = $child;
-      }
-    }
-  }
-
-  return $ref_fields;
+  EntityconnectFormUtils::entityFormAlter($form, $form_state);
 }
