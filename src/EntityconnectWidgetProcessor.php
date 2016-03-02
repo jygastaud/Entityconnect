@@ -132,7 +132,7 @@ class EntityconnectWidgetProcessor {
         $widgetProcessor->attachButtons($element, $key);
       }
     }
-dpm($element);
+
     return $element;
   }
 
