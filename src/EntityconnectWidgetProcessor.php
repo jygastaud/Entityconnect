@@ -215,15 +215,25 @@ class EntityconnectWidgetProcessor {
 
     // Get the subset of target bundles the user has permission to create.
     $acceptableTypes = array();
-    foreach ($this->acceptableTypes as $bundle) {
+
+    if (!$this->acceptableTypes) {
       if (\Drupal::entityTypeManager()
         ->getAccessControlHandler($this->entityType)
-        ->createAccess($bundle)
+        ->createAccess($this->entityType)
       ) {
-        $acceptableTypes[] = $bundle;
+        $acceptableTypes[] = $this->entityType;
       }
     }
-
+    else {
+      foreach ($this->acceptableTypes as $bundle) {
+        if (\Drupal::entityTypeManager()
+          ->getAccessControlHandler($this->entityType)
+          ->createAccess($bundle)
+        ) {
+          $acceptableTypes[] = $bundle;
+        }
+      }
+    }
     // Now we need to make sure the user should see this button.
     if (\Drupal::currentUser()->hasPermission('entityconnect add button') && $addbuttonallowed && $acceptableTypes) {
       // Determine how the button should be displayed.
