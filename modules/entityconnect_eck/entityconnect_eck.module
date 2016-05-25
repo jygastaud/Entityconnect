@@ -129,8 +129,9 @@ function entityconnect_eck_entityconnect_add_info($cache_id, $entity_type, $acce
   if (isset($entity_info['module']) && $entity_info['module'] == 'eck') {
     // Only one allowed, no need for the intermediate step.
     if (count($acceptable_types) > 0) {
-      foreach ($entity_info['bundles'] as $key => $bundle) {
-        $content[$key] = array(
+      foreach ($acceptable_types as $bundle_name) {
+        $bundle = $entity_info['bundles'][$bundle_name];
+        $content[$bundle_name] = array(
           'href' => $bundle['crud']['add']['path'] . "/$cache_id",
           'label' => $bundle['label'],
           'description' => '',
@@ -138,12 +139,11 @@ function entityconnect_eck_entityconnect_add_info($cache_id, $entity_type, $acce
       }
     }
     else {
-      foreach ($acceptable_types as $bundle_name) {
-        $bundle = $entity_info['bundles'][$bundle_name];
-        $content[$bundle_name] = array(
+      foreach ($entity_info['bundles'] as $key => $bundle) {
+        $content[$key] = array(
           'href' => $bundle['crud']['add']['path'] . "/$cache_id",
           'label' => $bundle['label'],
-          'description' => ''
+          'description' => '',
         );
       }
     }
