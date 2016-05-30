@@ -11,7 +11,7 @@
  */
 function entityconnect_return($cache_id) {
   $cache = entityconnect_cache_get($cache_id);
-  $css_id = "edit-" . str_replace('_', '-', $cache->data['field']);
+  $css_id = $cache->data['form_state']['clicked_button']['#id'];
   $options = array('query' => array(
               'build_cache_id' => $cache_id,
               'return' => TRUE),
