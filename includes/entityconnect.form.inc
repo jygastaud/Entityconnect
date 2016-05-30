@@ -70,7 +70,7 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
       $name = $entity_reference_info->field['settings']['handler_settings']['view']['view_name'];
       $display = $entity_reference_info->field['settings']['handler_settings']['view']['display_name'];
       $views = views_get_view($name);
-      $views_display = $views->display;
+      $views_display = isset($views->display) ? $views->display : NULL;
 
       switch ($entity_type) {
         case 'taxonomy_term':
