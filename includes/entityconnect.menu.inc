@@ -71,9 +71,11 @@ function entityconnect_add($cache_id) {
 
   // If we have only one content-type defined,
   // go directly to the node form.
-  // @todo: Need to be retest with taxonomy term.
   if (count($content) == 1) {
     $item = array_pop($content);
+    // Cast every item as array.
+    // That allow both object or array to be treated the same way.
+    $item = (array) $item;
     drupal_goto($item['href']);
   }
 
