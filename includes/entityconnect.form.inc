@@ -122,7 +122,10 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
     $extra_class = isset($widget_container['#type']) ? $widget_container['#type'] : 'autocomplete';
     $extra_class .= (!isset($widget_container['#cardinality']) || $widget_container['#cardinality'] == 1) ? ' single-value' : ' multiple-values';
     $extra_class .= (isset($widget_container['#multiple']) && $widget_container['#multiple'] == TRUE) ? ' multiple-selection' : ' single-selection';
-    if ((isset($widget_container['#multiple']) && $widget_container['#multiple'] == TRUE) || $widget_container['#type'] == 'radios' || $widget_container['#type'] == 'checkboxes'){
+    if (($addbuttonallowed == 0 || $editbuttonallowed == 0)
+        && (isset($widget_container['#multiple']) && $widget_container['#multiple'] == TRUE)
+        || $widget_container['#type'] == 'radios'
+        || $widget_container['#type'] == 'checkboxes') {
       $field_container['#attributes']['class'][] = 'inline-label';
     }
     if (user_access('entityconnect add button') && $addbuttonallowed == 0) {
@@ -161,7 +164,8 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
     $extra_class = isset($widget_container['#type']) ? $widget_container['#type'] : 'autocomplete';
     $extra_class .= (!isset($widget_container['#cardinality']) || $widget_container['#cardinality'] == 1) ? ' single-value' : ' multiple-values';
     $extra_class .= (isset($widget_container['#multiple']) && $widget_container['#multiple'] == TRUE) ? ' multiple-selection' : ' single-selection';
-    if (isset($widget_container['#type'])) {
+    if (($addbuttonallowed == 0 || $editbuttonallowed == 0)
+        && isset($widget_container['#type'])) {
       if ((isset($widget_container['#multiple']) && $widget_container['#multiple'] == TRUE) || $widget_container['#type'] == 'radios' || $widget_container['#type'] == 'checkboxes'){
         $field_container['#attributes']['class'][] = 'inline-label';
      }
