@@ -48,14 +48,6 @@ function _entityconnect_get_ref_fields() {
           break;
       }
     }
-
-    // Add support for Reference module.
-    if (($field['type'] == 'node_reference' && $field['module'] == 'node_reference')
-      || ($field['type'] == 'user_reference' && $field['module'] == 'user_reference')) {
-      if (user_access('entityconnect add button') || user_access('entityconnect edit button')) {
-        $ref_fields[$id] = $field;
-      }
-    }
   }
 
   drupal_alter('entityconnect_ref_fields', $ref_fields);
@@ -67,8 +59,6 @@ function _entityconnect_get_references_field_type_list() {
 
   $modules_list = array(
     'entityreference',
-    'node_reference',
-    'user_reference'
   );
   drupal_alter('entityconnect_field_type_list', $modules_list);
 

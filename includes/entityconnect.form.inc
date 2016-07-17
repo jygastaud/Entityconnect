@@ -95,14 +95,6 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
       }
     }
   }
-  elseif ($field['module'] == 'node_reference') {
-    $entity_type = 'node';
-    $acceptable_types = $field['settings']['referenceable_types'];
-  }
-  elseif ($field['module'] == 'user_reference') {
-    $entity_type = 'user';
-    $acceptable_types = $field['settings']['referenceable_roles'];
-  }
 
   $datas = array(
     'entity_type' => &$entity_type,
@@ -333,62 +325,6 @@ function entityconnect_add_edit_button_submit(&$form, &$form_state) {
       }
     }
   }
-  elseif ($field_info['module'] == 'node_reference') {
-    if ($key_exists) {
-      $target_id = isset($field_container['nid']) ? $field_container['nid'] : '';
-      if ($target_id == '' && is_array($field_container)) {
-        foreach ($field_container as $key => $value) {
-          if (is_array($value)) {
-            foreach ($value as $key2 => $value2) {
-              if (!is_null($value2)) {
-                $target_id[$key2] = $value2;
-              }
-            }
-          }
-          else {
-            $target_id = $value;
-          }
-        }
-      }
-    }
-
-    // TODO : Find the original problem of the entity connect use with
-    // Field Collection.
-    if (!empty($target_id)) {
-      // Take "label (entity id)', match the id from parenthesis.
-      if (preg_match("/.+\[nid:(\d+)\]/", $target_id, $matches)) {
-        $target_id = $matches[1];
-      }
-    }
-  }
-  elseif ($field_info['module'] == 'user_reference') {
-    if ($key_exists) {
-      $target_id = isset($field_container['uid']) ? $field_container['uid'] : '';
-      if ($target_id == '' && is_array($field_container)) {
-        foreach ($field_container as $key => $value) {
-          if (is_array($value)) {
-            foreach ($value as $key2 => $value2) {
-              if (!is_null($value2)) {
-                $target_id[$key2] = $value2;
-              }
-            }
-          }
-          else {
-            $target_id = $value;
-          }
-        }
-      }
-    }
-
-    // TODO : Find the original problem of the entity connect use with
-    // Field Collection.
-    if (!empty($target_id)) {
-      // Take "label (entity id)', match the id from parenthesis.
-      if (preg_match("/.+\[uid:(\d+)\]/", $target_id, $matches)) {
-        $target_id = $matches[1];
-      }
-    }
-  }
 
   // If no entity has been chosen to edit, redirect to the original node.
   if (!$form_state['clicked_button']['#add_child'] && $target_id == '_none') {
@@ -591,16 +527,8 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
                 break;
 
               default:
-                if ($field_info['module'] == 'entityreference') {
-                  $element['#default_value'] = $node->title;
-                  $element['#default_value'] .= ' (' . $node->nid . ')';
-                }
-
-                if ($field_info['module'] == 'node_reference') {
-                  $element['#default_value'] = $node->nid;
-                  // Use the autocomplete value so we are sure we validate.
-                  $element['#default_value'] = node_reference_autocomplete_value($element, FALSE, $form_state);
-                }
+                $element['#default_value'] = $node->title;
+                $element['#default_value'] .= ' (' . $node->nid . ')';
                 break;
             }
           }
@@ -646,15 +574,8 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
                 break;
 
               default:
-                if ($field_info['module'] == 'entityreference') {
-                  $element['#default_value'] = $user->name;
-                  $element['#default_value'] .= ' (' . $user->uid . ')';
-                }
-
-                if ($field_info['module'] == 'user_reference') {
-                  $element['#default_value'] = $user->uid;
-                  $element['#default_value'] = user_reference_autocomplete_value($element, FALSE, $form_state);
-                }
+                $element['#default_value'] = $user->name;
+                $element['#default_value'] .= ' (' . $user->uid . ')';
                 break;
             }
           }
@@ -700,10 +621,8 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
                 break;
 
               default:
-                if ($field_info['module'] == 'entityreference') {
-                  $element['#default_value'] = $term->name;
-                  $element['#default_value'] .= ' (' . $term->tid . ')';
-                }
+                $element['#default_value'] = $term->name;
+                $element['#default_value'] .= ' (' . $term->tid . ')';
                 break;
             }
           }
@@ -749,10 +668,8 @@ function entityconnect_return_form_alter(&$form, &$form_state, $form_id, $cache_
                 break;
 
               default:
-                if ($field_info['module'] == 'entityreference') {
-                  $element['#default_value'] = $vocabulary->name;
-                  $element['#default_value'] .= ' (' . $vocabulary->vid . ')';
-                }
+                $element['#default_value'] = $vocabulary->name;
+                $element['#default_value'] .= ' (' . $vocabulary->vid . ')';
                 break;
             }
           }
@@ -865,8 +782,7 @@ function entityconnect_child_form_alter(&$form, &$form_state, $form_id, $cache_i
 /**
  * Used to update the form state value.
  *
- * Form state value is updated for entityreference,
- * node_reference or user_reference field after adding a new entity.
+ * Form state value is updated for entityreference field after adding a new entity.
  *
  * @param array $form_state
  *   The form_state we need to change.
@@ -887,19 +803,7 @@ function _entityconnect_alter_form_state_input(&$form_state, $module, $widget_ty
   switch ($widget_type) {
     case 'autocomplete':
     case 'multiple_selects':
-      switch ($module) {
-        case 'entityreference':
-          array_push($parents, "target_id");
-          break;
-
-        case 'node_reference':
-          array_push($parents, "nid");
-          break;
-
-        case 'user_reference':
-          array_push($parents, "uid");
-          break;
-      }
+      array_push($parents, "target_id");
       break;
 
     case 'textfield':
