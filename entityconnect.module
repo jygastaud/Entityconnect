@@ -12,7 +12,6 @@ define('ENTITYCONNECT_CACHE_TABLE', 'cache_entityconnect');
  * Includes.
  */
 require_once 'includes/entityconnect.fields.inc';
-require_once 'includes/entityconnect.utils.inc';
 
 /**
  * Implements hook_permission().
@@ -94,7 +93,7 @@ function entityconnect_check_access() {
  */
 function entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode) {
   entityconnect_include_form();
-  foreach (_entityconnect_get_ref_fields() as $field_name => $field) {
+  foreach (Drupal\entityconnect\Entityconnect::getRefFields() as $field_name => $field) {
     if (isset($form[$field_name])) {
       _entityconnect_field_attach_form($entity_type, $entity, $form,
         $form_state, $field_name, $field, $langcode);

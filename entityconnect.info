@@ -5,3 +5,4 @@ package = "Entity Connect"
 configure = "admin/config/content/entityconnect"
 
 dependencies[] = "entityreference"
+dependencies[] = "xautoload"

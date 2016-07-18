@@ -16,256 +16,67 @@ function _entityconnect_field_attach_form($entity_type, $entity, &$form, &$form_
   $field_container = &$form[$field_name];
   $widget_container = &$field_container[$language];
 
-  if (isset($widget_container['#field_parents'])) {
-    foreach ($widget_container['#field_parents'] as $key1 => $parent) {
-      if (!isset($parents)) {
-        $parents = $parent;
-      }
-      else {
-        $parents .= "-" . $parent;
-      }
-    }
-  }
-
   if (!empty($entity_type) && !empty($entity)) {
     list(, , $bundle) = entity_extract_ids($entity_type, $entity);
     $instance = field_info_instance($form['#entity_type'], $field_name, $bundle);
-  }
 
-  if (!isset($instance['entityconnect']['button']['unload_add_button'])) {
-    $instance['entityconnect']['button']['unload_add_button'] = variable_get('entityconnect_unload_add_default', 1);
-  }
-
-  if (!isset($instance['entityconnect']['button']['unload_edit_button'])) {
-    $instance['entityconnect']['button']['unload_edit_button'] = variable_get('entityconnect_unload_edit_default', 1);
-  }
-
-  $addbuttonallowed = $instance['entityconnect']['button']['unload_add_button'];
-  $editbuttonallowed = $instance['entityconnect']['button']['unload_edit_button'];
-
-  if (!isset($instance['entityconnect']['icon']['show_add_icon'])) {
-    $instance['entityconnect']['icon']['show_add_icon'] = variable_get('entityconnect_show_add_icon_default', 0);
-  }
-
-  if (!isset($instance['entityconnect']['icon']['show_edit_icon'])) {
-    $instance['entityconnect']['icon']['show_edit_icon'] = variable_get('entityconnect_show_edit_icon_default', 0);
-  }
-
-  $add_icon = $instance['entityconnect']['icon']['show_add_icon'];
-  $edit_icon = $instance['entityconnect']['icon']['show_edit_icon'];
-
-
-  $field = field_info_field($field_name);
-  $acceptable_types = NULL;
-
-  // We get bundles referenced.
-  if ($field['module'] == 'entityreference') {
+    // We get bundles referenced.
     $entity_reference_info = entityreference_get_selection_handler($field, $instance);
-    $entity_type = $entity_reference_info->field['settings']['target_type'];
 
-    if (isset($entity_reference_info->field['settings']['handler_settings']['target_bundles'])) {
-      $acceptable_types = $entity_reference_info->field['settings']['handler_settings']['target_bundles'];
-    }
-    elseif (isset($entity_reference_info->field['settings']['handler_settings']['view'])) {
-      $name = $entity_reference_info->field['settings']['handler_settings']['view']['view_name'];
-      $display = $entity_reference_info->field['settings']['handler_settings']['view']['display_name'];
-      $views = views_get_view($name);
-      $views_display = isset($views->display) ? $views->display : NULL;
+    // Create base button.
+    $submit_button = new Drupal\entityconnect\Element\EntityconnectSubmit($instance, $widget_container, $entity_reference_info);
 
-      switch ($entity_type) {
-        case 'taxonomy_term':
-          if (isset($views_display[$display]->display_options['filters']['machine_name']['table'])
-                && $views_display[$display]->display_options['filters']['machine_name']['table'] == 'taxonomy_vocabulary' ) {
-            $acceptable_types = $views_display[$display]->display_options['filters']['machine_name']['value'];
-          }
-          elseif (isset($views_display['default']->display_options['filters']['machine_name']['value'])) {
-            $acceptable_types = $views_display['default']->display_options['filters']['machine_name']['value'];
-          }
-          break;
+    $field = field_info_field($field_name);
 
-        default:
-          if (isset($views_display[$display]->display_options['filters']['type'])) {
-            $acceptable_types = $views_display[$display]->display_options['filters']['type']['value'];
+    // Get entity bundles that are allowed to be created by add button.
+    $acceptable_types = $submit_button->getAcceptableBundles();
+
+    // Create hook_entityconnect_field_attach_form_alter().
+    $datas = array(
+      'entity_type' => &$entity_type,
+      'acceptable_types' => &$acceptable_types,
+      'field' => $field
+    );
+    drupal_alter('entityconnect_field_attach_form', $datas);
+
+    // We currently should separate Autocomplete widget from others default widget.
+    if ($submit_button->isOfWidgetType() == 'autocomplete') {
+      foreach ($widget_container as $key => &$widget_element) {
+        if (is_numeric($key)) {
+
+          // Display Add button.
+          if ($submit_button->isAddButtonAllowed() == 0) {
+            $submit_button->setAddButonInfo($widget_element, $language, $field_name, $key, $entity_type, $acceptable_types);
           }
-          elseif (isset($views_display['default']->display_options['filters']['type']['value'])) {
-            $acceptable_types = $views_display['default']->display_options['filters']['type']['value'];
+
+          // Display Edit button.
+          if ($submit_button->isEditButtonAllowed() == 0) {
+            $submit_button->setEditButtonInfo($widget_element, $language, $field_name, $key, $entity_type);
           }
-          // $acceptable_types was already set to NULL before
-          break;
+
+        }
       }
     }
-  }
-
-  $datas = array(
-    'entity_type' => &$entity_type,
-    'acceptable_types' => &$acceptable_types,
-    'field' => $field
-  );
-  drupal_alter('entityconnect_field_attach_form', $datas);
-
-  // We currently should separate Autocomplete widget from others default widget
-  // because "Edit" button will not react well on multiple selected items.
-  // Autocomplete widget has not #type value, so we are testing it
-  // via $widget_container['#type'].
-  // We also test if $widget_container['view'] is set to support
-  // the widget provided by entityreference_view_widget module.
-  if (isset($widget_container['#type']) || isset($widget_container['view'])) {
-    isset($parents) ? $parents : $parents = '';
-    $extra_class = isset($widget_container['#type']) ? $widget_container['#type'] : 'autocomplete';
-    $extra_class .= (!isset($widget_container['#cardinality']) || $widget_container['#cardinality'] == 1) ? ' single-value' : ' multiple-values';
-    $extra_class .= (isset($widget_container['#multiple']) && $widget_container['#multiple'] == TRUE) ? ' multiple-selection' : ' single-selection';
-    if (($addbuttonallowed == 0 || $editbuttonallowed == 0)
-        && (isset($widget_container['#multiple']) && $widget_container['#multiple'] == TRUE)
-        || $widget_container['#type'] == 'radios'
-        || $widget_container['#type'] == 'checkboxes') {
-      $field_container['#attributes']['class'][] = 'inline-label';
-    }
-    if (user_access('entityconnect add button') && $addbuttonallowed == 0) {
-      if (isset($add_icon)) {
-        if ($add_icon == '0') {
-          $classes = $extra_class . ' add-icon';
-        }
-        elseif ($add_icon == '1') {
-          $classes =  $extra_class . ' add-icon add-text';
-        }
-        else {
-          $classes = $extra_class;
-        }
-      }
-      entityconnect_add_form_element_new($field_container, $language, $field_name, $parents, 'all', $classes, $instance, $entity_type, $acceptable_types);
-    }
-    if (user_access('entityconnect edit button') && $editbuttonallowed == 0) {
-      if (isset($edit_icon)) {
-        if ($edit_icon == '0') {
-          $classes = $extra_class . ' edit-icon';
-        }
-        elseif ($edit_icon == '1') {
-          $classes =  $extra_class . ' edit-icon edit-text';
-        }
-        else {
-          $classes = $extra_class;
-        }
-      }
-      entityconnect_add_form_element_edit($field_container, $language, $field_name, $parents, 'all', $classes, $entity_type);
-    }
-  }
-  else {
-    // Type is not set, so multiple widgets.
-    // We have to add some extra js for single value fields so we add
-    // a class to let the js know.
-    $extra_class = isset($widget_container['#type']) ? $widget_container['#type'] : 'autocomplete';
-    $extra_class .= (!isset($widget_container['#cardinality']) || $widget_container['#cardinality'] == 1) ? ' single-value' : ' multiple-values';
-    $extra_class .= (isset($widget_container['#multiple']) && $widget_container['#multiple'] == TRUE) ? ' multiple-selection' : ' single-selection';
-    if (($addbuttonallowed == 0 || $editbuttonallowed == 0)
-        && isset($widget_container['#type'])) {
-      if ((isset($widget_container['#multiple']) && $widget_container['#multiple'] == TRUE) || $widget_container['#type'] == 'radios' || $widget_container['#type'] == 'checkboxes'){
+    else {
+      // All other widgets which are not of type autocomplete.
+      $key = 'all';
+      if ((isset($widget_container['#multiple']) && $widget_container['#multiple'] == TRUE)
+          || $widget_container['#type'] == 'radios'
+          || $widget_container['#type'] == 'checkboxes') {
         $field_container['#attributes']['class'][] = 'inline-label';
-     }
-    }
-    foreach ($widget_container as $key => &$widget_element) {
-      if (is_numeric($key)) {
-        if (user_access('entityconnect add button') && $addbuttonallowed == 0) {
-          isset($parents) ? $parents : $parents = '';
-          if (isset($add_icon)) {
-            if ($add_icon == '0') {
-              $classes = $extra_class . ' add-icon';
-            }
-            elseif ($add_icon == '1') {
-              $classes =  $extra_class . ' add-icon add-text';
-            }
-            else {
-              $classes = $extra_class;
-            }
-          }
-          entityconnect_add_form_element_new($widget_element, $language, $field_name, $parents, $key, $classes, $instance, $entity_type, $acceptable_types);
-        }
-        if (user_access('entityconnect edit button') && $editbuttonallowed == 0) {
-          isset($parents) ? $parents : $parents = '';
-          if (isset($edit_icon)) {
-            if ($edit_icon == '0') {
-              $classes = $extra_class . ' edit-icon';
-            }
-            elseif ($edit_icon == '1') {
-              $classes =  $extra_class . ' edit-icon edit-text';
-            }
-            else {
-              $classes = $extra_class;
-            }
-          }
-          entityconnect_add_form_element_edit($widget_element, $language, $field_name, $parents, $key, $classes, $entity_type);
-        }
+      }
+
+      // Display Add button.
+      if ($submit_button->isAddButtonAllowed() == 0) {
+        $submit_button->setAddButtonInfo($field_container, $language, $field_name, $key, $entity_type, $acceptable_types);
+      }
+
+      // Display Edit button.
+      if ($submit_button->isEditButtonAllowed() == 0) {
+        $submit_button->setEditButtonInfo($field_container, $language, $field_name, $key, $entity_type);
       }
     }
   }
-}
-
-/**
- * Here we attach a "Add" submit button.
- */
-function entityconnect_add_form_element_new(&$widget_element, $language, $field_name, $parents, $key, $extra_class, $instance, $entity_type, $acceptable_types = NULL) {
-  $widget_element["add_entityconnect__{$field_name}_{$key}_{$parents}"] = array(
-    '#type' => 'submit',
-    '#limit_validation_errors' => array(),
-    '#value' => t('New content'),
-    '#name' => "add_entityconnect__{$field_name}_{$key}_{$parents}",
-    '#prefix' => "<div class = 'entityconnect-add $extra_class'>",
-    '#suffix' => '</div>',
-    '#key' => $key,
-    '#field' => $field_name,
-    '#entity_type_target' => $entity_type,
-    '#acceptable_types' => $acceptable_types,
-    '#add_child' => TRUE,
-    '#language' => $language,
-    '#submit' => array('entityconnect_include_form', 'entityconnect_add_edit_button_submit'),
-    '#weight' => -2,
-    '#attached' => array(
-      'js' => array(
-        drupal_get_path('module', 'entityconnect') . "/theme/js/entityconnect.js",
-      ),
-      'css' => array(
-        drupal_get_path('module', 'entityconnect') . "/theme/css/entityconnect.css",
-      ),
-    ),
-    '#attributes' => array(
-      'title' => t('Add'),
-      // Support Clientside Validation.
-      'class' => array('cancel')
-    ),
-  );
-}
-
-/**
- * Here we attach a "Edit" submit button.
- */
-function entityconnect_add_form_element_edit(&$widget_element, $language, $field_name, $parents, $key, $extra_class, $entity_type) {
-  $widget_element["edit_entityconnect__{$field_name}_{$key}_{$parents}"] = array(
-    '#type' => 'submit',
-    '#limit_validation_errors' => array(array($field_name)),
-    '#value' => t('Edit content'),
-    '#name' => "edit_entityconnect__{$field_name}_{$key}_{$parents}",
-    '#prefix' => "<div class = 'entityconnect-edit $extra_class'>",
-    '#suffix' => '</div>',
-    '#key' => $key,
-    '#field' => $field_name,
-    '#entity_type_target' => $entity_type,
-    '#add_child' => FALSE,
-    '#language' => $language,
-    '#submit' => array('entityconnect_include_form', 'entityconnect_add_edit_button_submit'),
-    '#weight' => -2,
-    '#attached' => array(
-      'js' => array(
-        drupal_get_path('module', 'entityconnect') . "/theme/js/entityconnect.js",
-      ),
-      'css' => array(
-        drupal_get_path('module', 'entityconnect') . "/theme/css/entityconnect.css",
-      ),
-    ),
-    '#attributes' => array(
-      'title' => t('Edit'),
-      // Support Clientside Validation.
-      'class' => array('cancel')
-    ),
-  );
 }
 
 /**
