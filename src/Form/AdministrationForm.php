@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains Drupal\entityconnect\Form\AdministrationForm.
- */
-
 namespace Drupal\entityconnect\Form;
 
 use Drupal\Core\Form\ConfigFormBase;

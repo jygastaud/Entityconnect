@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains Drupal\entityconnect\Controller\EntityconnectController.
- */
-
 namespace Drupal\entityconnect\Controller;
 
 use Drupal\Core\Controller\ControllerBase;

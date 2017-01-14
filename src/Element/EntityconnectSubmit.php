@@ -1,8 +1,5 @@
 <?php
 /**
- * @file
- * Contains \Drupal\entityconnect\Element\EntityconnectSubmit.
- *
  * @author Agnes Chisholm <amaria@66428.no-reply.drupal.org>
  */
 

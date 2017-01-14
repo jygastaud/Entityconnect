@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains Drupal\entityconnect\Tests\EntityconnectController.
- */
-
 namespace Drupal\entityconnect\Tests;
 
 use Drupal\simpletest\WebTestBase;
