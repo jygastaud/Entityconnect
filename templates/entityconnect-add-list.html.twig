@@ -1,0 +1,31 @@
+{#
+/**
+ * @file
+ * Default theme implementation for the Entityconnect Add List template.
+ *
+ * Available variables:
+ * - attributes: An array of attributes to apply to the element.
+ * - settings.type: The wrapper type. (ul or ol)
+ * - content.list: The array of slides
+ * - settings: An array containing the given settings.
+ *
+ * @see template_preprocess_entityconnect_add_list()
+ */
+#}
+
+{% if items %}
+<ul class="admin-list">
+  {% for item in items %}
+    <li class="clearfix">
+      <span class="label"><a href="{{ item.href }}?build_cache_id={{ cache_id }}&child=1">{{ item.label }}</a></span>
+    </li>
+  {% endfor %}
+</ul>
+{% else %}
+  <p>
+    {% trans %}
+    You have not selected any entities.
+    {% endtrans %}
+  </p>
+{% endif %}
+<p>{{ cancel_link }}</p>

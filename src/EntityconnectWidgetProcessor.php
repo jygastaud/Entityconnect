@@ -214,6 +214,7 @@ class EntityconnectWidgetProcessor {
     $acceptableTypes = array();
 
     if (!$this->acceptableTypes) {
+      // @FIXME: The acceptable types is ALL so check the access for all.
       if (\Drupal::entityTypeManager()
         ->getAccessControlHandler($this->entityType)
         ->createAccess($this->entityType)

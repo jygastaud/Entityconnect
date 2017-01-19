@@ -11,6 +11,8 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\entityconnect\Form\AdministrationForm;
 use Drupal\field\Entity\FieldConfig;
+use Drupal\field\FieldStorageConfigInterface;
+use Drupal\node\Entity\Node;
 use Drupal\views\Views;
 
 /**
@@ -150,6 +152,317 @@ class EntityconnectFormUtils {
 
     return $ref_fields;
 
+  }
+
+  /**
+   * Alters child create form.
+   *
+   * We add a value field to hold the parent build_cache_id
+   * then we add a cancel button that run entityconnect_child_form_cancel
+   * and a new submit button.
+   *
+   * @param array $form
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   * @param string $form_id
+   * @param string $cache_id
+   * @param array $cache_data
+   */
+  public static function childFormAlter(array &$form, FormStateInterface $form_state, $form_id, $cache_id) {
+    // Exclude some forms to be processed.
+    $exclude_forms = array(
+      'search_block_form'
+    );
+    // Allow other modules to alter exclude forms list.
+    \Drupal::moduleHandler()->alter('entityconnect_exclude_forms', $exclude_forms);
+
+    if (in_array($form_id, $exclude_forms)) {
+      return;
+    }
+
+    $form['parent_build_cache_id'] = array(
+      '#type' => 'value',
+      '#value' => $cache_id,
+    );
+    $form['actions']['cancel'] = array(
+      '#type' => 'submit',
+      '#value' => t('Cancel'),
+      '#submit' => array(array(
+        '\Drupal\entityconnect\EntityconnectFormUtils',
+        'childFormCancel',
+      )),
+      '#parent_build_cache_id' => $cache_id,
+      '#limit_validation_errors' => array(),
+      '#weight' => 1000,
+    );
+
+    switch ($form_id) {
+      case 'user_register_form':
+        $form['actions']['submit']['#submit'][] = 'user_register_submit';
+        break;
+
+      case 'user_profile_form':
+        $form['actions']['submit']['#submit'][] = 'user_profile_form_submit';
+        break;
+
+      case 'taxonomy_form_term':
+        $form['actions']['submit']['#submit'][] = 'taxonomy_form_term_submit';
+        break;
+
+      case 'taxonomy_form_vocabulary':
+        $form['actions']['submit']['#submit'][] = 'taxonomy_form_vocabulary_submit';
+        break;
+
+      case 'node_delete_confirm':
+        $form['actions']['submit']['#submit'] = $form['#submit'];
+        $form['#submit'] = array();
+        break;
+
+      default:
+        break;
+    }
+
+    if (isset($form['submit']['#submit'])) {
+      $form['submit']['#submit'][] = array(
+        '\Drupal\entityconnect\EntityconnectFormUtils',
+        'childFormSubmit',
+      );
+    }
+    else {
+      foreach (array_keys($form['actions']) as $action) {
+        if ($action != 'preview' && isset($form['actions'][$action]['#type']) && $form['actions'][$action]['#type'] === 'submit') {
+          $form['actions'][$action]['#submit'][] = array(
+            '\Drupal\entityconnect\EntityconnectFormUtils',
+            'childFormSubmit',
+          );
+        }
+      }
+    }
+    if (strpos($form_id, '_delete_confirm') === false) {
+      $form['actions']['delete']['#submit'][] = array(
+        '\Drupal\entityconnect\EntityconnectFormUtils',
+        'childFormDeleteSubmit',
+      );
+    }
+
+    $data = array(
+      'form' => &$form,
+      'form_state' => &$form_state,
+      'form_id' => $form_id
+    );
+    \Drupal::moduleHandler()->alter('entityconnect_child_form', $data);
+  }
+
+  /**
+   * Complete entityreference field on parent form with the target_id value.
+   *
+   * This is for when we return to the parent page
+   * we find the cached form and form_state clean up the form_state a bit
+   * and mark it to be rebuilt.
+   *
+   * If the cache has a target_id we set that in the input.
+
+   * @param array $form
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   * @param array $cache_data
+   */
+  public static function returnFormAlter(array &$form, FormStateInterface $form_state, array $cache_data) {
+    if (empty($form_state->get('#entityconnect_processed'))) {
+      $old_form = $cache_data['form'];
+      /** @var FormStateInterface $old_form_state */
+      $old_form_state = $cache_data['form_state'];
+
+      // Save the storage and input from the original form state.
+      $form_state->setStorage($old_form_state->getStorage());
+      $form_state->setUserInput($old_form_state->getUserInput());
+
+      $triggeringElement = $old_form_state->getTriggeringElement();
+      // Gets the parents of the triggering element (our entityconnect button)
+      // which is at the same level as the reference field. Since we will be
+      // traversing the actual form, use #array_parents as opposed to #parents.
+      $parents = is_array($triggeringElement) && !empty($triggeringElement['#array_parents']) ? $triggeringElement['#array_parents']: NULL;
+
+      $key_exists = NULL;
+      // Now get the reference field container.
+      $widget_container = EntityconnectNestedArray::getValue($old_form, $parents, $key_exists);
+
+      if ($key_exists) {
+        if (isset($widget_container['widget'])) {
+          $widget_container = $widget_container['widget'];
+        }
+      } else {
+        // @ToDo: probably need something to happen in this case.
+        return;
+      }
+
+      // Now get the actual parents for traversing user input.
+      $parents = $widget_container['#parents'];
+
+      $widget_container_type = isset($widget_container['#type']) ? $widget_container['#type'] : 'autocomplete';
+
+      /** @var FieldStorageConfigInterface $field_info */
+      $field_info = $cache_data['field_info'];
+
+      if (isset($cache_data['target_id']) && empty($cache_data['cancel'])) {
+        switch ($cache_data['target_entity_type']) {
+          case 'node':
+            if ($cache_data['target_id'] && $node = Node::load($cache_data['target_id'])) {
+              // ['#default_value'] should have differents build
+              // function of the widget type.
+              switch ($widget_container_type) {
+
+                // Select list.
+                case 'select':
+                  if ($widget_container['#multiple'] == FALSE) {
+                    $element['target_id'] = $node->id();
+                  } else {
+                    $element['target_id'] = $widget_container['#value'] + array($node->id() => $node->id());
+                  }
+                  break;
+
+                // Radios widget.
+                case 'radios':
+                  $element['target_id'] = $node->id();
+                  break;
+
+                // Checkboxes widget.
+                case 'checkboxes':
+                  $element['target_id'] = $widget_container['#value'] + array($node->id() => $node->id());
+                  break;
+
+                default:
+                  if ($field_info->getType() == 'entity_reference') {
+                    $element['target_id'] = sprintf('%s (%s)', $node->getTitle(), $node->id());
+                    // Autocomplete tags style.
+                    if (!empty($widget_container['target_id']['#tags']) && !empty ($widget_container['target_id']['#value'])) {
+                      $element['target_id'] .= ', ' . $widget_container['target_id']['#value'];
+                    }
+                  }
+                  break;
+              }
+            }
+            break;
+        }
+
+        // This is the input we already got from the old form state.
+        $input = $form_state->getUserInput();
+
+        if (isset($element)) {
+          self::_alter_form_state_input($input, $widget_container_type, $parents, $element['target_id']);
+        }
+        elseif (!empty($data['element_value'])) {
+          self::_alter_form_state_input($input, $widget_container_type, $parents, $data['element_value']);
+        }
+
+        // Include the alterations from above.
+        $form_state->setUserInput($input);
+
+      }
+
+      // Rebuild the form.
+      $form_state->setRebuild();
+
+      // The combination of having user input and rebuilding the form means
+      // that it will attempt to cache the form state which will fail if it is
+      // a GET request.
+      $form_state->setRequestMethod('POST');
+
+      // Return processing is complete.
+      $form_state->set('#entityconnect_processed', TRUE);
+
+    }
+  }
+
+  public static function childFormCancel(array $form, FormStateInterface $form_state) {
+
+  }
+
+  /**
+   * Form API callback: Submit callback for child form.
+   *
+   * Sets submit button on child create form.
+   *
+   * On submission of a child form we set:
+   * the target_id in the cache entry
+   * the redirect to our redirect page.
+   *
+   * @param array $form
+   * @param FormStateInterface $form_state
+   */
+  public static function childFormSubmit(array $form, FormStateInterface $form_state) {
+    $cache_id = $form_state->getValue('parent_build_cache_id');
+    if ($cache_id && ($cache_data = \Drupal::getContainer()->get('entityconnect.cache')->get($cache_id))) {
+
+      $entity_type = $cache_data['target_entity_type'];
+
+      switch ($entity_type) {
+        case 'node':
+          $cache_data['target_id'] = $form_state->getValue('nid');
+          break;
+
+        case 'user':
+          $cache_data['target_id'] = $form_state->getValue('name');
+          break;
+
+        case 'taxonomy_term':
+          $cache_data['target_id'] = $form_state->getValue('tid');
+          break;
+
+        case 'taxonomy_vocabulary':
+          $cache_data['target_id'] = $form_state->getValue('vid');
+          break;
+
+        default:
+          $data = array(
+            'form' => &$form,
+            'form_state' => &$form_state,
+            'entity_type' => $entity_type,
+            'data' => &$cache_data
+          );
+          \Drupal::moduleHandler()->alter('entityconnect_child_form_submit', $data);
+          break;
+      }
+
+      \Drupal::getContainer()->get('entityconnect.cache')->set($cache_id, $cache_data);
+      $form_state->setRedirect('entityconnect.return', array('cache_id' => $cache_id));
+    }
+
+  }
+
+  public static function childFormDeleteSubmit(array $form, FormStateInterface $form_state) {
+
+  }
+
+
+
+  /**
+   * Used to update the form state value.
+   *
+   * Form state value is updated for entityreference after adding a new entity.
+   *
+   * @param array $input
+   *   The user input from form state that we need to change.
+   * @param string $widget_type
+   *   The type of the widget used for reference field.
+   * @param array $parents
+   *   The array of all parents of the field.
+   *   We used them to change the value to the right level in the array.
+   * @param array $element
+   *   The value we need to insert.
+   */
+  public static function _alter_form_state_input(array &$input, $widget_type, $parents, $element) {
+    switch ($widget_type) {
+      case 'autocomplete':
+      case 'multiple_selects':
+        array_push($parents, 'target_id');
+        break;
+
+      case 'textfield':
+      case 'radios':
+      case 'checkboxes':
+      default:
+        break;
+    }
+    EntityconnectNestedArray::setValue($input, $parents, $element);
   }
 
 }

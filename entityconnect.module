@@ -29,7 +29,13 @@ function entityconnect_help($route_name, RouteMatchInterface $route_match) {
  * Implements hook_theme().
  */
 function entityconnect_theme() {
-  $theme = [];
+  $theme = [
+    // Entityconnect Entity add list page.
+    'entityconnect_add_list' => [
+      'variables' => array('items' => NULL, 'cache_id' => NULL, 'cancel_link' => NULL),
+      'file' => 'templates/entityconnect.theme.inc',
+    ],
+  ];
 
   return $theme;
 }
@@ -44,6 +50,30 @@ function entityconnect_form_field_config_edit_form_alter(array &$form, FormState
 /**
  * Implements hook_form_alter().
  */
-function entityconnect_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+function entityconnect_form_alter(&$form, FormStateInterface $form_state, $form_id)
+{
+
+  // Get the cache from the id and set the form state if this is a child form.
+  if (!empty($_REQUEST['build_cache_id'])) {
+    $cid = $_REQUEST['build_cache_id'];
+    $cache_data = \Drupal::getContainer()->get('entityconnect.cache')->get($cid);
+    if (!empty($_REQUEST['child'])) {
+      $form_state->set('#entityconnect_child_form', [$cid => $cache_data]);
+    }
+    if (isset($_REQUEST['return']) && !empty($cache_data) && $cache_data['form']['#form_id'] == $form_id) {
+      unset($_REQUEST['build_cache_id']);
+      EntityconnectFormUtils::returnFormAlter($form, $form_state, $cache_data);
+    }
+  }
+
+  // If this form is a child form let's add alter for that purpose
+  // Note that we are doing this here because when we return to a form it gets
+  // rebuilt so this will get caught in the rebuilt.
+  if ($cache = $form_state->get('#entityconnect_child_form')) {
+    EntityconnectFormUtils::childFormAlter($form, $form_state, $form_id, key($cache));
+  }
+
+  // Adds entity connect buttons to any ref fields in the form.
   EntityconnectFormUtils::entityFormAlter($form, $form_state);
+
 }
