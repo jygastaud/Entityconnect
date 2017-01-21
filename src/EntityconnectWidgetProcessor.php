@@ -186,7 +186,7 @@ class EntityconnectWidgetProcessor {
       $widgetElement = &$element['widget'][$key];
     }
 
-    $this->attachAddButton($widgetElement, $buttonClasses);
+    $this->attachAddButton($widgetElement, $buttonClasses, $key);
     $this->attachEditButton($widgetElement, $buttonClasses, $key);
 
   }
@@ -201,7 +201,7 @@ class EntityconnectWidgetProcessor {
    *   - 'extra_class': extra css class string
    *   - 'parents_class': parents class string
    * @param string $key optional
-   *   Always 'all' for Add button.
+   *   Default is 'all'.
    */
   protected function attachAddButton(&$element, $entityconnect_classes, $key = 'all') {
 
@@ -262,9 +262,15 @@ class EntityconnectWidgetProcessor {
         '#acceptable_types' => $acceptableTypes,
         '#add_child' => TRUE,
         '#weight' => 1,
-        // Button should be same form level as widget.
-        '#parents' => array_merge($this->widget['#parents'], array($button_name)),
       );
+
+      // Button should be at same form level as widget,
+      // or text box if multivalue autocomplete field.
+      $parents = $this->widget['#parents'];
+      if (is_numeric($key)) {
+        $parents[] = $key;
+      }
+      $element[$button_name]['#parents'] = array_merge($parents, array($button_name));
 
     }
   }

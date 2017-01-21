@@ -153,8 +153,16 @@ class EntityconnectSubmit extends Submit {
       }
     }
 
-    if (is_array($target_id) && count($target_id) == 1) {
-      $target_id = array_shift($target_id);
+    // Autocomplete tags style target.
+    if (is_string($target_id) && !is_numeric($target_id)) {
+      $target_id = explode(',', $target_id);
+    }
+
+    if (is_array($target_id)) {
+      $target_id = array_filter($target_id);
+      if (count($target_id) == 1) {
+        $target_id = array_shift($target_id);
+      }
     }
 
     // If no entity has been chosen to edit, redirect to the original node.

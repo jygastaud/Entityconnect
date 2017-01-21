@@ -90,6 +90,13 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
     $data = $this->entityconnectCache->get($cache_id);
 
     $entity_type = $data['target_entity_type'];
+    if (is_array($data['target_id'])) {
+      foreach ($data['target_id'] as &$value) {
+        if (!is_numeric($value)) {
+          $value = EntityAutocomplete::extractEntityIdFromAutocompleteInput($value);
+        }
+      }
+    }
     $target_id = is_numeric($data['target_id']) || is_array($data['target_id']) ?  $data['target_id'] : EntityAutocomplete::extractEntityIdFromAutocompleteInput($data['target_id']);
 
     $edit_info = \Drupal::moduleHandler()->invokeAll('entityconnect_edit_info', array($cache_id, $entity_type, $target_id));

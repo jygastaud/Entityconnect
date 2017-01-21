@@ -68,10 +68,10 @@
           text = $(wrapper).siblings().find("[type='text']");
         }
         if (radio.length == 0) {
-          radio = $(wrapper).siblings().find("[type='radio']:checked");
+          radio = $(wrapper).closest("fieldset").find("[type='radio']:checked");
         }
         if (checkbox.length == 0) {
-          checkbox = $(wrapper).siblings().find("[type='checkbox']:checked");
+          checkbox = $(wrapper).closest("fieldset").find("[type='checkbox']:checked");
         }
         if (select.length == 0) {
           select = $(wrapper).siblings().find("select:checked");
