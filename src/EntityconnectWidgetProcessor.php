@@ -121,11 +121,10 @@ class EntityconnectWidgetProcessor {
       $widgetProcessor->attachButtons($element);
     }
     else {
-      foreach (Element::children($element['widget']) as $key) {
-        if (!is_numeric($key)) {
-          continue;
+      foreach (Element::getVisibleChildren($element['widget']) as $key) {
+        if (is_numeric($key)) {
+          $widgetProcessor->attachButtons($element, $key);
         }
-        $widgetProcessor->attachButtons($element, $key);
       }
     }
 
@@ -262,7 +261,6 @@ class EntityconnectWidgetProcessor {
         '#entity_type_target' => $this->entityType,
         '#acceptable_types' => $acceptableTypes,
         '#add_child' => TRUE,
-        '#language' => $this->fieldDefinition->language()->getId(),
         '#weight' => 1,
         // Button should be same form level as widget.
         '#parents' => array_merge($this->widget['#parents'], array($button_name)),
@@ -319,11 +317,16 @@ class EntityconnectWidgetProcessor {
         '#entity_type_target' => $this->entityType,
         '#acceptable_types' => $this->acceptableTypes,
         '#add_child' => FALSE,
-        '#language' => $this->fieldDefinition->language()->getId(),
         '#weight' => 1,
-        // Button should be same form level as widget.
-        '#parents' => array_merge($this->widget['#parents'], array($button_name)),
       );
+
+      // Button should be at same form level as widget,
+      // or text box if multivalue autocomplete field.
+      $parents = $this->widget['#parents'];
+      if (is_numeric($key)) {
+        $parents[] = $key;
+      }
+      $element[$button_name]['#parents'] = array_merge($parents, array($button_name));
 
     }
   }

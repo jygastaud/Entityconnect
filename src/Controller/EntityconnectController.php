@@ -4,6 +4,7 @@ namespace Drupal\entityconnect\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\Core\Entity\Element\EntityAutocomplete;
 use Drupal\Core\Link;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
@@ -80,16 +81,71 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
     return new RedirectResponse($url->toString());
   }
   /**
-   * Edit.
+   * Page callback: Redirect to edit form.
    *
    * @return string
    *   Return markup.
    */
   public function edit($cache_id) {
-    return [
-        '#type' => 'markup',
-        '#markup' => $this->t('Implement method: return with parameter(s): @cache_id', array('@cache_id' => $cache_id))
-    ];
+    $data = $this->entityconnectCache->get($cache_id);
+
+    $entity_type = $data['target_entity_type'];
+    $target_id = is_numeric($data['target_id']) || is_array($data['target_id']) ?  $data['target_id'] : EntityAutocomplete::extractEntityIdFromAutocompleteInput($data['target_id']);
+
+    $edit_info = \Drupal::moduleHandler()->invokeAll('entityconnect_edit_info', array($cache_id, $entity_type, $target_id));
+
+    // Merge in default values.
+    foreach ($edit_info as $name => $data) {
+      $edit_info += array(
+        'content' => array(
+          'href' => '',
+          'label' => '',
+          'description' => ''
+        ),
+        'theme_callback' => 'entityconnect_entity_add_list',
+      );
+    }
+
+    $context = array(
+      'cache_id' => $cache_id,
+      'entity_type' => $entity_type,
+      'target_id' => $target_id
+    );
+    \Drupal::moduleHandler()->alter('entityconnect_edit_info', $edit_info, $context);
+
+    if (isset($edit_info)) {
+      $content = $edit_info['content'];
+      $theme = $edit_info['theme_callback'];
+
+      if (count($content) == 1) {
+        $item = array_pop($content);
+        if (is_array($item['href'])) {
+          $href= array_shift($item['href']);
+        }
+        else {
+          $href = $item['href'];
+        }
+        $url = Url::fromUri('internal:' . $href);
+        $options = array(
+          'query' => array("build_cache_id" => $cache_id, "child" => TRUE),
+          'absolute' => TRUE,
+        );
+        $url->setOptions($options);
+        return new RedirectResponse($url->toString());
+      }
+
+      return [
+        '#theme' => $theme,
+        '#items' => $content,
+        '#cache_id' => $cache_id,
+        '#cancel_link' => Link::createFromRoute($this->t('Cancel'), 'entityconnect.return', array('cache_id' => $cache_id, 'cancel' => TRUE))
+      ];
+
+    }
+
+    drupal_set_message($this->t('Nothing to edit.'), 'warning');
+    return $this->redirect('entityconnect.return', array('cache_id' => $cache_id, 'cancel' => TRUE));
+
   }
   /**
    * Add a new connecting entity.
@@ -118,7 +174,7 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
     }
     $add_info = array(
       'content' => $content,
-      'theme_callback' => 'entityconnect_add_list', //$theme_callback,
+      'theme_callback' => 'entityconnect_entity_add_list', //$theme_callback,
       'cache_id' => $cache_id,
     );
 
@@ -143,4 +199,37 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
         '#cancel_link' => Link::createFromRoute($this->t('Cancel'), 'entityconnect.return', array('cache_id' => $cache_id, 'cancel' => TRUE))
     ];
   }
+
+  public static function edit_info($cache_id, $entity_type, $target_id) {
+
+    if (!isset($entity_type)) {
+      throw new \Exception(t('Entity type can not be empty'));
+    }
+
+    if (!isset($target_id)) {
+      throw new \Exception(t('Target_id can not be empty'));
+    }
+
+    $content = array();
+
+    if (is_array($target_id)) {
+      $info = \Drupal::entityTypeManager()->getStorage($entity_type)->loadMultiple($target_id);
+      foreach ($info as $key => $value) {
+        $content[$key] = array(
+          'label' => $value->getTitle(),
+          'href' => Url::fromRoute('entity.' . $entity_type . '.edit_form', array($entity_type => $key))->toString(),
+          'description' =>  ''
+        );
+      }
+    }
+    else {
+      $content[$entity_type]['href'] = Url::fromRoute('entity.' . $entity_type . '.edit_form', array($entity_type => $target_id))->toString();
+    }
+
+    return array(
+      'content' => $content,
+    );
+  }
+
 }
+

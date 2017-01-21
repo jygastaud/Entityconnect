@@ -7,6 +7,7 @@
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\entityconnect\Controller\EntityconnectController;
 use Drupal\entityconnect\EntityconnectFormUtils;
 
 /**
@@ -31,7 +32,7 @@ function entityconnect_help($route_name, RouteMatchInterface $route_match) {
 function entityconnect_theme() {
   $theme = [
     // Entityconnect Entity add list page.
-    'entityconnect_add_list' => [
+    'entityconnect_entity_add_list' => [
       'variables' => array('items' => NULL, 'cache_id' => NULL, 'cancel_link' => NULL),
       'file' => 'templates/entityconnect.theme.inc',
     ],
@@ -76,4 +77,11 @@ function entityconnect_form_alter(&$form, FormStateInterface $form_state, $form_
   // Adds entity connect buttons to any ref fields in the form.
   EntityconnectFormUtils::entityFormAlter($form, $form_state);
 
+}
+
+/**
+ * Implements hook_entityconnect_edit_info().
+ */
+function entityconnect_entityconnect_edit_info($cache_id, $entity_type, $target_id) {
+  return EntityconnectController::edit_info($cache_id, $entity_type, $target_id);
 }

@@ -27,7 +27,6 @@ use Drupal\field\Entity\FieldStorageConfig;
  * - #entity_type_target: The target entity type.
  * - #acceptable_types: List of acceptable target bundles.
  * - #add_child: Boolean - Whether or not an entity is being added.
- * - #language: The language of the entity.
  *
  * Usage Example:
  * @code
@@ -54,7 +53,6 @@ class EntityconnectSubmit extends Submit {
       '#entity_type_target' => 'node',
       '#acceptable_types' => array(),
       '#add_child' => FALSE,
-      '#language' => \Drupal\Core\Language\LanguageInterface::LANGCODE_DEFAULT,
       '#validate' => array(
         array($class, 'validateSubmit'),
       ),
@@ -133,7 +131,7 @@ class EntityconnectSubmit extends Submit {
     // Get the target id from the reference field container.
     if ($keyExists) {
       if (is_array($fieldContainer)) {
-        foreach ($fieldContainer as $key => $value) {
+        foreach ($fieldContainer as $key1 => $value) {
           if (is_array($value)) {
             foreach ($value as $key2 => $value2) {
               if (!is_null($value2)) {
@@ -141,8 +139,12 @@ class EntityconnectSubmit extends Submit {
               }
             }
           }
-          else {
+          elseif (is_numeric($key1)) {
+            $target_id[] = $value;
+          }
+          elseif ($key1 === 'target_id') {
             $target_id = $value;
+            break;
           }
         }
       }
