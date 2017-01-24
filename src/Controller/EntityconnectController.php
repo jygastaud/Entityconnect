@@ -54,7 +54,6 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
     );
   }
 
-
   /**
    * We redirect to the form page with the build_cache_id as a get param.
    *
@@ -155,7 +154,8 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
 
     }
 
-    $this->_returnWithMessage($this->t('Nothing to edit.'), 'warning', $cache_id);
+    return $this->_returnWithMessage($this->t('Nothing to edit.'), 'warning', $cache_id);
+
   }
 
   /**
@@ -183,7 +183,7 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
       $info = \Drupal::entityTypeManager()->getStorage($entity_type)->loadMultiple($target_id);
       foreach ($info as $key => $value) {
         $content[$key] = array(
-          'label' => $value->getTitle(),
+          'label' => $value->label(),
           'href' => Url::fromRoute('entity.' . $entity_type . '.edit_form', array($entity_type => $key))->toString(),
           'description' =>  ''
         );
@@ -256,7 +256,7 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
       ];
     }
 
-    $this->_returnWithMessage($this->t('Nothing to add.'), 'warning', $cache_id);
+    return $this->_returnWithMessage($this->t('Nothing to add.'), 'warning', $cache_id);
 
   }
 
@@ -304,56 +304,6 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
         }
       }
     }
-/*
-    switch ($entity_type) {
-      case 'node':
-        foreach($acceptable_types as $acceptable_type) {
-          $type = \Drupal::entityTypeManager()->getStorage('node_type')->load($acceptable_type);
-          if ($type) {
-            $route_params['node_type'] = $type->id();
-            $href = Url::fromRoute('node.add', $route_params);
-            $content[$type->id()] = array(
-              'href' => $href->toString(),
-              'label' => $type->label(),
-              'description' => $type->getDescription(),
-            );
-          }
-        }
-        break;
-
-      case 'user':
-        $content[$entity_type]['href'] = Url::fromRoute('user.admin_create')->toString();
-        break;
-
-      case 'taxonomy_term':
-        if (count($acceptable_types) > 0) {
-          foreach (taxonomy_get_vocabularies() as $key => $item) {
-            $type = $item->machine_name;
-            if (isset($acceptable_types[$type]) && $acceptable_types[$type]) {
-              $item->href = "admin/structure/taxonomy/$type/add/$cache_id";
-              $content[$key] = $item;
-            }
-          }
-        }
-        else {
-          foreach (taxonomy_get_vocabularies() as $key => $item) {
-            !isset($item->href) ? $item->href = NULL : $item->href;
-            $type = $item->machine_name;
-            $item->href = "admin/structure/taxonomy/$type/add/$cache_id";
-            $content[$key] = $item;
-          }
-        }
-        $theme_callback = 'entityconnect_taxonomy_term_add_list';
-        break;
-
-      case 'taxonomy_vocabulary':
-        $content[$entity_type]['href'] = "admin/structure/taxonomy/add/$cache_id";
-        break;
-
-      default:
-        break;
-    }
-*/
     if (isset($content)) {
       if (isset($theme_callback)) {
         return array(
@@ -367,8 +317,17 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
         );
       }
     }
+    return array();
   }
 
+  /**
+   * Sets a message upon return to help with errors.
+   *
+   * @param $msg
+   * @param $status
+   * @param $cache_id
+   * @return RedirectResponse
+   */
   private function _returnWithMessage($msg, $status, $cache_id) {
     drupal_set_message($msg, $status);
     return $this->redirect('entityconnect.return', array('cache_id' => $cache_id, 'cancel' => TRUE));

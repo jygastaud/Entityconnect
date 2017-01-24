@@ -137,7 +137,7 @@ class EntityconnectFormUtils {
 
     // Get the entity reference elements from this form.
     $field_defs = $entity->getFieldDefinitions();
-    foreach (Element::children($form) as $child) {
+    foreach (Element::getVisibleChildren($form) as $child) {
       if (!isset($field_defs[$child])) {
         continue;
       }
@@ -165,7 +165,6 @@ class EntityconnectFormUtils {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    * @param string $form_id
    * @param string $cache_id
-   * @param array $cache_data
    */
   public static function childFormAlter(array &$form, FormStateInterface $form_state, $form_id, $cache_id) {
     // Exclude some forms to be processed.
@@ -196,21 +195,6 @@ class EntityconnectFormUtils {
     );
 
     switch ($form_id) {
-      case 'user_register_form':
-        $form['actions']['submit']['#submit'][] = 'user_register_submit';
-        break;
-
-      case 'user_profile_form':
-        $form['actions']['submit']['#submit'][] = 'user_profile_form_submit';
-        break;
-
-      case 'taxonomy_form_term':
-        $form['actions']['submit']['#submit'][] = 'taxonomy_form_term_submit';
-        break;
-
-      case 'taxonomy_form_vocabulary':
-        $form['actions']['submit']['#submit'][] = 'taxonomy_form_vocabulary_submit';
-        break;
 
       case 'node_delete_confirm':
         $form['actions']['submit']['#submit'] = $form['#submit'];
@@ -374,8 +358,18 @@ class EntityconnectFormUtils {
     }
   }
 
+  /**
+   * Sets the redirect to a admin/entityconnect/redirect page.
+   *
+   * @param array $form
+   * @param FormStateInterface $form_state
+   */
   public static function childFormCancel(array $form, FormStateInterface $form_state) {
-
+    $triggeringElement = $form_state->getTriggeringElement();
+    $cache_id = $triggeringElement['#parent_build_cache_id'];
+    if ($cache_id && ($cache_data = \Drupal::getContainer()->get('entityconnect.cache')->get($cache_id))) {
+      $form_state->setRedirect('entityconnect.return', array('cache_id' => $cache_id));
+    }
   }
 
   /**
