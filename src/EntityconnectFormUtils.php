@@ -10,6 +10,7 @@ use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Entity\Entity;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
+use Drupal\Core\Url;
 use Drupal\entityconnect\Form\AdministrationForm;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\FieldStorageConfigInterface;
@@ -221,11 +222,16 @@ class EntityconnectFormUtils {
         }
       }
     }
-    if (strpos($form_id, '_delete_confirm') === false) {
-      $form['actions']['delete']['#submit'][] = array(
-        '\Drupal\entityconnect\EntityconnectFormUtils',
-        'childFormDeleteSubmit',
-      );
+   // Sets delete button on child create form.
+   // On deletion submission of a child form we set:
+   // our build cache id query params on the delete link url.
+   if (strpos($form_id, '_confirm_delete') === false && strpos($form_id, 'delete_form') === false) {
+      /** @var Url $url */
+      $url = &$form['actions']['delete']['#url'];
+      $url->setOption('query', array(
+        'build_cache_id' => $cache_id,
+        'child' => 1,
+      ));
     }
 
     $data = array(
@@ -293,7 +299,8 @@ class EntityconnectFormUtils {
         $entity_storage = \Drupal::entityTypeManager()->getStorage($entity_type);
         $entity = $entity_storage->load($cache_data['target_id']);
 
-        if ($cache_data['target_id'] && $entity) {
+        if ($cache_data['target_id']) {
+          $target_id = $entity ? $entity->id() : '';
           // ['#default_value'] should have differents build
           // function of the widget type.
           switch ($widget_container_type) {
@@ -301,25 +308,25 @@ class EntityconnectFormUtils {
             // Select list.
             case 'select':
               if ($widget_container['#multiple'] == FALSE) {
-                $element['target_id'] = $entity->id();
+                $element['target_id'] = $target_id;
               } else {
-                $element['target_id'] = $widget_container['#value'] + array($entity->id() => $entity->id());
+                $element['target_id'] = $widget_container['#value'] + array($target_id => $target_id);
               }
               break;
 
             // Radios widget.
             case 'radios':
-              $element['target_id'] = $entity->id();
+              $element['target_id'] = $target_id;
               break;
 
             // Checkboxes widget.
             case 'checkboxes':
-              $element['target_id'] = $widget_container['#value'] + array($entity->id() => $entity->id());
+              $element['target_id'] = $widget_container['#value'] + array($target_id => $target_id);
               break;
 
             default:
               if ($field_info->getType() == 'entity_reference') {
-                $element['target_id'] = sprintf('%s (%s)', $entity->label(), $entity->id());
+                $element['target_id'] = $entity ? sprintf('%s (%s)', $entity->label(), $target_id) : '';
                 // Autocomplete tags style.
                 if (!empty($widget_container['target_id']['#tags']) && !empty ($widget_container['target_id']['#value'])) {
                   $element['target_id'] .= ', ' . $widget_container['target_id']['#value'];
@@ -397,12 +404,6 @@ class EntityconnectFormUtils {
     }
 
   }
-
-  public static function childFormDeleteSubmit(array $form, FormStateInterface $form_state) {
-
-  }
-
-
 
   /**
    * Used to update the form state value.
