@@ -151,6 +151,8 @@ class EntityconnectFormUtils {
       }
     }
 
+    \Drupal::moduleHandler()->alter('entityconnect_ref_fields', $ref_fields);
+
     return $ref_fields;
 
   }
@@ -195,17 +197,6 @@ class EntityconnectFormUtils {
       '#weight' => 1000,
     );
 
-    switch ($form_id) {
-
-      case 'node_delete_confirm':
-        $form['actions']['submit']['#submit'] = $form['#submit'];
-        $form['#submit'] = array();
-        break;
-
-      default:
-        break;
-    }
-
     if (isset($form['submit']['#submit'])) {
       $form['submit']['#submit'][] = array(
         '\Drupal\entityconnect\EntityconnectFormUtils',
@@ -214,7 +205,7 @@ class EntityconnectFormUtils {
     }
     else {
       foreach (array_keys($form['actions']) as $action) {
-        if ($action != 'preview' && isset($form['actions'][$action]['#type']) && $form['actions'][$action]['#type'] === 'submit') {
+        if (!in_array($action, array('preview', 'delete')) && isset($form['actions'][$action]['#type']) && $form['actions'][$action]['#type'] === 'submit') {
           $form['actions'][$action]['#submit'][] = array(
             '\Drupal\entityconnect\EntityconnectFormUtils',
             'childFormSubmit',
@@ -222,16 +213,23 @@ class EntityconnectFormUtils {
         }
       }
     }
-   // Sets delete button on child create form.
-   // On deletion submission of a child form we set:
-   // our build cache id query params on the delete link url.
-   if (strpos($form_id, '_confirm_delete') === false && strpos($form_id, 'delete_form') === false) {
-      /** @var Url $url */
-      $url = &$form['actions']['delete']['#url'];
-      $url->setOption('query', array(
-        'build_cache_id' => $cache_id,
-        'child' => 1,
-      ));
+    // Setup the child form delete button.
+    if (!empty($form['actions']['delete']) && !empty($form['actions']['delete']['#type'])
+      && strpos($form_id, '_confirm_delete') === false && strpos($form_id, 'delete_form') === false) {
+     $delete_button = &$form['actions']['delete'];
+     if ( $delete_button['#type'] == 'link') {
+       /** @var Url $url */
+       $url = &$delete_button['#url'];
+       $url->setOption('query', array(
+         'build_cache_id' => $cache_id,
+         'child' => 1,
+       ));
+     } elseif ($delete_button['#type'] == 'submit') {
+       $form['actions']['delete']['#submit'][] = array(
+         '\Drupal\entityconnect\EntityconnectFormUtils',
+         'childFormDeleteSubmit',
+       );
+     }
     }
 
     $data = array(
@@ -305,9 +303,20 @@ class EntityconnectFormUtils {
           // function of the widget type.
           switch ($widget_container_type) {
 
+            // Autocomplete
+            case 'autocomplete':
+              if ($field_info->getType() == 'entity_reference') {
+                $element['target_id'] = $target_id ? sprintf('%s (%s)', $entity->label(), $target_id) : '';
+                // Autocomplete tags style.
+                if ($element['target_id'] && !empty($widget_container['target_id']['#tags']) && !empty ($widget_container['target_id']['#value'])) {
+                  $element['target_id'] .= ', ' . $widget_container['target_id']['#value'];
+                }
+              }
+              break;
+
             // Select list.
             case 'select':
-              if ($widget_container['#multiple'] == FALSE) {
+              if ($widget_container['#multiple'] == FALSE || !$target_id) {
                 $element['target_id'] = $target_id;
               } else {
                 $element['target_id'] = $widget_container['#value'] + array($target_id => $target_id);
@@ -321,17 +330,21 @@ class EntityconnectFormUtils {
 
             // Checkboxes widget.
             case 'checkboxes':
-              $element['target_id'] = $widget_container['#value'] + array($target_id => $target_id);
+              $element['target_id'] = $widget_container['#value'];
+              if ($target_id) {
+                $element['target_id'] += array($target_id => $target_id);
+              }
               break;
 
             default:
-              if ($field_info->getType() == 'entity_reference') {
-                $element['target_id'] = $entity ? sprintf('%s (%s)', $entity->label(), $target_id) : '';
-                // Autocomplete tags style.
-                if (!empty($widget_container['target_id']['#tags']) && !empty ($widget_container['target_id']['#value'])) {
-                  $element['target_id'] .= ', ' . $widget_container['target_id']['#value'];
-                }
-              }
+              $data = array(
+                'data' => &$cache_data,
+                'widget_container' => $widget_container,
+                'widget_container_type' => $widget_container_type,
+                'field_info' => $field_info,
+                'element_value' => NULL
+              );
+              \Drupal::moduleHandler()->alter('entityconnect_return_form', $data);
               break;
           }
         }
@@ -375,7 +388,7 @@ class EntityconnectFormUtils {
     $triggeringElement = $form_state->getTriggeringElement();
     $cache_id = $triggeringElement['#parent_build_cache_id'];
     if ($cache_id && ($cache_data = \Drupal::getContainer()->get('entityconnect.cache')->get($cache_id))) {
-      $form_state->setRedirect('entityconnect.return', array('cache_id' => $cache_id));
+      $form_state->setRedirect('entityconnect.return', array('cache_id' => $cache_id, 'cancel' => 1));
     }
   }
 
@@ -395,14 +408,46 @@ class EntityconnectFormUtils {
     $cache_id = $form_state->getValue('parent_build_cache_id');
     if ($cache_id && ($cache_data = \Drupal::getContainer()->get('entityconnect.cache')->get($cache_id))) {
 
-      $entity_type = $cache_data['target_entity_type'];
       $entity = $form_state->getFormObject()->getEntity();
-      $cache_data['target_id'] = $entity->id();
-
+      if ($entity) {
+        $cache_data['target_id'] = $entity->id();
+      } else {
+        $entity_type = $cache_data['target_entity_type'];
+        $data = array(
+          'form' => &$form,
+          'form_state' => &$form_state,
+          'entity_type' => $entity_type,
+          'data' => &$cache_data
+        );
+        \Drupal::moduleHandler()->alter('entityconnect_child_form_submit', $data);
+      }
       \Drupal::getContainer()->get('entityconnect.cache')->set($cache_id, $cache_data);
       $form_state->setRedirect('entityconnect.return', array('cache_id' => $cache_id));
     }
 
+  }
+
+  /**
+   * Sets delete button on child create form.
+   *
+   * On deletion submission of a child form we set:
+   * the form_state redirect with build cache id.
+   *
+   * @param array $form
+   * @param FormStateInterface $form_state
+   */
+  public static function childFormDeleteSubmit(array $form, FormStateInterface $form_state) {
+    $triggering_element = $form_state->getTriggeringElement();
+    if (in_array('delete', $triggering_element['#parents'])) {
+      $redirect = $form_state->getRedirect();
+      $query = $redirect->getOption('query');
+      if (!is_array($query)) $query = array();
+      $redirect->setOption('query', $query + array(
+          'build_cache_id' => $form_state->getValue('parent_build_cache_id'),
+          'child' => 1,
+        )
+      );
+    }
   }
 
   /**

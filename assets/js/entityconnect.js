@@ -29,7 +29,7 @@
           $(this).insertAfter($form_type_select.children("select"));
         }
       });
-      $(".entityconnect-edit.select.single-value", context).once("entityconnect").each(function() {
+      $(".entityconnect-edit.select", context).once("entityconnect").each(function() {
         var $form_type_select = $(this).siblings(".form-type-select");
         if ($(this).hasClass('multiple-selection')) {
           $(this).insertAfter($form_type_select.find("label").first());

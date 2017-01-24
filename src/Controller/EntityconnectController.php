@@ -67,7 +67,7 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
     $cache_data = $this->entityconnectCache->get($cache_id);
     $cache_data['cancel'] = $cancel;
     $this->entityconnectCache->set($cache_id, $cache_data);
-    $css_id = "edit-" . str_replace('_', '-', $cache_data['field']);
+    $css_id = 'edit-' . str_replace('_', '-', $cache_data['field']) . '-wrapper';
     $options = array('query' => array(
       'build_cache_id' => $cache_id,
       'return' => TRUE),
@@ -334,16 +334,18 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
   }
 
   /**
-   * Makes sure our target id's are numeric.
+   * Makes sure our target id's are correct.
    *
    * @param $target_id
-   * @return array|int
+   * @return array|int|string
    */
   private function _fixTargetId($target_id) {
     $array_target_id = is_array($target_id) ? $target_id : array($target_id);
-    foreach ($array_target_id as &$value) {
+    foreach ($array_target_id as $key => $value) {
       if (!is_numeric($value) && is_string($value)) {
-        $value = EntityAutocomplete::extractEntityIdFromAutocompleteInput($value);
+        if ($value = EntityAutocomplete::extractEntityIdFromAutocompleteInput($value)) {
+          $array_target_id[$key] = $value;
+        }
       }
     }
 
