@@ -81,6 +81,13 @@ function entityconnect_form_alter(&$form, FormStateInterface $form_state, $form_
 }
 
 /**
+ * Implements hook_entityconnect_add_info().
+ */
+function entityconnect_entityconnect_add_info($cache_id, $entity_type, $acceptable_types) {
+  return EntityconnectController::add_info($cache_id, $entity_type, $acceptable_types);
+}
+
+/**
  * Implements hook_entityconnect_edit_info().
  */
 function entityconnect_entityconnect_edit_info($cache_id, $entity_type, $target_id) {

@@ -383,7 +383,12 @@ class EntityconnectWidgetProcessor {
 
     // If this is the default setting then just get the target bundles.
     if (isset($targetSettings['handler_settings']['target_bundles'])) {
-      $this->acceptableTypes = $targetSettings['handler_settings']['target_bundles'];
+      if (!is_null($targetSettings['handler_settings']['target_bundles'])) {
+        $this->acceptableTypes = $targetSettings['handler_settings']['target_bundles'];
+      } else {
+        // Use the entity type if the target entity has no bundles.
+        $this->acceptableTypes[] = $this->entityType;
+      }
     }
     // If this is an entity_reference view, then try getting the target bundles
     // from the filter.

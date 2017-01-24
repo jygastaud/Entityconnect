@@ -7,12 +7,12 @@
 namespace Drupal\entityconnect;
 
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Entity\Entity;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\entityconnect\Form\AdministrationForm;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\FieldStorageConfigInterface;
-use Drupal\node\Entity\Node;
 use Drupal\views\Views;
 
 /**
@@ -303,44 +303,46 @@ class EntityconnectFormUtils {
       $field_info = $cache_data['field_info'];
 
       if (isset($cache_data['target_id']) && empty($cache_data['cancel'])) {
-        switch ($cache_data['target_entity_type']) {
-          case 'node':
-            if ($cache_data['target_id'] && $node = Node::load($cache_data['target_id'])) {
-              // ['#default_value'] should have differents build
-              // function of the widget type.
-              switch ($widget_container_type) {
 
-                // Select list.
-                case 'select':
-                  if ($widget_container['#multiple'] == FALSE) {
-                    $element['target_id'] = $node->id();
-                  } else {
-                    $element['target_id'] = $widget_container['#value'] + array($node->id() => $node->id());
-                  }
-                  break;
+        // Load the the target entity.
+        $entity_type = $cache_data['target_entity_type'];
+        $entity_storage = \Drupal::entityTypeManager()->getStorage($entity_type);
+        $entity = $entity_storage->load($cache_data['target_id']);
 
-                // Radios widget.
-                case 'radios':
-                  $element['target_id'] = $node->id();
-                  break;
+        if ($cache_data['target_id'] && $entity) {
+          // ['#default_value'] should have differents build
+          // function of the widget type.
+          switch ($widget_container_type) {
 
-                // Checkboxes widget.
-                case 'checkboxes':
-                  $element['target_id'] = $widget_container['#value'] + array($node->id() => $node->id());
-                  break;
-
-                default:
-                  if ($field_info->getType() == 'entity_reference') {
-                    $element['target_id'] = sprintf('%s (%s)', $node->getTitle(), $node->id());
-                    // Autocomplete tags style.
-                    if (!empty($widget_container['target_id']['#tags']) && !empty ($widget_container['target_id']['#value'])) {
-                      $element['target_id'] .= ', ' . $widget_container['target_id']['#value'];
-                    }
-                  }
-                  break;
+            // Select list.
+            case 'select':
+              if ($widget_container['#multiple'] == FALSE) {
+                $element['target_id'] = $entity->id();
+              } else {
+                $element['target_id'] = $widget_container['#value'] + array($entity->id() => $entity->id());
               }
-            }
-            break;
+              break;
+
+            // Radios widget.
+            case 'radios':
+              $element['target_id'] = $entity->id();
+              break;
+
+            // Checkboxes widget.
+            case 'checkboxes':
+              $element['target_id'] = $widget_container['#value'] + array($entity->id() => $entity->id());
+              break;
+
+            default:
+              if ($field_info->getType() == 'entity_reference') {
+                $element['target_id'] = sprintf('%s (%s)', $entity->label(), $entity->id());
+                // Autocomplete tags style.
+                if (!empty($widget_container['target_id']['#tags']) && !empty ($widget_container['target_id']['#value'])) {
+                  $element['target_id'] .= ', ' . $widget_container['target_id']['#value'];
+                }
+              }
+              break;
+          }
         }
 
         // This is the input we already got from the old form state.
@@ -393,34 +395,8 @@ class EntityconnectFormUtils {
     if ($cache_id && ($cache_data = \Drupal::getContainer()->get('entityconnect.cache')->get($cache_id))) {
 
       $entity_type = $cache_data['target_entity_type'];
-
-      switch ($entity_type) {
-        case 'node':
-          $cache_data['target_id'] = $form_state->getValue('nid');
-          break;
-
-        case 'user':
-          $cache_data['target_id'] = $form_state->getValue('name');
-          break;
-
-        case 'taxonomy_term':
-          $cache_data['target_id'] = $form_state->getValue('tid');
-          break;
-
-        case 'taxonomy_vocabulary':
-          $cache_data['target_id'] = $form_state->getValue('vid');
-          break;
-
-        default:
-          $data = array(
-            'form' => &$form,
-            'form_state' => &$form_state,
-            'entity_type' => $entity_type,
-            'data' => &$cache_data
-          );
-          \Drupal::moduleHandler()->alter('entityconnect_child_form_submit', $data);
-          break;
-      }
+      $entity = $form_state->getFormObject()->getEntity();
+      $cache_data['target_id'] = $entity->id();
 
       \Drupal::getContainer()->get('entityconnect.cache')->set($cache_id, $cache_data);
       $form_state->setRedirect('entityconnect.return', array('cache_id' => $cache_id));

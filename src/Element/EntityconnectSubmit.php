@@ -5,6 +5,7 @@
 
 namespace Drupal\entityconnect\Element;
 
+use Drupal\Core\Entity\Entity;
 use Drupal\Core\Url;
 use Drupal\entityconnect\EntityconnectNestedArray;
 use Drupal\Core\Form\FormStateInterface;
@@ -115,7 +116,9 @@ class EntityconnectSubmit extends Submit {
     $entityType = $triggeringElement['#entity_type_target'];
     $acceptableTypes = isset($triggeringElement['#acceptable_types']) ? $triggeringElement['#acceptable_types'] : NULL;
 
-    $fieldInfo = FieldStorageConfig::loadByName($entityType, $field);
+    /** @var Entity $source_entity */
+    $source_entity = $form_state->getFormObject()->getEntity();
+    $fieldInfo = FieldStorageConfig::loadByName($source_entity->getEntityTypeId(), $field);
 
     // Get the list of all parents element for the clicked button.
     $parents = isset($triggeringElement['#parents']) ? $triggeringElement['#parents'] : NULL;
