@@ -64,6 +64,7 @@ function entityconnect_form_alter(&$form, FormStateInterface $form_state, $form_
     if (isset($_REQUEST['return']) && !empty($cache_data) && $cache_data['form']['#form_id'] == $form_id) {
       unset($_REQUEST['build_cache_id']);
       EntityconnectFormUtils::returnFormAlter($form, $form_state, $cache_data);
+      \Drupal::getContainer()->get('entityconnect.cache')->delete($cid);
     }
   }
 

@@ -75,4 +75,14 @@ class EntityconnectCache
   public function set($key, $data) {
     $this->store->set($key, $data);
   }
+
+  /**
+   * Deletes the key/data pair from our PrivateTempStore.
+   *
+   * @param $key
+   * @throws \Drupal\user\TempStoreException
+   */
+  public function delete($key) {
+    $this->store->delete($key);
+  }
 }
