@@ -113,10 +113,10 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
     $target_id = $this->fixTargetId($data['target_id']);
 
     $args = array($cache_id, $entity_type, $target_id);
-    $edit_info = \Drupal::moduleHandler()->invokeAll('entityconnect_edit_info', $args);
+    $edit_info = $this->moduleHandler()->invokeAll('entityconnect_edit_info', $args);
 
     // Merge in default values.
-    foreach ($edit_info as $name => $data) {
+    foreach ($edit_info as $data) {
       $edit_info += array(
         'content' => array(
           'href' => '',
@@ -132,7 +132,7 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
       'entity_type' => $entity_type,
       'target_id' => $target_id,
     );
-    \Drupal::moduleHandler()->alter('entityconnect_edit_info', $edit_info, $context);
+    $this->moduleHandler()->alter('entityconnect_edit_info', $edit_info, $context);
 
     if (isset($edit_info)) {
       $content = $edit_info['content'];
@@ -233,10 +233,10 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
     $acceptable_types = $data['acceptable_types'];
 
     $args = array($cache_id, $entity_type, $acceptable_types);
-    $add_info = \Drupal::moduleHandler()->invokeAll('entityconnect_add_info', $args);
+    $add_info = $this->moduleHandler()->invokeAll('entityconnect_add_info', $args);
 
     // Merge in default values.
-    foreach ($add_info as $name => $data) {
+    foreach ($add_info as $data) {
       $add_info += array(
         'content' => array(
           'href' => '',
@@ -252,7 +252,7 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
       'entity_type' => $entity_type,
       'acceptable_tpes' => $acceptable_types,
     );
-    \Drupal::moduleHandler()->alter('entityconnect_add_info', $add_info, $context);
+    $this->moduleHandler()->alter('entityconnect_add_info', $add_info, $context);
 
     if (isset($add_info)) {
       $content = $add_info['content'];
@@ -335,17 +335,9 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
       }
     }
     if (isset($content)) {
-      if (isset($theme_callback)) {
-        return array(
-          'content' => $content,
-          'theme_callback' => $theme_callback,
-        );
-      }
-      else {
-        return array(
-          'content' => $content,
-        );
-      }
+      return array(
+        'content' => $content,
+      );
     }
     return array();
   }

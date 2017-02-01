@@ -138,17 +138,12 @@ class EntityconnectWidgetProcessor {
   protected function attachButtons(array &$element, $key = 'all') {
 
     // Get the parents.
+    $parents = '';
     if (isset($this->widget['#field_parents'])) {
-      foreach ($this->widget['#field_parents'] as $key1 => $parent) {
-        if (!isset($parents)) {
-          $parents = $parent;
-        }
-        else {
-          $parents .= "-" . $parent;
-        }
+      foreach ($this->widget['#field_parents'] as $parent) {
+        $parents .= "-" . $parent;
       }
     }
-    $parents = isset($parents) ? $parents : '';
 
     $fieldStorage = $this->fieldDefinition->getFieldStorageDefinition();
     $extraClass = isset($this->widget['#type']) ? $this->widget['#type'] : 'autocomplete';

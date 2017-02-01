@@ -387,7 +387,7 @@ class EntityconnectFormUtils {
   }
 
   /**
-   * Sets the redirect to a admin/entityconnect/redirect page.
+   * Sets the redirect to admin/entityconnect/redirect page.
    *
    * @param array $form
    *   Child form.
@@ -397,7 +397,7 @@ class EntityconnectFormUtils {
   public static function childFormCancel(array $form, FormStateInterface $form_state) {
     $triggeringElement = $form_state->getTriggeringElement();
     $cache_id = $triggeringElement['#parent_build_cache_id'];
-    if ($cache_id && ($cache_data = \Drupal::getContainer()->get('entityconnect.cache')->get($cache_id))) {
+    if ($cache_id && \Drupal::getContainer()->get('entityconnect.cache')->get($cache_id)) {
       $form_state->setRedirect('entityconnect.return', array('cache_id' => $cache_id, 'cancel' => 1));
     }
   }
@@ -479,10 +479,10 @@ class EntityconnectFormUtils {
    * @param array $parents
    *   The array of all parents of the field.
    *   We used them to change the value to the right level in the array.
-   * @param array $element
+   * @param mixed $element
    *   The value we need to insert.
    */
-  public static function alterFormStateInput(array &$input, $widget_type, array $parents, array $element) {
+  public static function alterFormStateInput(array &$input, $widget_type, array $parents, $element) {
     switch ($widget_type) {
       case 'autocomplete':
       case 'multiple_selects':
