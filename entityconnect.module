@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Contains entityconnect.module.
@@ -33,7 +34,11 @@ function entityconnect_theme() {
   $theme = [
     // Entityconnect Entity add list page.
     'entityconnect_entity_add_list' => [
-      'variables' => array('items' => NULL, 'cache_id' => NULL, 'cancel_link' => NULL),
+      'variables' => array(
+        'items' => NULL,
+        'cache_id' => NULL,
+        'cancel_link' => NULL,
+      ),
       'file' => 'templates/entityconnect.theme.inc',
     ],
   ];
@@ -51,8 +56,7 @@ function entityconnect_form_field_config_edit_form_alter(array &$form, FormState
 /**
  * Implements hook_form_alter().
  */
-function entityconnect_form_alter(&$form, FormStateInterface $form_state, $form_id)
-{
+function entityconnect_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 
   // Get the cache from the id and set the form state if this is a child form.
   if (!empty($_REQUEST['build_cache_id'])) {
@@ -84,12 +88,12 @@ function entityconnect_form_alter(&$form, FormStateInterface $form_state, $form_
  * Implements hook_entityconnect_add_info().
  */
 function entityconnect_entityconnect_add_info($cache_id, $entity_type, $acceptable_types) {
-  return EntityconnectController::add_info($cache_id, $entity_type, $acceptable_types);
+  return EntityconnectController::addInfo($cache_id, $entity_type, $acceptable_types);
 }
 
 /**
  * Implements hook_entityconnect_edit_info().
  */
 function entityconnect_entityconnect_edit_info($cache_id, $entity_type, $target_id) {
-  return EntityconnectController::edit_info($cache_id, $entity_type, $target_id);
+  return EntityconnectController::editInfo($cache_id, $entity_type, $target_id);
 }

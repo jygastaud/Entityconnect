@@ -9,7 +9,7 @@ entityconnect.administration_form:
 entityconnect.return:
   path: '/admin/entityconnect/return/{cache_id}/{cancel}'
   defaults:
-    _controller: '\Drupal\entityconnect\Controller\EntityconnectController::return_to'
+    _controller: '\Drupal\entityconnect\Controller\EntityconnectController::returnTo'
     _title: 'Return to original entity.'
     cancel: false
   requirements:

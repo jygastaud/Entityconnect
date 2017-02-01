@@ -27,6 +27,8 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
   protected $entityconnectCache;
 
   /**
+   * Drupal renderer.
+   *
    * @var RendererInterface
    */
   protected $renderer;
@@ -35,15 +37,17 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
    * Constructs a new EntityconnectController.
    *
    * @param \Drupal\Core\Render\RendererInterface $renderer
+   *   Renderer object.
    * @param \Drupal\entityconnect\EntityconnectCache $entityconnectCache
-    */
-  function __construct(RendererInterface $renderer, EntityconnectCache $entityconnectCache) {
+   *   Entityconnect Cache object.
+   */
+  public function __construct(RendererInterface $renderer, EntityconnectCache $entityconnectCache) {
     $this->renderer = $renderer;
     $this->entityconnectCache = $entityconnectCache;
   }
 
   /**
-   * Uses Symfony's ContainerInterface to declare dependency to be passed to constructor.
+   * Uses Symfony's ContainerInterface to declare dependency for constructor.
    *
    * {@inheritdoc}
    */
@@ -57,22 +61,28 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
   /**
    * We redirect to the form page with the build_cache_id as a get param.
    *
-   * @param $cache_id
-   *    build cache id.
+   * @param string $cache_id
+   *    Build cache id.
    * @param bool $cancel
-   *    whether or not the request was cancelled.
+   *    Whether or not the request was cancelled.
+   *
    * @return RedirectResponse
+   *   The url of the parent page.
    */
-  public function return_to($cache_id, $cancel = FALSE) {
+  public function returnTo($cache_id, $cancel = FALSE) {
     $cache_data = $this->entityconnectCache->get($cache_id);
     $cache_data['cancel'] = $cancel;
     $this->entityconnectCache->set($cache_id, $cache_data);
     $css_id = 'edit-' . str_replace('_', '-', $cache_data['field']) . '-wrapper';
-    $options = array('query' => array(
-      'build_cache_id' => $cache_id,
-      'return' => TRUE),
-      'fragment' => $css_id);
-    //Collect additional request parameters, skip 'q', since this is the destination
+    $options = array(
+      'query' => array(
+        'build_cache_id' => $cache_id,
+        'return' => TRUE,
+      ),
+      'fragment' => $css_id,
+    );
+    // Collect additional request parameters, skip 'q', since this is
+    // the destination.
     foreach ($cache_data['params'] as $key => $value) {
       if ('build_cache_id' == $key) {
         continue;
@@ -90,16 +100,20 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
   /**
    * Page callback: Redirect to edit form.
    *
-   * @param $cache_id
+   * @param string $cache_id
+   *   The id of the parent form cache.
+   *
    * @return array|RedirectResponse
+   *   The page of the entity to edit or list of entities.
    */
   public function edit($cache_id) {
     $data = $this->entityconnectCache->get($cache_id);
 
     $entity_type = $data['target_entity_type'];
-    $target_id = $this->_fixTargetId($data['target_id']);
+    $target_id = $this->fixTargetId($data['target_id']);
 
-    $edit_info = \Drupal::moduleHandler()->invokeAll('entityconnect_edit_info', array($cache_id, $entity_type, $target_id));
+    $args = array($cache_id, $entity_type, $target_id);
+    $edit_info = \Drupal::moduleHandler()->invokeAll('entityconnect_edit_info', $args);
 
     // Merge in default values.
     foreach ($edit_info as $name => $data) {
@@ -107,7 +121,7 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
         'content' => array(
           'href' => '',
           'label' => '',
-          'description' => ''
+          'description' => '',
         ),
         'theme_callback' => 'entityconnect_entity_add_list',
       );
@@ -116,7 +130,7 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
     $context = array(
       'cache_id' => $cache_id,
       'entity_type' => $entity_type,
-      'target_id' => $target_id
+      'target_id' => $target_id,
     );
     \Drupal::moduleHandler()->alter('entityconnect_edit_info', $edit_info, $context);
 
@@ -127,7 +141,7 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
       if (count($content) == 1) {
         $item = array_pop($content);
         if (is_array($item['href'])) {
-          $href= array_shift($item['href']);
+          $href = array_shift($item['href']);
         }
         else {
           $href = $item['href'];
@@ -139,7 +153,7 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
         );
         $url = $url->setOptions($options)->toString();
         if (!$url) {
-          $this->_returnWithMessage($this->t('Invalid url: %url', array('%url' => $url)), 'warning', $cache_id);
+          $this->returnWithMessage($this->t('Invalid url: %url', array('%url' => $url)), 'warning', $cache_id);
         }
         return new RedirectResponse($url);
 
@@ -149,25 +163,31 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
         '#theme' => $theme,
         '#items' => $content,
         '#cache_id' => $cache_id,
-        '#cancel_link' => Link::createFromRoute($this->t('Cancel'), 'entityconnect.return', array('cache_id' => $cache_id, 'cancel' => TRUE))
+        '#cancel_link' => Link::createFromRoute($this->t('Cancel'), 'entityconnect.return', array('cache_id' => $cache_id, 'cancel' => TRUE)),
       ];
 
     }
 
-    return $this->_returnWithMessage($this->t('Nothing to edit.'), 'warning', $cache_id);
+    return $this->returnWithMessage($this->t('Nothing to edit.'), 'warning', $cache_id);
 
   }
 
   /**
    * Callback for creating the build array of entities to edit.
    *
-   * @param $cache_id
-   * @param $entity_type
-   * @param $target_id
+   * @param string $cache_id
+   *   The id of parent form cache.
+   * @param string $entity_type
+   *   The target entity type.
+   * @param int $target_id
+   *   The target id.
+   *
    * @return array
+   *   The edit build array.
+   *
    * @throws \Exception
    */
-  public static function edit_info($cache_id, $entity_type, $target_id) {
+  public static function editInfo($cache_id, $entity_type, $target_id) {
 
     if (!isset($entity_type)) {
       throw new \Exception(t('Entity type can not be empty'));
@@ -185,7 +205,7 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
         $content[$key] = array(
           'label' => $value->label(),
           'href' => Url::fromRoute('entity.' . $entity_type . '.edit_form', array($entity_type => $key))->toString(),
-          'description' =>  ''
+          'description' => '',
         );
       }
     }
@@ -201,15 +221,19 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
   /**
    * Add a new connecting entity.
    *
-   * @param $cache_id
+   * @param string $cache_id
+   *   The id of the parent form cache.
+   *
    * @return array|RedirectResponse
+   *   The page of the entity to be added or a list of acceptable types.
    */
   public function add($cache_id) {
     $data = $this->entityconnectCache->get($cache_id);
     $entity_type = $data['target_entity_type'];
     $acceptable_types = $data['acceptable_types'];
 
-    $add_info = \Drupal::moduleHandler()->invokeAll('entityconnect_add_info', array($cache_id, $entity_type, $acceptable_types));
+    $args = array($cache_id, $entity_type, $acceptable_types);
+    $add_info = \Drupal::moduleHandler()->invokeAll('entityconnect_add_info', $args);
 
     // Merge in default values.
     foreach ($add_info as $name => $data) {
@@ -217,7 +241,7 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
         'content' => array(
           'href' => '',
           'label' => '',
-          'description' => ''
+          'description' => '',
         ),
         'theme_callback' => 'entityconnect_entity_add_list',
       );
@@ -226,7 +250,7 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
     $context = array(
       'cache_id' => $cache_id,
       'entity_type' => $entity_type,
-      'acceptable_tpes' => $acceptable_types
+      'acceptable_tpes' => $acceptable_types,
     );
     \Drupal::moduleHandler()->alter('entityconnect_add_info', $add_info, $context);
 
@@ -243,7 +267,7 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
         );
         $url = $url->setOptions($options)->toString();
         if (!$url) {
-          $this->_returnWithMessage($this->t('Invalid url: %url', array('%url' => $url)), 'warning', $cache_id);
+          $this->returnWithMessage($this->t('Invalid url: %url', array('%url' => $url)), 'warning', $cache_id);
         }
         return new RedirectResponse($url);
       }
@@ -252,31 +276,37 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
         '#theme' => $theme,
         '#items' => $content,
         '#cache_id' => $cache_id,
-        '#cancel_link' => Link::createFromRoute($this->t('Cancel'), 'entityconnect.return', array('cache_id' => $cache_id, 'cancel' => TRUE))
+        '#cancel_link' => Link::createFromRoute($this->t('Cancel'), 'entityconnect.return', array('cache_id' => $cache_id, 'cancel' => TRUE)),
       ];
     }
 
-    return $this->_returnWithMessage($this->t('Nothing to add.'), 'warning', $cache_id);
+    return $this->returnWithMessage($this->t('Nothing to add.'), 'warning', $cache_id);
 
   }
 
   /**
-   * Callback for creating the build array of entities to add.
+   * Callback for creating the build array of entity types to add.
    *
-   * @param $cache_id
-   * @param $entity_type
-   * @param $acceptable_types
+   * @param string $cache_id
+   *   The parent form cache id.
+   * @param string $entity_type
+   *   The target entity type.
+   * @param array $acceptable_types
+   *   An array of types that can be added via entityconnect.
+   *
    * @return array
+   *   The build array of entity types to add
+   *
    * @throws \Exception
    */
-  public static function add_info($cache_id, $entity_type, $acceptable_types) {
+  public static function addInfo($cache_id, $entity_type, array $acceptable_types) {
     if (!isset($entity_type)) {
       throw new \Exception(t('Entity type can not be empty'));
     }
 
     $content = array();
 
-    $routes = static::_getAddRoute($entity_type);
+    $routes = static::getAddRoute($entity_type);
 
     if (!empty($routes)) {
       $route_name = key($routes);
@@ -288,7 +318,7 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
       }
       // Otherwise, get the url from route name and parameters.
       else {
-        // should only be one parameter.
+        // Should only be one parameter.
         $route_param_key = key($params);
         foreach ($acceptable_types as $acceptable_type) {
           $type = \Drupal::entityTypeManager()->getStorage($route_param_key)->load($acceptable_type);
@@ -298,7 +328,7 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
             $content[$type->id()] = array(
               'href' => $href->toString(),
               'label' => $type->label(),
-              'description' =>  method_exists($type, 'getDescription') ? $type->getDescription() : '',
+              'description' => method_exists($type, 'getDescription') ? $type->getDescription() : '',
             );
           }
         }
@@ -323,12 +353,17 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
   /**
    * Sets a message upon return to help with errors.
    *
-   * @param $msg
-   * @param $status
-   * @param $cache_id
+   * @param string $msg
+   *   The message to display.
+   * @param string $status
+   *   Message status.
+   * @param string $cache_id
+   *   Cache id of the parent.
+   *
    * @return RedirectResponse
+   *    The parent page to go back to.
    */
-  private function _returnWithMessage($msg, $status, $cache_id) {
+  private function returnWithMessage($msg, $status, $cache_id) {
     drupal_set_message($msg, $status);
     return $this->redirect('entityconnect.return', array('cache_id' => $cache_id, 'cancel' => TRUE));
   }
@@ -336,10 +371,13 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
   /**
    * Makes sure our target id's are correct.
    *
-   * @param $target_id
+   * @param int $target_id
+   *   The target entity id.
+   *
    * @return array|int|string
+   *   The fixed target_id.
    */
-  private function _fixTargetId($target_id) {
+  private function fixTargetId($target_id) {
     $array_target_id = is_array($target_id) ? $target_id : array($target_id);
     foreach ($array_target_id as $key => $value) {
       if (!is_numeric($value) && is_string($value)) {
@@ -355,10 +393,13 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
   /**
    * Returns the Symfony routes of the given entity's add form.
    *
-   * @param $entity_type
+   * @param string $entity_type
+   *   The target entity type.
+   *
    * @return array
+   *   An array of add page routes for the given entity type.
    */
-  public static function _getAddRoute($entity_type) {
+  public static function getAddRoute($entity_type) {
     /** @var RouteProvider $route_provider */
     $route_provider = \Drupal::getContainer()->get('router.route_provider');
 
@@ -368,17 +409,20 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
       case 'node':
         $route_name[] = 'node.add';
         break;
+
       case 'user':
         $route_name[] = 'user.admin_create';
         break;
+
       case 'shortcut':
         $route_name[] = 'shortcut.link_add';
         break;
+
       default:
         // Some default add form route names.
         $route_name = [
           $entity_type . '.add_form',
-          'entity.' . $entity_type . '.add_form'
+          'entity.' . $entity_type . '.add_form',
         ];
     }
 
@@ -387,4 +431,3 @@ class EntityconnectController extends ControllerBase implements ContainerInjecti
   }
 
 }
-

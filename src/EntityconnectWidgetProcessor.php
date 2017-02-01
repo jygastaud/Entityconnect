@@ -1,7 +1,4 @@
 <?php
-/**
- * @author Agnes Chisholm <amaria@66428.no-reply.drupal.org>
- */
 
 namespace Drupal\entityconnect;
 
@@ -73,7 +70,6 @@ class EntityconnectWidgetProcessor {
     $this->initTargetInfo();
   }
 
-
   /**
    * Form API callback: Processes an entity_reference field element.
    *
@@ -139,7 +135,7 @@ class EntityconnectWidgetProcessor {
    * @param string $key
    *   The key of an autocomplete widget element.
    */
-  protected function attachButtons(&$element, $key = 'all') {
+  protected function attachButtons(array &$element, $key = 'all') {
 
     // Get the parents.
     if (isset($this->widget['#field_parents'])) {
@@ -164,7 +160,7 @@ class EntityconnectWidgetProcessor {
       }
     }
 
-    // Set the class strings for the button
+    // Set the class strings for the button.
     $buttonClasses = array(
       'extra_class' => $extraClass,
       'parents_class' => $parents,
@@ -199,11 +195,11 @@ class EntityconnectWidgetProcessor {
    * @param string $entityconnect_classes
    *   Button CSS definition array:
    *   - 'extra_class': extra css class string
-   *   - 'parents_class': parents class string
-   * @param string $key optional
-   *   Default is 'all'.
+   *   - 'parents_class': parents class string.
+   * @param string $key
+   *   Default is 'all' (optional).
    */
-  protected function attachAddButton(&$element, $entityconnect_classes, $key = 'all') {
+  protected function attachAddButton(array &$element, $entityconnect_classes, $key = 'all') {
 
     // Button values are opposite; 0=On, 1=Off.
     $addbuttonallowed = !$this->entityconnectSettings['buttons']['button_add'];
@@ -283,11 +279,11 @@ class EntityconnectWidgetProcessor {
    * @param string $entityconnect_classes
    *   Button CSS definition array:
    *   - 'extra_class': extra css class string
-   *   - 'parents_class': parents class string
-   * @param int|string $key optional
-   *   Target entity id (Always 'all' for Add button).
+   *   - 'parents_class': parents class string.
+   * @param int|string $key
+   *   Target entity id (optional).
    */
-  protected function attachEditButton(&$element, $entityconnect_classes, $key = 'all') {
+  protected function attachEditButton(array &$element, $entityconnect_classes, $key = 'all') {
 
     // Button values are opposite; 0=On, 1=Off.
     $editbuttonallowed = !$this->entityconnectSettings['buttons']['button_edit'];
@@ -341,6 +337,7 @@ class EntityconnectWidgetProcessor {
    * Returns the array of acceptable target bundles.
    *
    * @return array
+   *   Array of acceptable bundles.
    */
   public function getAcceptableTypes() {
     return $this->acceptableTypes;
@@ -350,6 +347,7 @@ class EntityconnectWidgetProcessor {
    * Returns the target entity type.
    *
    * @return string
+   *   Target entity type.
    */
   public function getEntityType() {
     return $this->entityType;
@@ -359,6 +357,7 @@ class EntityconnectWidgetProcessor {
    * Sets the target entity type.
    *
    * @param string $entityType
+   *   Target entity type.
    */
   public function setEntityType($entityType) {
     $this->entityType = $entityType;
@@ -368,8 +367,9 @@ class EntityconnectWidgetProcessor {
    * Sets the target bundles.
    *
    * @param array $acceptableTypes
+   *   Array of acceptable bundles.
    */
-  public function setAcceptableTypes($acceptableTypes) {
+  public function setAcceptableTypes(array $acceptableTypes) {
     $this->acceptableTypes = $acceptableTypes;
   }
 
@@ -385,7 +385,8 @@ class EntityconnectWidgetProcessor {
     if (isset($targetSettings['handler_settings']['target_bundles'])) {
       if (!is_null($targetSettings['handler_settings']['target_bundles'])) {
         $this->acceptableTypes = $targetSettings['handler_settings']['target_bundles'];
-      } else {
+      }
+      else {
         // Use the entity type if the target entity has no bundles.
         $this->acceptableTypes[] = $this->entityType;
       }
@@ -408,14 +409,16 @@ class EntityconnectWidgetProcessor {
             $this->acceptableTypes = $viewDisplay['display_options']['filters']['vid']['value'];
           }
           break;
+
         // Otherwise, type(bundle) value is under type key.
         default:
           if (isset($viewDisplay['display_options']['filters']['type'])) {
             $this->acceptableTypes = $viewDisplay['display_options']['filters']['type']['value'];
           }
-          // $this->acceptableTypes was already set to empty array before
+          // $this->acceptableTypes was already set to empty array before.
           break;
       }
     }
   }
+
 }

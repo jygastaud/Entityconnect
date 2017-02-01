@@ -8,6 +8,7 @@ use Drupal\simpletest\WebTestBase;
  * Provides automated tests for the entityconnect module.
  */
 class EntityconnectControllerTest extends WebTestBase {
+
   /**
    * {@inheritdoc}
    */

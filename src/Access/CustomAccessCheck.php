@@ -24,6 +24,7 @@ class CustomAccessCheck implements AccessCheckInterface {
    *
    * @param \Drupal\Core\Session\AccountInterface $account
    *   Run access checks for this account.
+   *
    * @return \Drupal\Core\Access\AccessResult
    *   If the account has the permissions, isAllowed() will be TRUE,
    *   otherwise isNeutral() will be TRUE.
@@ -36,4 +37,5 @@ class CustomAccessCheck implements AccessCheckInterface {
       array('entityconnect add button', 'entityconnect edit button'),
       'OR');
   }
+
 }

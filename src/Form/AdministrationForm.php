@@ -17,7 +17,7 @@ class AdministrationForm extends ConfigFormBase {
    */
   protected function getEditableConfigNames() {
     return [
-      'entityconnect.administration_config'
+      'entityconnect.administration_config',
     ];
   }
 
@@ -54,10 +54,34 @@ class AdministrationForm extends ConfigFormBase {
     parent::submitForm($form, $form_state);
 
     $this->config('entityconnect.administration_config')
-      ->set('icons.icon_add', $form_state->getValue(array('entityconnect', 'icons', 'icon_add')))
-      ->set('icons.icon_edit', $form_state->getValue(array('entityconnect', 'icons', 'icon_edit')))
-      ->set('buttons.button_add', $form_state->getValue(array('entityconnect', 'buttons', 'button_add')))
-      ->set('buttons.button_edit', $form_state->getValue(array('entityconnect', 'buttons', 'button_edit')))
+      ->set('icons.icon_add', $form_state->getValue(array(
+        'entityconnect',
+        'icons',
+        'icon_add',
+      )
+      )
+      )
+      ->set('icons.icon_edit', $form_state->getValue(array(
+        'entityconnect',
+        'icons',
+        'icon_edit',
+      )
+      )
+      )
+      ->set('buttons.button_add', $form_state->getValue(array(
+        'entityconnect',
+        'buttons',
+        'button_add',
+      )
+      )
+      )
+      ->set('buttons.button_edit', $form_state->getValue(array(
+        'entityconnect',
+        'buttons',
+        'button_edit',
+      )
+      )
+      )
       ->save();
   }
 
@@ -65,8 +89,9 @@ class AdministrationForm extends ConfigFormBase {
    * Attach the common entityconnect settings to the given form.
    *
    * @param array $form
+   *   The form to attach to.
    * @param array $defaults
-   *
+   *   Entityconnect defaults.
    */
   public static function attach(array &$form, array $defaults) {
 
@@ -130,7 +155,7 @@ class AdministrationForm extends ConfigFormBase {
       '#options' => array(
         '0' => t('Icon only'),
         '1' => t('Icon + Text'),
-        '2' => t('Text only')
+        '2' => t('Text only'),
       ),
       '#title' => t('Default Entity Connect "add (+) icon" display'),
     );
@@ -147,9 +172,10 @@ class AdministrationForm extends ConfigFormBase {
       '#options' => array(
         '0' => t('Icon only'),
         '1' => t('Icon + Text'),
-        '2' => t('Text only')
+        '2' => t('Text only'),
       ),
       '#title' => t('Default Entity Connect "edit (pencil) icon" display'),
     );
   }
+
 }

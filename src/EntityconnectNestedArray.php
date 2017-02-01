@@ -1,9 +1,8 @@
 <?php
-/**
- * @author Agnes Chisholm <amaria@66428.no-reply.drupal.org>
- */
 
 namespace Drupal\entityconnect;
+
+use Drupal\Component\Utility\NestedArray;
 
 /**
  * Reimplements NestedArray methods to answer specific needs of the module.
@@ -16,8 +15,6 @@ namespace Drupal\entityconnect;
  * @see Drupal\Component\Utility\NestedArray::getValue()
  * @see Drupal\Component\Utility\NestedArray::setValue()
  */
-use Drupal\Component\Utility\NestedArray;
-
 class EntityconnectNestedArray extends NestedArray {
 
   /**
@@ -50,8 +47,8 @@ class EntityconnectNestedArray extends NestedArray {
     foreach ($parents as $parent) {
       if (stripos($parent, 'add_entityconnect') === FALSE
         && stripos($parent, 'edit_entityconnect') === FALSE) {
-        // PHP auto-creates container arrays and NULL entries without error if $ref
-        // is NULL, but throws an error if $ref is set, but not an array.
+        // PHP auto-creates container arrays and NULL entries without error if
+        // $ref is NULL, but throws an error if $ref is set, but not an array.
         if ($force && isset($ref) && !is_array($ref)) {
           $ref = array();
         }

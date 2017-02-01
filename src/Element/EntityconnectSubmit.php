@@ -1,7 +1,4 @@
 <?php
-/**
- * @author Agnes Chisholm <amaria@66428.no-reply.drupal.org>
- */
 
 namespace Drupal\entityconnect\Element;
 
@@ -93,7 +90,7 @@ class EntityconnectSubmit extends Submit {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current form state.
    */
-  public static function validateSubmit($form, FormStateInterface $form_state) {
+  public static function validateSubmit(array $form, FormStateInterface $form_state) {
     // Ignore all validation.
     // @todo: Probably should validate the fields that were entered.
   }
@@ -104,14 +101,16 @@ class EntityconnectSubmit extends Submit {
    * We cache the current state and form
    * and redirect to the add or edit page with an append build_cached_id.
    *
-   * @param $form
+   * @param array $form
+   *   Buttons will be added to this form.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
    */
-  public static function addEditButtonSubmit($form, FormStateInterface $form_state) {
+  public static function addEditButtonSubmit(array $form, FormStateInterface $form_state) {
     $cacheId = "entityconnect-" . $form['#build_id'];
     $triggeringElement = $form_state->getTriggeringElement();
     $field = $triggeringElement['#field'];
-    $key   = $triggeringElement['#key'];
+    $key = $triggeringElement['#key'];
 
     $entityType = $triggeringElement['#entity_type_target'];
     $acceptableTypes = isset($triggeringElement['#acceptable_types']) ? $triggeringElement['#acceptable_types'] : NULL;
@@ -124,8 +123,8 @@ class EntityconnectSubmit extends Submit {
     $parents = isset($triggeringElement['#parents']) ? $triggeringElement['#parents'] : NULL;
     $keyExists = NULL;
 
-    // The button is nested at the same level as the reference field. This gets the
-    // target_id wherever button is nested via parents.
+    // The button is nested at the same level as the reference field.
+    // This gets the target_id wherever button is nested via parents.
     $fieldContainer = EntityconnectNestedArray::getValue($form_state->getUserInput(), $parents, $keyExists);
 
     // Initialize target_id.
@@ -202,7 +201,7 @@ class EntityconnectSubmit extends Submit {
     $tempStore = \Drupal::getContainer()->get('entityconnect.cache');
     $tempStore->set($cacheId, $data);
 
-    // Replace the destination with the add or edit form of the connecting entity.
+    // Replace the destination with the add/edit form of the connecting entity.
     \Drupal::request()->query->remove('destination');
 
     if ($data['add_child']) {

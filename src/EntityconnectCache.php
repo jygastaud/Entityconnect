@@ -1,49 +1,64 @@
 <?php
-/**
- * @author Agnes Chisholm <amaria@66428.no-reply.drupal.org>
- */
 
 namespace Drupal\entityconnect;
-
 
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Session\SessionManager;
 use Drupal\user\PrivateTempStoreFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class EntityconnectCache
-{
+/**
+ * A custom class for managing the Entityconnect cache.
+ *
+ * @package Drupal\entityconnect
+ */
+class EntityconnectCache {
 
   /**
+   * The user's private temp storage.
+   *
    * @var \Drupal\user\PrivateTempStoreFactory
    */
   private $store;
 
   /**
+   * The session manager object.
+   *
    * @var \Drupal\Core\Session\SessionManager
    */
 
-  private $session_manager;
+  private $sessionManager;
 
   /**
+   * The current user account.
+   *
    * @var \Drupal\Core\Session\AccountInterface
    */
   private $account;
 
-  public function __construct(PrivateTempStoreFactory $store, SessionManager $session_manager, AccountInterface $account)
-  {
+  /**
+   * Saves our dependencies.
+   *
+   * @param PrivateTempStoreFactory $store
+   *   The user's private storage object.
+   * @param SessionManager $sessionManager
+   *   The session manager.
+   * @param AccountInterface $account
+   *   The current user account object.
+   */
+  public function __construct(PrivateTempStoreFactory $store, SessionManager $sessionManager, AccountInterface $account) {
     $this->store = $store->get('entityconnect');
-    $this->session_manager = $session_manager;
+    $this->sessionManager = $sessionManager;
     $this->account = $account;
     // Start a manual session for anonymous users.
     if ($account->isAnonymous() && !isset($_SESSION['entityconnect_session'])) {
-      $_SESSION['entityconnect_session'] = true;
-      $session_manager->start();
+      $_SESSION['entityconnect_session'] = TRUE;
+      $sessionManager->start();
     }
   }
 
   /**
-   * Uses Symfony's ContainerInterface to declare dependency to be passed to constructor.
+   * Uses Symfony's ContainerInterface to declare dependency for constructor.
    *
    * {@inheritdoc}
    */
@@ -58,8 +73,11 @@ class EntityconnectCache
   /**
    * Gets the data from our PrivateTempStore for the given key.
    *
-   * @param $key
+   * @param string $key
+   *   The cache key.
+   *
    * @return mixed
+   *   The cache data.
    */
   public function get($key) {
     return $this->store->get($key);
@@ -68,8 +86,11 @@ class EntityconnectCache
   /**
    * Stores the key/data pair in our PrivateTempStore.
    *
-   * @param $key
-   * @param $data
+   * @param string $key
+   *   The cache key.
+   * @param mixed $data
+   *   The cache data.
+   *
    * @throws \Drupal\user\TempStoreException
    */
   public function set($key, $data) {
@@ -79,10 +100,13 @@ class EntityconnectCache
   /**
    * Deletes the key/data pair from our PrivateTempStore.
    *
-   * @param $key
+   * @param string $key
+   *   The cache key.
+   *
    * @throws \Drupal\user\TempStoreException
    */
   public function delete($key) {
     $this->store->delete($key);
   }
+
 }
