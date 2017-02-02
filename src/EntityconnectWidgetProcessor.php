@@ -141,7 +141,7 @@ class EntityconnectWidgetProcessor {
     $parents = '';
     if (isset($this->widget['#field_parents'])) {
       foreach ($this->widget['#field_parents'] as $parent) {
-        $parents .= "-" . $parent;
+        $parents .= ($parents ? '-' : '') . $parent;
       }
     }
 
