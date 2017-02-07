@@ -1,10 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\entityconnect\EntityconnectWidgetProcessor.
- *
- * @author Agnes Chisholm <amaria@66428.no-reply.drupal.org>
- */
 
 namespace Drupal\entityconnect;
 
@@ -76,7 +70,6 @@ class EntityconnectWidgetProcessor {
     $this->initTargetInfo();
   }
 
-
   /**
    * Form API callback: Processes an entity_reference field element.
    *
@@ -124,11 +117,10 @@ class EntityconnectWidgetProcessor {
       $widgetProcessor->attachButtons($element);
     }
     else {
-      foreach (Element::children($element['widget']) as $key) {
-        if (!is_numeric($key)) {
-          continue;
+      foreach (Element::getVisibleChildren($element['widget']) as $key) {
+        if (is_numeric($key)) {
+          $widgetProcessor->attachButtons($element, $key);
         }
-        $widgetProcessor->attachButtons($element, $key);
       }
     }
 
@@ -143,20 +135,15 @@ class EntityconnectWidgetProcessor {
    * @param string $key
    *   The key of an autocomplete widget element.
    */
-  protected function attachButtons(&$element, $key = 'all') {
+  protected function attachButtons(array &$element, $key = 'all') {
 
     // Get the parents.
+    $parents = '';
     if (isset($this->widget['#field_parents'])) {
-      foreach ($this->widget['#field_parents'] as $key1 => $parent) {
-        if (!isset($parents)) {
-          $parents = $parent;
-        }
-        else {
-          $parents .= "-" . $parent;
-        }
+      foreach ($this->widget['#field_parents'] as $parent) {
+        $parents .= ($parents ? '-' : '') . $parent;
       }
     }
-    $parents = isset($parents) ? $parents : '';
 
     $fieldStorage = $this->fieldDefinition->getFieldStorageDefinition();
     $extraClass = isset($this->widget['#type']) ? $this->widget['#type'] : 'autocomplete';
@@ -168,7 +155,7 @@ class EntityconnectWidgetProcessor {
       }
     }
 
-    // Set the class strings for the button
+    // Set the class strings for the button.
     $buttonClasses = array(
       'extra_class' => $extraClass,
       'parents_class' => $parents,
@@ -190,7 +177,7 @@ class EntityconnectWidgetProcessor {
       $widgetElement = &$element['widget'][$key];
     }
 
-    $this->attachAddButton($widgetElement, $buttonClasses);
+    $this->attachAddButton($widgetElement, $buttonClasses, $key);
     $this->attachEditButton($widgetElement, $buttonClasses, $key);
 
   }
@@ -203,11 +190,11 @@ class EntityconnectWidgetProcessor {
    * @param string $entityconnect_classes
    *   Button CSS definition array:
    *   - 'extra_class': extra css class string
-   *   - 'parents_class': parents class string
-   * @param string $key optional
-   *   Always 'all' for Add button.
+   *   - 'parents_class': parents class string.
+   * @param string $key
+   *   Default is 'all' (optional).
    */
-  protected function attachAddButton(&$element, $entityconnect_classes, $key = 'all') {
+  protected function attachAddButton(array &$element, $entityconnect_classes, $key = 'all') {
 
     // Button values are opposite; 0=On, 1=Off.
     $addbuttonallowed = !$this->entityconnectSettings['buttons']['button_add'];
@@ -215,15 +202,26 @@ class EntityconnectWidgetProcessor {
 
     // Get the subset of target bundles the user has permission to create.
     $acceptableTypes = array();
-    foreach ($this->acceptableTypes as $bundle) {
+
+    if (!$this->acceptableTypes) {
+      // @FIXME: The acceptable types is ALL so check the access for all.
       if (\Drupal::entityTypeManager()
         ->getAccessControlHandler($this->entityType)
-        ->createAccess($bundle)
+        ->createAccess($this->entityType)
       ) {
-        $acceptableTypes[] = $bundle;
+        $acceptableTypes[] = $this->entityType;
       }
     }
-
+    else {
+      foreach ($this->acceptableTypes as $bundle) {
+        if (\Drupal::entityTypeManager()
+          ->getAccessControlHandler($this->entityType)
+          ->createAccess($bundle)
+        ) {
+          $acceptableTypes[] = $bundle;
+        }
+      }
+    }
     // Now we need to make sure the user should see this button.
     if (\Drupal::currentUser()->hasPermission('entityconnect add button') && $addbuttonallowed && $acceptableTypes) {
       // Determine how the button should be displayed.
@@ -254,11 +252,16 @@ class EntityconnectWidgetProcessor {
         '#entity_type_target' => $this->entityType,
         '#acceptable_types' => $acceptableTypes,
         '#add_child' => TRUE,
-        '#language' => $this->fieldDefinition->language()->getId(),
         '#weight' => 1,
-        // Button should be same form level as widget.
-        '#parents' => array_merge($this->widget['#parents'], array($button_name)),
       );
+
+      // Button should be at same form level as widget,
+      // or text box if multivalue autocomplete field.
+      $parents = $this->widget['#parents'];
+      if (is_numeric($key)) {
+        $parents[] = $key;
+      }
+      $element[$button_name]['#parents'] = array_merge($parents, array($button_name));
 
     }
   }
@@ -271,11 +274,11 @@ class EntityconnectWidgetProcessor {
    * @param string $entityconnect_classes
    *   Button CSS definition array:
    *   - 'extra_class': extra css class string
-   *   - 'parents_class': parents class string
-   * @param int|string $key optional
-   *   Target entity id (Always 'all' for Add button).
+   *   - 'parents_class': parents class string.
+   * @param int|string $key
+   *   Target entity id (optional).
    */
-  protected function attachEditButton(&$element, $entityconnect_classes, $key = 'all') {
+  protected function attachEditButton(array &$element, $entityconnect_classes, $key = 'all') {
 
     // Button values are opposite; 0=On, 1=Off.
     $editbuttonallowed = !$this->entityconnectSettings['buttons']['button_edit'];
@@ -311,11 +314,16 @@ class EntityconnectWidgetProcessor {
         '#entity_type_target' => $this->entityType,
         '#acceptable_types' => $this->acceptableTypes,
         '#add_child' => FALSE,
-        '#language' => $this->fieldDefinition->language()->getId(),
         '#weight' => 1,
-        // Button should be same form level as widget.
-        '#parents' => array_merge($this->widget['#parents'], array($button_name)),
       );
+
+      // Button should be at same form level as widget,
+      // or text box if multivalue autocomplete field.
+      $parents = $this->widget['#parents'];
+      if (is_numeric($key)) {
+        $parents[] = $key;
+      }
+      $element[$button_name]['#parents'] = array_merge($parents, array($button_name));
 
     }
   }
@@ -324,6 +332,7 @@ class EntityconnectWidgetProcessor {
    * Returns the array of acceptable target bundles.
    *
    * @return array
+   *   Array of acceptable bundles.
    */
   public function getAcceptableTypes() {
     return $this->acceptableTypes;
@@ -333,6 +342,7 @@ class EntityconnectWidgetProcessor {
    * Returns the target entity type.
    *
    * @return string
+   *   Target entity type.
    */
   public function getEntityType() {
     return $this->entityType;
@@ -342,6 +352,7 @@ class EntityconnectWidgetProcessor {
    * Sets the target entity type.
    *
    * @param string $entityType
+   *   Target entity type.
    */
   public function setEntityType($entityType) {
     $this->entityType = $entityType;
@@ -351,8 +362,9 @@ class EntityconnectWidgetProcessor {
    * Sets the target bundles.
    *
    * @param array $acceptableTypes
+   *   Array of acceptable bundles.
    */
-  public function setAcceptableTypes($acceptableTypes) {
+  public function setAcceptableTypes(array $acceptableTypes) {
     $this->acceptableTypes = $acceptableTypes;
   }
 
@@ -366,7 +378,13 @@ class EntityconnectWidgetProcessor {
 
     // If this is the default setting then just get the target bundles.
     if (isset($targetSettings['handler_settings']['target_bundles'])) {
-      $this->acceptableTypes = $targetSettings['handler_settings']['target_bundles'];
+      if (!is_null($targetSettings['handler_settings']['target_bundles'])) {
+        $this->acceptableTypes = $targetSettings['handler_settings']['target_bundles'];
+      }
+      else {
+        // Use the entity type if the target entity has no bundles.
+        $this->acceptableTypes[] = $this->entityType;
+      }
     }
     // If this is an entity_reference view, then try getting the target bundles
     // from the filter.
@@ -386,14 +404,16 @@ class EntityconnectWidgetProcessor {
             $this->acceptableTypes = $viewDisplay['display_options']['filters']['vid']['value'];
           }
           break;
+
         // Otherwise, type(bundle) value is under type key.
         default:
           if (isset($viewDisplay['display_options']['filters']['type'])) {
             $this->acceptableTypes = $viewDisplay['display_options']['filters']['type']['value'];
           }
-          // $this->acceptableTypes was already set to empty array before
+          // $this->acceptableTypes was already set to empty array before.
           break;
       }
     }
   }
+
 }
